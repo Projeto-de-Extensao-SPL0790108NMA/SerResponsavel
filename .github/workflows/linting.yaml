@@ -10,13 +10,12 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: lts/hydrogen
-          cache: pnpm
+          node-version: '20'
+          cache: 'pnpm'
 
-      - name: Enable Corepack and activate PNPM
-        run: |
-          corepack enable
-          corepack prepare pnpm@10.13.1 --activate
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
 
       - run: pnpm install --frozen-lockfile
 
@@ -30,13 +29,12 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: lts/hydrogen
-          cache: pnpm
+          node-version: '20'
+          cache: 'pnpm'
 
-      - name: Enable Corepack and activate PNPM
-        run: |
-          corepack enable
-          corepack prepare pnpm@10.13.1 --activate
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
 
       - run: pnpm install --frozen-lockfile
 
@@ -52,13 +50,12 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: lts/hydrogen
-          cache: pnpm
+          node-version: '20'
+          cache: 'pnpm'
 
-      - name: Enable Corepack and activate PNPM
-        run: |
-          corepack enable
-          corepack prepare pnpm@10.13.1 --activate
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
 
       - run: pnpm install --frozen-lockfile
 
