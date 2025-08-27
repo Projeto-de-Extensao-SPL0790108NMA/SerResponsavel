@@ -13,7 +13,7 @@ if (!testingUserEmail) {
 
 const logErrorAndExit = (tableName, error) => {
   console.error(
-    `An error occurred in table '${tableName}' with code ${error.code}: ${error.message}`
+    `An error occurred in table '${tableName}' with code ${error.code}: ${error.message}`,
   )
   process.exit(1)
 }
@@ -53,9 +53,9 @@ const createPrimaryTestUser = async () => {
         first_name: firstName,
         last_name: lastName,
         full_name: firstName + ' ' + lastName,
-        username: userName
-      }
-    }
+        username: userName,
+      },
+    },
   })
 
   if (error) {
@@ -69,7 +69,7 @@ const createPrimaryTestUser = async () => {
       full_name: firstName + ' ' + lastName,
       username: userName,
       bio: 'The main testing account',
-      avatar_url: `https://i.pravatar.cc/150?u=${data.user.id}`
+      avatar_url: `https://i.pravatar.cc/150?u=${data.user.id}`,
     })
 
     logStep('Primary test user created successfully.')
@@ -89,14 +89,11 @@ const seedProjects = async (numEntries, userId) => {
       slug: name.toLocaleLowerCase().replace(/ /g, '-'),
       description: faker.lorem.paragraphs(2),
       status: faker.helpers.arrayElement(['in-progress', 'completed']),
-      collaborators: faker.helpers.arrayElements([userId])
+      collaborators: faker.helpers.arrayElements([userId]),
     })
   }
 
-  const { data, error } = await supabase
-    .from('projects')
-    .insert(projects)
-    .select('id')
+  const { data, error } = await supabase.from('projects').insert(projects).select('id')
 
   if (error) return logErrorAndExit('Projects', error)
 
@@ -117,14 +114,11 @@ const seedTasks = async (numEntries, projectsIds, userId) => {
       due_date: faker.date.future(),
       profile_id: userId,
       project_id: faker.helpers.arrayElement(projectsIds),
-      collaborators: faker.helpers.arrayElements([userId])
+      collaborators: faker.helpers.arrayElements([userId]),
     })
   }
 
-  const { data, error } = await supabase
-    .from('tasks')
-    .insert(tasks)
-    .select('id')
+  const { data, error } = await supabase.from('tasks').insert(tasks).select('id')
 
   if (error) return logErrorAndExit('Tasks', error)
 

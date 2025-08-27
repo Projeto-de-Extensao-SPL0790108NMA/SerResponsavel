@@ -10,6 +10,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "lint:prettier:check": "prettier . --check",
+    "lint:prettier:write": "prettier . --write",
     "postinstall": "nuxt prepare",
     "format": "prettier . --write",
     "typecheck": "tsc -p tsconfig.json --noEmit",
