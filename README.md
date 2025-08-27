@@ -1,4 +1,6 @@
-![Logo Uninorte](https://www.uninorte.com.br/wp-content/uploads/2019/11/logo_UNN_SER_2019-PNG.png)
+<div align="center">
+  <img src="./public/uninorte-logo.png" alt="Logo Uninorte" width="300">
+</div>
 
 <div id="pt-br"></div>
 
@@ -372,7 +374,9 @@ _Projeto em desenvolvimento - Mais informações serão adicionadas conforme o p
 
 # English Version
 
-![Uninorte Logo](https://www.uninorte.com.br/wp-content/uploads/2019/11/logo_UNN_SER_2019-PNG.png)
+<div align="center">
+  <img src="./public/uninorte-logo.png" alt="Uninorte Logo" width="300">
+</div>
 
 ## 🌐 Language / Idioma
 
