@@ -1,0 +1,61 @@
+{
+  "name": "nuxt-app",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "postinstall": "nuxt prepare",
+    "format": "prettier . --write",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "supabase:init": "pnpx supabase init",
+    "supabase:login": "pnpx supabase login",
+    "supabase:link": "pnpx supabase link --project-ref kyowmekfppjusvqghocm",
+    "supabase:types": "pnpx supabase gen types typescript --project-id kyowmekfppjusvqghocm --schema public > database/types.ts",
+    "db:migrate:new": "pnpx supabase migration new",
+    "db:reset": "pnpx supabase db reset --linked",
+    "db:seed": "node --env-file=.env database/seed.js",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "**/*.{js,ts,vue}": [
+      "eslint --fix"
+    ],
+    "**/*.{json,md,css,scss,html,yaml,yml}": [
+      "prettier --write"
+    ]
+  },
+  "dependencies": {
+    "@mdi/font": "^7.4.47",
+    "@nuxt/eslint": "1.9.0",
+    "@nuxt/fonts": "0.11.4",
+    "@nuxt/icon": "2.0.0",
+    "@nuxt/image": "1.11.0",
+    "@nuxtjs/supabase": "1.6.1",
+    "@pinia/nuxt": "^0.11.2",
+    "@vueuse/core": "^13.7.0",
+    "@vueuse/nuxt": "^13.7.0",
+    "eslint": "^9.34.0",
+    "nuxt": "^4.0.3",
+    "pinia": "^3.0.3",
+    "pinia-plugin-persistedstate": "^4.5.0",
+    "sass-embedded": "^1.91.0",
+    "vue": "^3.5.20",
+    "vue-router": "^4.5.1",
+    "vuetify": "^3.9.6",
+    "vuetify-nuxt-module": "0.18.7"
+  },
+  "packageManager": "pnpm@10.13.1+sha512.37ebf1a5c7a30d5fabe0c5df44ee8da4c965ca0c5af3dbab28c3a1681b70a256218d05c81c9c0dcf767ef6b8551eb5b960042b9ed4300c59242336377e01cfad",
+  "devDependencies": {
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
+    "eslint-config-prettier": "^10.1.8",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.5",
+    "prettier": "^3.6.2"
+  }
+}
