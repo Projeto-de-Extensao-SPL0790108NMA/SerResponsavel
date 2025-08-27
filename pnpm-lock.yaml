@@ -28,6 +28,9 @@ importers:
       '@pinia/nuxt':
         specifier: ^0.11.2
         version: 0.11.2(magicast@0.3.5)(pinia@3.0.3(typescript@5.9.2)(vue@3.5.20(typescript@5.9.2)))
+      '@supabase/supabase-js':
+        specifier: ^2.56.0
+        version: 2.56.0
       '@vueuse/core':
         specifier: ^13.7.0
         version: 13.7.0(vue@3.5.20(typescript@5.9.2))
@@ -68,6 +71,9 @@ importers:
       '@commitlint/config-conventional':
         specifier: ^19.8.1
         version: 19.8.1
+      '@faker-js/faker':
+        specifier: ^10.0.0
+        version: 10.0.0
       eslint-config-prettier:
         specifier: ^10.1.8
         version: 10.1.8(eslint@9.34.0(jiti@2.5.1))
@@ -1283,6 +1289,13 @@ packages:
         integrity: sha512-Z5kJ+wU3oA7MMIqVR9tyZRtjYPr4OC004Q4Rw7pgOKUOKkJfZ3O24nz3WYfGRpMDNmcOi3TwQOmgm7B7Tpii0w==,
       }
     engines: { node: ^18.18.0 || ^20.9.0 || >=21.1.0 }
+
+  '@faker-js/faker@10.0.0':
+    resolution:
+      {
+        integrity: sha512-UollFEUkVXutsaP+Vndjxar40Gs5JL2HeLcl8xO1QAjJgOdhc3OmBFWyEylS+RddWaaBiAzH+5/17PLQJwDiLw==,
+      }
+    engines: { node: ^20.19.0 || ^22.13.0 || ^23.5.0 || >=24.0.0, npm: '>=10' }
 
   '@fastify/accept-negotiator@1.1.0':
     resolution:
@@ -9984,6 +9997,8 @@ snapshots:
     dependencies:
       '@eslint/core': 0.15.2
       levn: 0.4.1
+
+  '@faker-js/faker@10.0.0': {}
 
   '@fastify/accept-negotiator@1.1.0':
     optional: true

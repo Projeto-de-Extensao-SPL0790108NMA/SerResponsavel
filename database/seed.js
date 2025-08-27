@@ -5,7 +5,7 @@ import { createClient } from '@supabase/supabase-js'
 
 const supabase = createClient(
   process.env.VITE_SUPABASE_URL,
-  process.env.SERVICE_ROLE_KEY
+  process.env.VITE_SERVICE_ROLE_KEY
 )
 
 const testingUserEmail = process.env.TESTING_USER_EMAIL
