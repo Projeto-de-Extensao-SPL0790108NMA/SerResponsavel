@@ -26,3 +26,11 @@ logs
 
 #IA assistance
 CLAUDE.MD
+
+# Supabase Cli
+supabase/.temp/
+supabase/.branches/
+supabase/volumes/
+supabase/storage/
+supabase/backups/
+supabase/signing_keys.json
