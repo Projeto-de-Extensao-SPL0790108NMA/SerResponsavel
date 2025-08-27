@@ -3,10 +3,7 @@
 import { fakerEN_US as faker } from '@faker-js/faker'
 import { createClient } from '@supabase/supabase-js'
 
-const supabase = createClient(
-  process.env.VITE_SUPABASE_URL,
-  process.env.VITE_SERVICE_ROLE_KEY
-)
+const supabase = createClient(process.env.VITE_SUPABASE_URL, process.env.VITE_SERVICE_ROLE_KEY)
 
 const testingUserEmail = process.env.TESTING_USER_EMAIL
 if (!testingUserEmail) {
@@ -148,9 +145,7 @@ const seedDatabase = async (numEntriesPerTable) => {
     userId = testUserId
   }
 
-  const projectsIds = (await seedProjects(numEntriesPerTable, userId)).map(
-    (project) => project.id
-  )
+  const projectsIds = (await seedProjects(numEntriesPerTable, userId)).map((project) => project.id)
   await seedTasks(numEntriesPerTable, projectsIds, userId)
 }
 
