@@ -5,4 +5,3 @@ export const supabase = createClient<Database>(
   import.meta.env.SUPABASE_URL,
   import.meta.env.SUPABASE_KEY,
 )
-

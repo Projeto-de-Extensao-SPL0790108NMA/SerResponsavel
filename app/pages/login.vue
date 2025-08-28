@@ -12,7 +12,7 @@ onMounted(async () => {
 // SEO
 useSeoMeta({
   title: 'Login - Projects',
-  description: 'Login page with projects integration test'
+  description: 'Login page with projects integration test',
 })
 </script>
 
@@ -24,15 +24,11 @@ useSeoMeta({
           <div class="d-flex justify-space-between align-center">
             <span>Testing Projects Integration</span>
             <div>
-              <v-chip 
-                :color="isCached ? 'success' : 'warning'" 
-                size="small"
-                class="me-2"
-              >
+              <v-chip :color="isCached ? 'success' : 'warning'" size="small" class="me-2">
                 {{ isCached ? '📦 Cached' : '🌐 Fresh' }}
               </v-chip>
-              <v-btn 
-                size="small" 
+              <v-btn
+                size="small"
                 variant="outlined"
                 class="me-2"
                 :loading="loading"
@@ -40,12 +36,7 @@ useSeoMeta({
               >
                 Refresh
               </v-btn>
-              <v-btn 
-                size="small" 
-                variant="outlined" 
-                color="warning"
-                @click="invalidateCache"
-              >
+              <v-btn size="small" variant="outlined" color="warning" @click="invalidateCache">
                 Clear Cache
               </v-btn>
             </div>
@@ -61,19 +52,13 @@ useSeoMeta({
         </v-card>
 
         <!-- Error State -->
-        <v-alert v-if="error" type="error" class="mb-4">
-          Error: {{ error }}
-        </v-alert>
+        <v-alert v-if="error" type="error" class="mb-4"> Error: {{ error }} </v-alert>
 
         <!-- Projects Display -->
         <v-card v-if="!loading && projects">
-          <v-card-title>
-            Projects ({{ projects.length }})
-          </v-card-title>
+          <v-card-title> Projects ({{ projects.length }}) </v-card-title>
           <v-card-text>
-            <div v-if="projects.length === 0" class="text-center text-grey">
-              No projects found
-            </div>
+            <div v-if="projects.length === 0" class="text-center text-grey">No projects found</div>
             <v-list v-else>
               <v-list-item
                 v-for="project in projects"
@@ -97,9 +82,7 @@ useSeoMeta({
         <!-- Raw Data (for debugging) -->
         <v-expansion-panels class="mt-4">
           <v-expansion-panel>
-            <v-expansion-panel-title>
-              Raw Projects Data (Debug)
-            </v-expansion-panel-title>
+            <v-expansion-panel-title> Raw Projects Data (Debug) </v-expansion-panel-title>
             <v-expansion-panel-text>
               <pre>{{ JSON.stringify(projects, null, 2) }}</pre>
             </v-expansion-panel-text>
