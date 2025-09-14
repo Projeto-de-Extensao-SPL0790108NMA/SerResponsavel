@@ -19,6 +19,8 @@
 
 # SerResponsável
 
+#### (disponível em https://ser-responsavel.vercel.app/)
+
 [![Status](https://img.shields.io/badge/Status-Em%20Desenvolvimento-orange)](https://github.com/tiagobrilhante/RespSoc)
 [![Nuxt](https://img.shields.io/badge/Nuxt-4.0.3-00DC82?logo=nuxt.js)](https://nuxt.com)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-3178C6?logo=typescript)](https://www.typescriptlang.org)
@@ -392,6 +394,8 @@ _Projeto em desenvolvimento - Mais informações serão adicionadas conforme o p
 ---
 
 # SerResponsável
+
+#### (available at https://ser-responsavel.vercel.app/)
 
 [![Status](https://img.shields.io/badge/Status-In%20Development-orange)](https://github.com/tiagobrilhante/RespSoc)
 [![Nuxt](https://img.shields.io/badge/Nuxt-4.0.3-00DC82?logo=nuxt.js)](https://nuxt.com)
