@@ -9,7 +9,7 @@ const slides = [
   { src: '/slides/TROTE-LEGAL.jpeg', alt: 'Trote Legal - Projeto Social' },
   { src: '/slides/bike-sem-barreiras-768x576.jpg', alt: 'Bike Sem Barreiras' },
   { src: '/slides/ser-leitor-768x576.jpg', alt: 'Ser Leitor - Projeto de Leitura' },
-  { src: '/slides/ser11.jpeg', alt: 'Projeto SerResponsável' }
+  { src: '/slides/ser11.jpeg', alt: 'Projeto SerResponsável' },
 ]
 
 const currentSlide = ref(0)
@@ -30,10 +30,13 @@ onMounted(async () => {
 // SEO
 useSeoMeta({
   title: 'SerResponsável - Plataforma de Transparência e Gestão de Responsabilidade Social',
-  description: 'Primeira plataforma brasileira que unifica gestão acadêmica e corporativa de responsabilidade social. Centraliza, gerencia e mensura ações de empresas, ONGs, instituições de ensino e poder público. Ranqueamento baseado em impacto real verificado.',
-  keywords: 'responsabilidade social, ESG, transparência social, impacto social, sustentabilidade, Uninorte, Amazonas',
+  description:
+    'Primeira plataforma brasileira que unifica gestão acadêmica e corporativa de responsabilidade social. Centraliza, gerencia e mensura ações de empresas, ONGs, instituições de ensino e poder público. Ranqueamento baseado em impacto real verificado.',
+  keywords:
+    'responsabilidade social, ESG, transparência social, impacto social, sustentabilidade, Uninorte, Amazonas',
   ogTitle: 'SerResponsável - Transparência Social Verificada',
-  ogDescription: 'Transforme sua gestão de responsabilidade social com ranqueamento de impacto real, certificação digital e dashboard ESG automatizado.',
+  ogDescription:
+    'Transforme sua gestão de responsabilidade social com ranqueamento de impacto real, certificação digital e dashboard ESG automatizado.',
   ogImage: '~/assets/img/logoSer.png',
 })
 </script>
@@ -43,26 +46,21 @@ useSeoMeta({
     <!-- Hero Section -->
     <v-row class="text-center mb-6">
       <v-col>
-          <v-img
-              src="~/assets/img/logoSer.png"
-              alt="SerResponsável Logo"
-              max-width="200"
-              class="mx-auto mb-4 rounded-xl"
-          />
-          <h1 class="text-h3 font-weight-bold mb-4 text-primary">
-            SerResponsável
-          </h1>
-          <h2 class="text-h5 mb-4 text-grey-lighten-1">
-            Plataforma de Transparência e Gestão de Responsabilidade Social
-          </h2>
-          <p class="text-h6 mb-6 text-grey-lighten-2">
-            Uninorte - Centro Universitário do Norte
-          </p>
+        <v-img
+          src="~/assets/img/logoSer.png"
+          alt="SerResponsável Logo"
+          max-width="200"
+          class="mx-auto mb-4 rounded-xl"
+        />
+        <h1 class="text-h3 font-weight-bold mb-4 text-primary">SerResponsável</h1>
+        <h2 class="text-h5 mb-4 text-grey-lighten-1">
+          Plataforma de Transparência e Gestão de Responsabilidade Social
+        </h2>
+        <p class="text-h6 mb-6 text-grey-lighten-2">Uninorte - Centro Universitário do Norte</p>
       </v-col>
     </v-row>
 
     <v-row>
-      
       <!-- Login Section - Sidebar -->
       <v-col cols="12" lg="4">
         <v-card elevation="3" class="login-card pa-6 sticky-login">
@@ -88,13 +86,7 @@ useSeoMeta({
               class="mb-2"
               required
             />
-            <v-btn
-              color="primary"
-              size="small"
-              block
-              class="mb-3"
-              prepend-icon="mdi-login"
-            >
+            <v-btn color="primary" size="small" block class="mb-3" prepend-icon="mdi-login">
               Entrar
             </v-btn>
             <v-btn
@@ -121,43 +113,41 @@ useSeoMeta({
       </v-col>
 
       <v-col cols="12" lg="8">
+        <v-card elevation="2" class="mission-card pa-6 mb-6">
+          <v-card-text class="mission-text">
+            <v-icon icon="mdi-target" color="primary" class="me-2" />
+            <strong class="text-white">Missão:</strong>
+            <span class="text-grey-lighten-1">
+              Centralizar, gerenciar e mensurar ações de responsabilidade social de empresas, ONGs,
+              instituições de ensino e poder público, criando um ecossistema completo de
+              transparência social.
+            </span>
+          </v-card-text>
+        </v-card>
 
-
-          <v-card elevation="2" class="mission-card pa-6 mb-6">
-            <v-card-text class="mission-text">
-              <v-icon icon="mdi-target" color="primary" class="me-2" />
-              <strong class="text-white">Missão:</strong>
-              <span class="text-grey-lighten-1">
-                Centralizar, gerenciar e mensurar ações de responsabilidade social de empresas, ONGs,
-                instituições de ensino e poder público, criando um ecossistema completo de transparência social.
-              </span>
-            </v-card-text>
-          </v-card>
-
-          <v-row class="mb-6">
-            <v-col cols="12" md="4">
-              <v-card color="primary" variant="tonal" class="text-center pa-4">
-                <v-icon icon="mdi-chart-line" size="32" class="mb-2" />
-                <div class="text-h6">90%</div>
-                <div class="text-caption">dos brasileiros consideram RSC na escolha de empresas</div>
-              </v-card>
-            </v-col>
-            <v-col cols="12" md="4">
-              <v-card color="success" variant="tonal" class="text-center pa-4">
-                <v-icon icon="mdi-currency-usd" size="32" class="mb-2" />
-                <div class="text-h6">R$ 2,5bi</div>
-                <div class="text-caption">mercado de investimentos sociais na região Norte</div>
-              </v-card>
-            </v-col>
-            <v-col cols="12" md="4">
-              <v-card color="info" variant="tonal" class="text-center pa-4">
-                <v-icon icon="mdi-rocket-launch" size="32" class="mb-2" />
-                <div class="text-h6">Pioneiro</div>
-                <div class="text-caption">unifica gestão acadêmica e corporativa</div>
-              </v-card>
-            </v-col>
-          </v-row>
-
+        <v-row class="mb-6">
+          <v-col cols="12" md="4">
+            <v-card color="primary" variant="tonal" class="text-center pa-4">
+              <v-icon icon="mdi-chart-line" size="32" class="mb-2" />
+              <div class="text-h6">90%</div>
+              <div class="text-caption">dos brasileiros consideram RSC na escolha de empresas</div>
+            </v-card>
+          </v-col>
+          <v-col cols="12" md="4">
+            <v-card color="success" variant="tonal" class="text-center pa-4">
+              <v-icon icon="mdi-currency-usd" size="32" class="mb-2" />
+              <div class="text-h6">R$ 2,5bi</div>
+              <div class="text-caption">mercado de investimentos sociais na região Norte</div>
+            </v-card>
+          </v-col>
+          <v-col cols="12" md="4">
+            <v-card color="info" variant="tonal" class="text-center pa-4">
+              <v-icon icon="mdi-rocket-launch" size="32" class="mb-2" />
+              <div class="text-h6">Pioneiro</div>
+              <div class="text-caption">unifica gestão acadêmica e corporativa</div>
+            </v-card>
+          </v-col>
+        </v-row>
       </v-col>
     </v-row>
 
@@ -172,8 +162,8 @@ useSeoMeta({
           <v-card-text class="pa-0">
             <div class="slider-container">
               <div class="slider-wrapper">
-                <div 
-                  v-for="(slide, index) in slides" 
+                <div
+                  v-for="(slide, index) in slides"
                   :key="index"
                   class="slide"
                   :class="{ active: index === currentSlide }"
@@ -194,7 +184,7 @@ useSeoMeta({
                   </div>
                 </div>
               </div>
-              
+
               <!-- Slider Controls -->
               <div class="slider-controls">
                 <v-btn
@@ -214,7 +204,7 @@ useSeoMeta({
                   <v-icon>mdi-chevron-right</v-icon>
                 </v-btn>
               </div>
-              
+
               <!-- Slider Indicators -->
               <div class="slider-indicators">
                 <button
@@ -242,7 +232,7 @@ useSeoMeta({
           <v-card-subtitle>
             Gerencie e acompanhe todas as iniciativas sociais da instituição
           </v-card-subtitle>
-          
+
           <v-card-actions class="pa-4">
             <v-spacer />
             <v-chip :color="isCached ? 'success' : 'info'" size="small" class="me-2">
@@ -259,10 +249,10 @@ useSeoMeta({
             >
               Atualizar
             </v-btn>
-            <v-btn 
-              variant="outlined" 
-              color="warning" 
-              size="small" 
+            <v-btn
+              variant="outlined"
+              color="warning"
+              size="small"
               prepend-icon="mdi-cached"
               @click="invalidateCache"
             >
@@ -294,21 +284,24 @@ useSeoMeta({
             <v-icon icon="mdi-view-list" class="me-2" />
             Projetos Ativos ({{ projects?.length || 0 }})
           </v-card-title>
-          
+
           <v-divider />
-          
+
           <v-card-text class="pa-0">
             <div v-if="projects?.length === 0" class="text-center pa-8">
-              <v-icon icon="mdi-folder-open-outline" size="64" color="grey-lighten-1" class="mb-4" />
+              <v-icon
+                icon="mdi-folder-open-outline"
+                size="64"
+                color="grey-lighten-1"
+                class="mb-4"
+              />
               <h3 class="text-h6 mb-2">Nenhum projeto encontrado</h3>
               <p class="text-body-2 text-grey-darken-1">
                 Comece criando seu primeiro projeto de responsabilidade social
               </p>
-              <v-btn color="primary" class="mt-4" prepend-icon="mdi-plus">
-                Criar Projeto
-              </v-btn>
+              <v-btn color="primary" class="mt-4" prepend-icon="mdi-plus"> Criar Projeto </v-btn>
             </div>
-            
+
             <v-list v-else lines="three">
               <template v-for="(project, index) in projects" :key="project?.id || index">
                 <v-list-item class="pa-4">
@@ -317,15 +310,15 @@ useSeoMeta({
                       <v-icon icon="mdi-handshake" />
                     </v-avatar>
                   </template>
-                  
+
                   <v-list-item-title class="text-h6 mb-1">
                     {{ project?.name || 'Projeto sem nome' }}
                   </v-list-item-title>
-                  
+
                   <v-list-item-subtitle class="mb-2">
                     {{ project?.description || 'Sem descrição disponível' }}
                   </v-list-item-subtitle>
-                  
+
                   <template #append>
                     <div class="d-flex flex-column align-end">
                       <v-chip
@@ -333,9 +326,13 @@ useSeoMeta({
                         size="small"
                         class="mb-2"
                       >
-                        <v-icon 
-                          :icon="project?.status === 'completed' ? 'mdi-check-circle' : 'mdi-progress-clock'" 
-                          start 
+                        <v-icon
+                          :icon="
+                            project?.status === 'completed'
+                              ? 'mdi-check-circle'
+                              : 'mdi-progress-clock'
+                          "
+                          start
                         />
                         {{ project?.status === 'completed' ? 'Concluído' : 'Em Andamento' }}
                       </v-chip>
@@ -357,7 +354,9 @@ useSeoMeta({
             <v-card color="success" variant="tonal" class="text-center">
               <v-card-text>
                 <v-icon icon="mdi-check-circle" size="48" class="mb-2" />
-                <div class="text-h4">{{ projects?.filter(p => p?.status === 'completed').length || 0 }}</div>
+                <div class="text-h4">
+                  {{ projects?.filter((p) => p?.status === 'completed').length || 0 }}
+                </div>
                 <div class="text-subtitle-1">Projetos Concluídos</div>
               </v-card-text>
             </v-card>
@@ -366,7 +365,9 @@ useSeoMeta({
             <v-card color="primary" variant="tonal" class="text-center">
               <v-card-text>
                 <v-icon icon="mdi-progress-clock" size="48" class="mb-2" />
-                <div class="text-h4">{{ projects?.filter(p => p?.status === 'in-progress').length || 0 }}</div>
+                <div class="text-h4">
+                  {{ projects?.filter((p) => p?.status === 'in-progress').length || 0 }}
+                </div>
                 <div class="text-subtitle-1">Em Andamento</div>
               </v-card-text>
             </v-card>
@@ -375,7 +376,11 @@ useSeoMeta({
             <v-card color="info" variant="tonal" class="text-center">
               <v-card-text>
                 <v-icon icon="mdi-account-group" size="48" class="mb-2" />
-                <div class="text-h4">{{ projects?.reduce((total, p) => total + (p?.collaborators?.length || 0), 0) || 0 }}</div>
+                <div class="text-h4">
+                  {{
+                    projects?.reduce((total, p) => total + (p?.collaborators?.length || 0), 0) || 0
+                  }}
+                </div>
                 <div class="text-subtitle-1">Colaboradores</div>
               </v-card-text>
             </v-card>
@@ -396,19 +401,25 @@ useSeoMeta({
                     <template #prepend>
                       <v-icon icon="mdi-trophy" color="warning" />
                     </template>
-                    <v-list-item-title>Sistema de ranqueamento baseado em impacto real verificado</v-list-item-title>
+                    <v-list-item-title
+                      >Sistema de ranqueamento baseado em impacto real verificado</v-list-item-title
+                    >
                   </v-list-item>
                   <v-list-item>
                     <template #prepend>
                       <v-icon icon="mdi-gamepad-variant" color="success" />
                     </template>
-                    <v-list-item-title>Gamificação e sistema de recompensas para engajamento</v-list-item-title>
+                    <v-list-item-title
+                      >Gamificação e sistema de recompensas para engajamento</v-list-item-title
+                    >
                   </v-list-item>
                   <v-list-item>
                     <template #prepend>
                       <v-icon icon="mdi-api" color="info" />
                     </template>
-                    <v-list-item-title>Integração com APIs governamentais para validação</v-list-item-title>
+                    <v-list-item-title
+                      >Integração com APIs governamentais para validação</v-list-item-title
+                    >
                   </v-list-item>
                 </v-list>
               </v-col>
@@ -418,7 +429,9 @@ useSeoMeta({
                     <template #prepend>
                       <v-icon icon="mdi-certificate" color="primary" />
                     </template>
-                    <v-list-item-title>Certificação digital verificável de impacto</v-list-item-title>
+                    <v-list-item-title
+                      >Certificação digital verificável de impacto</v-list-item-title
+                    >
                   </v-list-item>
                   <v-list-item>
                     <template #prepend>
@@ -430,7 +443,9 @@ useSeoMeta({
                     <template #prepend>
                       <v-icon icon="mdi-account-network" color="success" />
                     </template>
-                    <v-list-item-title>Primeira plataforma híbrida acadêmico-corporativa</v-list-item-title>
+                    <v-list-item-title
+                      >Primeira plataforma híbrida acadêmico-corporativa</v-list-item-title
+                    >
                   </v-list-item>
                 </v-list>
               </v-col>
@@ -757,11 +772,11 @@ useSeoMeta({
   .slider-container {
     height: 250px;
   }
-  
+
   .slide-overlay {
     padding: 20px 16px 16px;
   }
-  
+
   .slide-content h3 {
     font-size: 1.1rem;
   }
