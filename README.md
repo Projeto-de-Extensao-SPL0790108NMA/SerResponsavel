@@ -19,6 +19,10 @@
 
 # SerResponsável
 
+<div align="center">
+  <img src="./app/assets/img/logoserresp300_299.png" alt="Logo Uninorte" width="150">
+</div>
+
 #### (disponível em https://ser-responsavel.vercel.app/)
 
 [![Status](https://img.shields.io/badge/Status-Em%20Desenvolvimento-orange)](https://github.com/tiagobrilhante/RespSoc)
@@ -394,6 +398,10 @@ _Projeto em desenvolvimento - Mais informações serão adicionadas conforme o p
 ---
 
 # SerResponsável
+
+<div align="center">
+  <img src="./app/assets/img/logoserresp300_299.png" alt="Logo Uninorte" width="150">
+</div>
 
 #### (available at https://ser-responsavel.vercel.app/)
 
