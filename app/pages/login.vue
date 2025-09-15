@@ -37,7 +37,7 @@ useSeoMeta({
   ogTitle: 'SerResponsável - Transparência Social Verificada',
   ogDescription:
     'Transforme sua gestão de responsabilidade social com ranqueamento de impacto real, certificação digital e dashboard ESG automatizado.',
-  ogImage: '~/assets/img/logoSer.png',
+  ogImage: '~/assets/img/logoserresp600_598.png',
 })
 </script>
 
@@ -47,10 +47,10 @@ useSeoMeta({
     <v-row class="text-center mb-6">
       <v-col>
         <v-img
-          src="~/assets/img/logoSer.png"
+          src="~/assets/img/logoserresp600_598.png"
           alt="SerResponsável Logo"
           max-width="200"
-          class="mx-auto mb-4 rounded-xl"
+          class="mx-auto mb-4"
         />
         <h1 class="text-h3 font-weight-bold mb-4 text-primary">SerResponsável</h1>
         <h2 class="text-h5 mb-4 text-grey-lighten-1">
