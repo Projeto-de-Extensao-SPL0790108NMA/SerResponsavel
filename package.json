@@ -42,7 +42,6 @@
     "@supabase/supabase-js": "^2.56.0",
     "@vueuse/core": "^13.7.0",
     "@vueuse/nuxt": "^13.7.0",
-    "esbuild": "^0.25.9",
     "eslint": "^9.34.0",
     "nuxt": "^4.0.3",
     "pinia": "^3.0.3",
