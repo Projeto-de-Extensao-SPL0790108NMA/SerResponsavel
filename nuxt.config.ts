@@ -47,7 +47,7 @@ export default defineNuxtConfig({
         },
         {
           property: 'og:image',
-          content: 'https://ser-responsavel.vercel.app/logoserresp600_598.png',
+          content: '/logoserresp600_598.png',
         },
         { property: 'og:image:width', content: '600' },
         { property: 'og:image:height', content: '598' },
@@ -71,7 +71,7 @@ export default defineNuxtConfig({
         },
         {
           name: 'twitter:image',
-          content: 'https://ser-responsavel.vercel.app/logoserresp600_598.png',
+          content: '/logoserresp600_598.png',
         },
         {
           name: 'twitter:image:alt',
