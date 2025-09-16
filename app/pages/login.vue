@@ -4,6 +4,31 @@ const projectsStore = useProjectsStore()
 const { projects, loading, error, isCached } = storeToRefs(projectsStore)
 const { fetchProjects, refreshProjects, invalidateCache } = projectsStore
 
+const { serverError, handleServerError, handleLoginForm } = useFormErrors()
+
+const formData = ref({
+  email: '',
+  password: '',
+})
+
+watchDebounced(
+  formData,
+  () => {
+    handleLoginForm(formData.value)
+  },
+  {
+    debounce: 1000,
+    deep: true,
+  },
+)
+
+const signin = async () => {
+  const { error } = await login(formData.value)
+  if (!error) return navigateTo('/home')
+
+  handleServerError(error)
+}
+
 // Slider images
 const slides = [
   { src: '/slides/TROTE-LEGAL.jpeg', alt: 'Trote Legal - Projeto Social' },
@@ -68,9 +93,10 @@ useSeoMeta({
             <v-icon icon="mdi-login" class="me-2" color="primary" />
             Acesse a Plataforma
           </v-card-title>
-          <v-form>
+          <v-form @submit.prevent="signin">
             <v-text-field
-              label="Email ou CPF"
+              v-model="formData.email"
+              label="Email"
               variant="outlined"
               density="compact"
               prepend-inner-icon="mdi-account"
@@ -78,6 +104,7 @@ useSeoMeta({
               required
             />
             <v-text-field
+              v-model="formData.password"
               label="Senha"
               density="compact"
               variant="outlined"
@@ -86,7 +113,19 @@ useSeoMeta({
               class="mb-2"
               required
             />
-            <v-btn color="primary" size="small" block class="mb-3" prepend-icon="mdi-login">
+            <!-- Error Alert -->
+            <v-alert v-if="serverError" type="error" variant="tonal" class="mb-3" density="compact">
+              {{ serverError }}
+            </v-alert>
+
+            <v-btn
+              type="submit"
+              color="primary"
+              size="small"
+              block
+              class="mb-3"
+              prepend-icon="mdi-login"
+            >
               Entrar
             </v-btn>
             <v-btn
@@ -100,6 +139,7 @@ useSeoMeta({
             </v-btn>
             <div class="text-center">
               <v-btn
+                type="submit"
                 variant="text"
                 size="small"
                 prepend-icon="mdi-help-circle"
@@ -299,7 +339,7 @@ useSeoMeta({
               <p class="text-body-2 text-grey-darken-1">
                 Comece criando seu primeiro projeto de responsabilidade social
               </p>
-              <v-btn color="primary" class="mt-4" prepend-icon="mdi-plus"> Criar Projeto </v-btn>
+              <v-btn color="primary" class="mt-4" prepend-icon="mdi-plus"> Criar Projeto</v-btn>
             </div>
 
             <v-list v-else lines="three">
@@ -402,24 +442,24 @@ useSeoMeta({
                       <v-icon icon="mdi-trophy" color="warning" />
                     </template>
                     <v-list-item-title
-                      >Sistema de ranqueamento baseado em impacto real verificado</v-list-item-title
-                    >
+                      >Sistema de ranqueamento baseado em impacto real verificado
+                    </v-list-item-title>
                   </v-list-item>
                   <v-list-item>
                     <template #prepend>
                       <v-icon icon="mdi-gamepad-variant" color="success" />
                     </template>
                     <v-list-item-title
-                      >Gamificação e sistema de recompensas para engajamento</v-list-item-title
-                    >
+                      >Gamificação e sistema de recompensas para engajamento
+                    </v-list-item-title>
                   </v-list-item>
                   <v-list-item>
                     <template #prepend>
                       <v-icon icon="mdi-api" color="info" />
                     </template>
                     <v-list-item-title
-                      >Integração com APIs governamentais para validação</v-list-item-title
-                    >
+                      >Integração com APIs governamentais para validação
+                    </v-list-item-title>
                   </v-list-item>
                 </v-list>
               </v-col>
@@ -430,8 +470,8 @@ useSeoMeta({
                       <v-icon icon="mdi-certificate" color="primary" />
                     </template>
                     <v-list-item-title
-                      >Certificação digital verificável de impacto</v-list-item-title
-                    >
+                      >Certificação digital verificável de impacto
+                    </v-list-item-title>
                   </v-list-item>
                   <v-list-item>
                     <template #prepend>
@@ -444,8 +484,8 @@ useSeoMeta({
                       <v-icon icon="mdi-account-network" color="success" />
                     </template>
                     <v-list-item-title
-                      >Primeira plataforma híbrida acadêmico-corporativa</v-list-item-title
-                    >
+                      >Primeira plataforma híbrida acadêmico-corporativa
+                    </v-list-item-title>
                   </v-list-item>
                 </v-list>
               </v-col>
