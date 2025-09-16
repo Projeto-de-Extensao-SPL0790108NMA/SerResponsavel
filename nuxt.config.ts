@@ -45,9 +45,13 @@ export default defineNuxtConfig({
           content:
             'Transforme sua gestão de responsabilidade social com ranqueamento de impacto real, certificação digital e dashboard ESG automatizado.',
         },
-        { property: 'og:image', content: 'https://ser-responsavel.vercel.app/logoserresp600_598.png' },
+        {
+          property: 'og:image',
+          content: 'https://ser-responsavel.vercel.app/logoserresp600_598.png',
+        },
         { property: 'og:image:width', content: '600' },
         { property: 'og:image:height', content: '598' },
+        { property: 'og:image:type', content: 'image/png' },
         { property: 'og:locale', content: 'pt_BR' },
         { property: 'og:url', content: 'https://ser-responsavel.vercel.app/' },
 
@@ -61,7 +65,10 @@ export default defineNuxtConfig({
           content:
             'Primeira plataforma que unifica gestão acadêmica e corporativa de responsabilidade social.',
         },
-        { name: 'twitter:image', content: 'https://ser-responsavel.vercel.app/logoserresp600_598.png' },
+        {
+          name: 'twitter:image',
+          content: 'https://ser-responsavel.vercel.app/logoserresp600_598.png',
+        },
 
         // Additional meta tags
         { name: 'robots', content: 'index, follow' },
