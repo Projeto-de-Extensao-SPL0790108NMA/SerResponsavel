@@ -753,3 +753,5 @@ For more information about the project or collaboration opportunities, contact v
 ---
 
 _Project under development - More information will be added as progress is made._
+
+Todo poder emana do código
