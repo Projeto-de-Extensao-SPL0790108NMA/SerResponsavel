@@ -4,43 +4,12 @@
   </v-app>
 </template>
 <script setup lang="ts">
-// Global SEO configuration
-useSeoMeta({
-  title: 'SerResponsável - Plataforma de Transparência e Gestão de Responsabilidade Social',
-  description: 'Primeira plataforma brasileira que unifica gestão acadêmica e corporativa de responsabilidade social. Centraliza, gerencia e mensura ações de empresas, ONGs, instituições de ensino e poder público.',
-  keywords: 'responsabilidade social, ESG, transparência social, impacto social, sustentabilidade, Uninorte, Amazonas, ONGs, projetos sociais',
-  author: 'Uninorte - Centro Universitário do Norte',
-  
-  // Open Graph / Facebook
-  ogType: 'website',
-  ogSiteName: 'SerResponsável',
-  ogTitle: 'SerResponsável - Transparência Social Verificada',
-  ogDescription: 'Transforme sua gestão de responsabilidade social com ranqueamento de impacto real, certificação digital e dashboard ESG automatizado.',
-  ogImage: '/logoserresp600_598.png',
-  ogImageWidth: '600',
-  ogImageHeight: '598',
-  ogLocale: 'pt_BR',
-  
-  // Twitter Cards
-  twitterCard: 'summary_large_image',
-  twitterSite: '@SerResponsavel',
-  twitterCreator: '@SerResponsavel',
-  twitterTitle: 'SerResponsável - Transparência Social Verificada',
-  twitterDescription: 'Primeira plataforma que unifica gestão acadêmica e corporativa de responsabilidade social.',
-  twitterImage: '/logoserresp600_598.png',
-  
-  // Additional meta tags
-  robots: 'index, follow',
-  viewport: 'width=device-width, initial-scale=1',
-  charset: 'utf-8'
-})
-
-// Structured data for better SEO
+// Structured data for better SEO - only keeping this here
 useHead({
   script: [
     {
       type: 'application/ld+json',
-      children: JSON.stringify({
+      innerHTML: JSON.stringify({
         '@context': 'https://schema.org',
         '@type': 'Organization',
         name: 'SerResponsável',
@@ -51,21 +20,21 @@ useHead({
         founders: [
           {
             '@type': 'Organization',
-            name: 'Uninorte - Centro Universitário do Norte'
-          }
+            name: 'Uninorte - Centro Universitário do Norte',
+          },
         ],
         contactPoint: {
           '@type': 'ContactPoint',
           contactType: 'customer service',
-          email: 'contato@serresponsavel.com.br'
+          email: 'contato@serresponsavel.com.br',
         },
         sameAs: [
           'https://www.linkedin.com/company/serresponsavel',
-          'https://www.instagram.com/serresponsavel'
-        ]
-      })
-    }
-  ]
+          'https://www.instagram.com/serresponsavel',
+        ],
+      }),
+    },
+  ],
 })
 </script>
 
