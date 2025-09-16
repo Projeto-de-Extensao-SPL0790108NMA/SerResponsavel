@@ -52,6 +52,7 @@ export default defineNuxtConfig({
         { property: 'og:image:width', content: '600' },
         { property: 'og:image:height', content: '598' },
         { property: 'og:image:type', content: 'image/png' },
+        { property: 'og:image:alt', content: 'Logo SerResponsável - Plataforma de Transparência Social' },
         { property: 'og:locale', content: 'pt_BR' },
         { property: 'og:url', content: 'https://ser-responsavel.vercel.app/' },
 
@@ -69,6 +70,7 @@ export default defineNuxtConfig({
           name: 'twitter:image',
           content: 'https://ser-responsavel.vercel.app/logoserresp600_598.png',
         },
+        { name: 'twitter:image:alt', content: 'Logo SerResponsável - Plataforma de Transparência Social' },
 
         // Additional meta tags
         { name: 'robots', content: 'index, follow' },
