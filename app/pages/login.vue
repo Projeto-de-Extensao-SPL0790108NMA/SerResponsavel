@@ -62,7 +62,7 @@ useSeoMeta({
   ogTitle: 'SerResponsável - Transparência Social Verificada',
   ogDescription:
     'Transforme sua gestão de responsabilidade social com ranqueamento de impacto real, certificação digital e dashboard ESG automatizado.',
-  ogImage: '~/assets/img/logoserresp600_598.png',
+  ogImage: '/logoserresp600_598.png',
 })
 </script>
 
