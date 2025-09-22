@@ -2,7 +2,7 @@
 interface CardData {
   icon: string
   color?: string
-  title: string
+  title: string | number
   subtitle: string
 }
 

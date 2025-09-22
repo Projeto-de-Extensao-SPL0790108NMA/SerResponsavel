@@ -1,7 +1,8 @@
 <script lang="ts" setup>
-// Use the projects store
-import SimpleCard from '~/components/ui/SimpleCard.vue'
+// Imports
+import { informativeCards, targetAudienceCards, createStatisticsCards } from '~/constants/login'
 
+// Use the projects store
 const projectsStore = useProjectsStore()
 const { projects, loading, error, isCached } = storeToRefs(projectsStore)
 const { fetchProjects, refreshProjects, invalidateCache } = projectsStore
@@ -11,74 +12,8 @@ onMounted(async () => {
   await fetchProjects()
 })
 
-const informativeCards = [
-  {
-    icon: 'mdi-chart-line',
-    title: '90%',
-    subtitle: 'dos brasileiros consideram RSC na escolha de empresas',
-    color: 'primary',
-  },
-  {
-    icon: 'mdi-currency-usd',
-    title: 'R$ 2,5bi',
-    subtitle: 'mercado de investimentos sociais na região Norte',
-    color: 'success',
-  },
-  {
-    icon: 'mdi-rocket-launch',
-    title: 'Pioneiro',
-    subtitle: 'unifica gestão acadêmica e corporativa',
-    color: 'info',
-  },
-]
-
-const statisticsCards = computed(() => [
-  {
-    icon: 'mdi-check-circle',
-    title: projects.value?.filter((p) => p?.status === 'completed').length || 0,
-    subtitle: 'Projetos Concluídos',
-    color: 'success',
-  },
-  {
-    icon: 'mdi-progress-clock',
-    title: projects.value?.filter((p) => p?.status === 'in-progress').length || 0,
-    subtitle: 'Em Andamento',
-    color: 'primary',
-  },
-  {
-    icon: 'mdi-account-group',
-    title: projects.value?.reduce((total, p) => total + (p?.collaborators?.length || 0), 0) || 0,
-    subtitle: 'Colaboradores',
-    color: 'info',
-  },
-])
-
-const targetAudienceCards = [
-  {
-    icon: 'mdi-office-building',
-    title: '500+',
-    subtitle: 'Empresas médio/grande porte na região Norte',
-    color: 'primary',
-  },
-  {
-    icon: 'mdi-hand-heart',
-    title: '200+',
-    subtitle: 'ONGs e organizações do terceiro setor',
-    color: 'success',
-  },
-  {
-    icon: 'mdi-school',
-    title: '50+',
-    subtitle: 'Instituições de ensino superior',
-    color: 'info',
-  },
-  {
-    icon: 'mdi-account-multiple',
-    title: '2Mi+',
-    subtitle: 'Potenciais beneficiários na região',
-    color: 'warning',
-  },
-]
+// Statistics cards computed from projects data
+const statisticsCards = computed(() => createStatisticsCards(projects.value))
 
 // SEO
 useSeoMeta({
@@ -138,7 +73,7 @@ useSeoMeta({
         <!-- info cards -->
         <v-row class="mb-6">
           <v-col v-for="(card, index) in informativeCards" :key="index" cols="12" md="4">
-            <SimpleCard :card-data="card" />
+            <ui-simple-card :card-data="card" />
           </v-col>
         </v-row>
       </v-col>
@@ -281,7 +216,7 @@ useSeoMeta({
         <!-- Statistics Cards -->
         <v-row class="mt-6">
           <v-col v-for="(card, index) in statisticsCards" :key="index" cols="12" md="4">
-            <SimpleCard :card-data="card" size="big" />
+            <ui-simple-card :card-data="card" size="big" />
           </v-col>
         </v-row>
 
@@ -360,7 +295,7 @@ useSeoMeta({
           <v-card-text>
             <v-row>
               <v-col v-for="(card, index) in targetAudienceCards" :key="index" cols="12" md="3">
-                <SimpleCard :card-data="card" />
+                <ui-simple-card :card-data="card" />
               </v-col>
             </v-row>
           </v-card-text>
