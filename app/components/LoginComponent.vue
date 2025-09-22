@@ -68,7 +68,7 @@ const signIn = async () => {
         block
         :loading="loading"
         :disabled="loading"
-        class="mb-3"
+        class="mb-3 btn-selected-custom"
         prepend-icon="mdi-login"
       >
         Entrar
@@ -79,7 +79,7 @@ const signIn = async () => {
         variant="outlined"
         size="small"
         block
-        class="mb-4"
+        class="mb-4 light-btn-outlined-variant btn-selected-custom"
         :disabled="loading"
         prepend-icon="mdi-account-plus"
       >
@@ -94,7 +94,7 @@ const signIn = async () => {
           variant="text"
           size="small"
           prepend-icon="mdi-help-circle"
-          class="text-grey-lighten-1"
+          class="text-grey-lighten-1 btn-selected-custom"
         >
           Esqueci minha senha
         </v-btn>

@@ -249,12 +249,6 @@ useSeoMeta({
   line-height: 1.6;
 }
 
-/* Improved button styles */
-:deep(.v-btn--variant-outlined) {
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(5px);
-}
-
 /* Hero Section Styles */
 .hero-content {
   padding: 2rem 0;
@@ -292,12 +286,5 @@ useSeoMeta({
 .hero-chip:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 15px rgba(25, 118, 210, 0.4);
-}
-
-/* Enhanced shadows */
-:deep(.v-btn:hover) {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-  transition: all 0.2s ease;
 }
 </style>

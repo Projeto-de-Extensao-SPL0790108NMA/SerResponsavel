@@ -54,7 +54,7 @@ onMounted(async () => {
             <v-btn
               variant="outlined"
               size="small"
-              class="me-2"
+              class="me-2 light-btn-outlined-variant btn-selected-custom"
               :loading="loading"
               rounded="xl"
               elevation="15"
@@ -69,6 +69,7 @@ onMounted(async () => {
               rounded="xl"
               size="small"
               elevation="15"
+              class="btn-selected-custom"
               prepend-icon="mdi-cached"
               @click="invalidateCache"
             >
@@ -87,7 +88,13 @@ onMounted(async () => {
           <p class="text-body-2 text-grey-darken-1">
             Comece criando seu primeiro projeto de responsabilidade social
           </p>
-          <v-btn elevation="15" rounded="xl" color="primary" class="mt-4" prepend-icon="mdi-plus">
+          <v-btn
+            elevation="15"
+            rounded="xl"
+            color="primary"
+            class="mt-4 btn-selected-custom"
+            prepend-icon="mdi-plus"
+          >
             Criar Projeto</v-btn
           >
         </div>
@@ -128,6 +135,7 @@ onMounted(async () => {
                     elevation="15"
                     rounded="xl"
                     variant="outlined"
+                    class="light-btn-outlined-variant btn-selected-custom"
                     size="small"
                     prepend-icon="mdi-eye"
                   >

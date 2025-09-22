@@ -163,3 +163,14 @@
 .equal-height-row .v-card {
   width: 100%;
 }
+
+.light-btn-outlined-variant {
+  border: 2px solid rgba(255, 255, 255, 0.2) !important;
+  backdrop-filter: blur(5px) !important;
+}
+
+.btn-selected-custom:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3) !important;
+  transition: all 0.2s ease !important;
+}
