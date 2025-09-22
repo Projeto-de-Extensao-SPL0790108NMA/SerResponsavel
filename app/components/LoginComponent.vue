@@ -58,6 +58,7 @@ const signin = async () => {
       </v-alert>
 
       <v-btn
+        elevation="15"
         type="submit"
         rounded="xl"
         color="primary"
@@ -69,6 +70,7 @@ const signin = async () => {
         Entrar
       </v-btn>
       <v-btn
+        elevation="15"
         rounded="xl"
         variant="outlined"
         size="small"
@@ -80,6 +82,7 @@ const signin = async () => {
       </v-btn>
       <div class="text-center">
         <v-btn
+          elevation="15"
           rounded="xl"
           type="submit"
           variant="text"
