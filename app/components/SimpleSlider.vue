@@ -1,0 +1,225 @@
+<script setup lang="ts">
+// Slider images
+const slides = [
+  { src: '/slides/TROTE-LEGAL.jpeg', alt: 'Trote Legal - Projeto Social' },
+  { src: '/slides/bike-sem-barreiras-768x576.jpg', alt: 'Bike Sem Barreiras' },
+  { src: '/slides/ser-leitor-768x576.jpg', alt: 'Ser Leitor - Projeto de Leitura' },
+  { src: '/slides/ser11.jpeg', alt: 'Projeto SerResponsável' },
+]
+
+const currentSlide = ref(0)
+
+const startSlideShow = () => {
+  setInterval(() => {
+    currentSlide.value = (currentSlide.value + 1) % slides.length
+  }, 7000)
+}
+
+onMounted(async () => {
+  startSlideShow()
+})
+</script>
+<template>
+  <v-card elevation="2" class="slider-card">
+    <v-card-title class="d-flex align-center pa-4">
+      <v-icon icon="mdi-image-multiple" class="me-2" color="primary" />
+      Projetos em Destaque
+    </v-card-title>
+    <v-card-text class="pa-0">
+      <div class="slider-container">
+        <div class="slider-wrapper">
+          <div
+            v-for="(slide, index) in slides"
+            :key="index"
+            class="slide"
+            :class="{ active: index === currentSlide }"
+          >
+            <v-img :src="slide.src" :alt="slide.alt" aspect-ratio="2.5" cover class="slide-image" />
+            <div class="slide-overlay">
+              <div class="slide-content">
+                <h3 class="text-h5 text-white font-weight-bold mb-2">
+                  {{ slide.alt }}
+                </h3>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slider Controls -->
+        <div class="slider-controls">
+          <v-btn
+            icon
+            size="small"
+            class="control-btn prev"
+            @click="currentSlide = (currentSlide - 1 + slides.length) % slides.length"
+          >
+            <v-icon>mdi-chevron-left</v-icon>
+          </v-btn>
+          <v-btn
+            icon
+            size="small"
+            class="control-btn next"
+            @click="currentSlide = (currentSlide + 1) % slides.length"
+          >
+            <v-icon>mdi-chevron-right</v-icon>
+          </v-btn>
+        </div>
+
+        <!-- Slider Indicators -->
+        <div class="slider-indicators">
+          <button
+            v-for="(slide, index) in slides"
+            :key="index"
+            class="indicator"
+            :class="{ active: index === currentSlide }"
+            @click="currentSlide = index"
+          />
+        </div>
+      </div>
+    </v-card-text>
+  </v-card>
+</template>
+
+<style scoped>
+/* Slider Styles */
+.slider-card {
+  background: rgba(33, 38, 45, 0.9) !important;
+  border: 1px solid rgba(25, 118, 210, 0.2);
+  overflow: hidden;
+}
+
+.slider-container {
+  position: relative;
+  width: 100%;
+  height: 300px;
+  overflow: hidden;
+  border-radius: 0 0 16px 16px;
+}
+
+.slider-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.slide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transform: translateX(100%);
+  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.slide.active {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.slide-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0;
+}
+
+.slide-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.8) 0%,
+    rgba(0, 0, 0, 0.4) 50%,
+    transparent 100%
+  );
+  padding: 32px 24px 24px;
+}
+
+.slide-content {
+  transform: translateY(20px);
+  opacity: 0;
+  transition: all 0.6s ease 0.2s;
+}
+
+.slide.active .slide-content {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* Slider Controls */
+.slider-controls {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 16px;
+  pointer-events: none;
+}
+
+.control-btn {
+  pointer-events: all;
+  background: rgba(0, 0, 0, 0.5) !important;
+  color: white !important;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(8px);
+  transition: all 0.3s ease;
+}
+
+.control-btn:hover {
+  background: rgba(25, 118, 210, 0.8) !important;
+  border-color: rgba(25, 118, 210, 0.8);
+  transform: scale(1.1);
+}
+
+/* Slider Indicators */
+.slider-indicators {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+}
+
+.indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.indicator.active {
+  background: rgba(25, 118, 210, 0.9);
+  border-color: rgba(25, 118, 210, 0.9);
+  transform: scale(1.2);
+}
+
+.indicator:hover {
+  border-color: rgba(255, 255, 255, 0.8);
+  transform: scale(1.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .slider-container {
+    height: 250px;
+  }
+
+  .slide-overlay {
+    padding: 20px 16px 16px;
+  }
+
+  .slide-content h3 {
+    font-size: 1.1rem;
+  }
+}
+</style>

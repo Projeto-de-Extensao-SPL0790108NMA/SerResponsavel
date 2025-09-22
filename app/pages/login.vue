@@ -1,56 +1,84 @@
 <script lang="ts" setup>
 // Use the projects store
+import SimpleCard from '~/components/ui/SimpleCard.vue'
+
 const projectsStore = useProjectsStore()
 const { projects, loading, error, isCached } = storeToRefs(projectsStore)
 const { fetchProjects, refreshProjects, invalidateCache } = projectsStore
 
-const { serverError, handleServerError, handleLoginForm } = useFormErrors()
-
-const formData = ref({
-  email: '',
-  password: '',
-})
-
-watchDebounced(
-  formData,
-  () => {
-    handleLoginForm(formData.value)
-  },
-  {
-    debounce: 1000,
-    deep: true,
-  },
-)
-
-const signin = async () => {
-  const { error } = await login(formData.value)
-  if (!error) return navigateTo('/home')
-
-  handleServerError(error)
-}
-
-// Slider images
-const slides = [
-  { src: '/slides/TROTE-LEGAL.jpeg', alt: 'Trote Legal - Projeto Social' },
-  { src: '/slides/bike-sem-barreiras-768x576.jpg', alt: 'Bike Sem Barreiras' },
-  { src: '/slides/ser-leitor-768x576.jpg', alt: 'Ser Leitor - Projeto de Leitura' },
-  { src: '/slides/ser11.jpeg', alt: 'Projeto SerResponsável' },
-]
-
-const currentSlide = ref(0)
-
-// Auto-advance slides
-const startSlideShow = () => {
-  setInterval(() => {
-    currentSlide.value = (currentSlide.value + 1) % slides.length
-  }, 7000) // Change slide every 4 seconds
-}
-
 // Load projects when page mounts
 onMounted(async () => {
   await fetchProjects()
-  startSlideShow()
 })
+
+const informativeCards = [
+  {
+    icon: 'mdi-chart-line',
+    title: '90%',
+    subtitle: 'dos brasileiros consideram RSC na escolha de empresas',
+    color: 'primary',
+  },
+  {
+    icon: 'mdi-currency-usd',
+    title: 'R$ 2,5bi',
+    subtitle: 'mercado de investimentos sociais na região Norte',
+    color: 'success',
+  },
+  {
+    icon: 'mdi-rocket-launch',
+    title: 'Pioneiro',
+    subtitle: 'unifica gestão acadêmica e corporativa',
+    color: 'info',
+  },
+]
+
+const statisticsCards = computed(() => [
+  {
+    icon: 'mdi-check-circle',
+    title: projects.value?.filter((p) => p?.status === 'completed').length || 0,
+    subtitle: 'Projetos Concluídos',
+    color: 'success',
+  },
+  {
+    icon: 'mdi-progress-clock',
+    title: projects.value?.filter((p) => p?.status === 'in-progress').length || 0,
+    subtitle: 'Em Andamento',
+    color: 'primary',
+  },
+  {
+    icon: 'mdi-account-group',
+    title: projects.value?.reduce((total, p) => total + (p?.collaborators?.length || 0), 0) || 0,
+    subtitle: 'Colaboradores',
+    color: 'info',
+  },
+])
+
+const targetAudienceCards = [
+  {
+    icon: 'mdi-office-building',
+    title: '500+',
+    subtitle: 'Empresas médio/grande porte na região Norte',
+    color: 'primary',
+  },
+  {
+    icon: 'mdi-hand-heart',
+    title: '200+',
+    subtitle: 'ONGs e organizações do terceiro setor',
+    color: 'success',
+  },
+  {
+    icon: 'mdi-school',
+    title: '50+',
+    subtitle: 'Instituições de ensino superior',
+    color: 'info',
+  },
+  {
+    icon: 'mdi-account-multiple',
+    title: '2Mi+',
+    subtitle: 'Potenciais beneficiários na região',
+    color: 'warning',
+  },
+]
 
 // SEO
 useSeoMeta({
@@ -85,74 +113,16 @@ useSeoMeta({
       </v-col>
     </v-row>
 
+    <!-- login and mission/info cards -->
     <v-row>
-      <!-- Login Section - Sidebar -->
+      <!-- Login Section -->
       <v-col cols="12" lg="4">
-        <v-card elevation="3" class="login-card pa-6 sticky-login">
-          <v-card-title class="text-center mb-4 text-white">
-            <v-icon icon="mdi-login" class="me-2" color="primary" />
-            Acesse a Plataforma
-          </v-card-title>
-          <v-form @submit.prevent="signin">
-            <v-text-field
-              v-model="formData.email"
-              label="Email"
-              variant="outlined"
-              density="compact"
-              prepend-inner-icon="mdi-account"
-              class="mb-2"
-              required
-            />
-            <v-text-field
-              v-model="formData.password"
-              label="Senha"
-              density="compact"
-              variant="outlined"
-              prepend-inner-icon="mdi-lock"
-              type="password"
-              class="mb-2"
-              required
-            />
-            <!-- Error Alert -->
-            <v-alert v-if="serverError" type="error" variant="tonal" class="mb-3" density="compact">
-              {{ serverError }}
-            </v-alert>
-
-            <v-btn
-              type="submit"
-              color="primary"
-              size="small"
-              block
-              class="mb-3"
-              prepend-icon="mdi-login"
-            >
-              Entrar
-            </v-btn>
-            <v-btn
-              variant="outlined"
-              size="small"
-              block
-              class="mb-4"
-              prepend-icon="mdi-account-plus"
-            >
-              Criar Conta
-            </v-btn>
-            <div class="text-center">
-              <v-btn
-                type="submit"
-                variant="text"
-                size="small"
-                prepend-icon="mdi-help-circle"
-                class="text-grey-lighten-1"
-              >
-                Esqueci minha senha
-              </v-btn>
-            </div>
-          </v-form>
-        </v-card>
+        <LoginComponent />
       </v-col>
 
+      <!-- mission and info cards -->
       <v-col cols="12" lg="8">
+        <!-- mission -->
         <v-card elevation="2" class="mission-card pa-6 mb-6">
           <v-card-text class="mission-text">
             <v-icon icon="mdi-target" color="primary" class="me-2" />
@@ -165,104 +135,24 @@ useSeoMeta({
           </v-card-text>
         </v-card>
 
+        <!-- info cards -->
         <v-row class="mb-6">
-          <v-col cols="12" md="4">
-            <v-card color="primary" variant="tonal" class="text-center pa-4">
-              <v-icon icon="mdi-chart-line" size="32" class="mb-2" />
-              <div class="text-h6">90%</div>
-              <div class="text-caption">dos brasileiros consideram RSC na escolha de empresas</div>
-            </v-card>
-          </v-col>
-          <v-col cols="12" md="4">
-            <v-card color="success" variant="tonal" class="text-center pa-4">
-              <v-icon icon="mdi-currency-usd" size="32" class="mb-2" />
-              <div class="text-h6">R$ 2,5bi</div>
-              <div class="text-caption">mercado de investimentos sociais na região Norte</div>
-            </v-card>
-          </v-col>
-          <v-col cols="12" md="4">
-            <v-card color="info" variant="tonal" class="text-center pa-4">
-              <v-icon icon="mdi-rocket-launch" size="32" class="mb-2" />
-              <div class="text-h6">Pioneiro</div>
-              <div class="text-caption">unifica gestão acadêmica e corporativa</div>
-            </v-card>
+          <v-col v-for="(card, index) in informativeCards" :key="index" cols="12" md="4">
+            <SimpleCard :card-data="card" />
           </v-col>
         </v-row>
       </v-col>
     </v-row>
 
     <!-- Image Slider Section -->
-    <v-row class="mb-8">
+    <v-row class="mt-2">
       <v-col cols="12">
-        <v-card elevation="2" class="slider-card">
-          <v-card-title class="d-flex align-center pa-4">
-            <v-icon icon="mdi-image-multiple" class="me-2" color="primary" />
-            Projetos em Destaque
-          </v-card-title>
-          <v-card-text class="pa-0">
-            <div class="slider-container">
-              <div class="slider-wrapper">
-                <div
-                  v-for="(slide, index) in slides"
-                  :key="index"
-                  class="slide"
-                  :class="{ active: index === currentSlide }"
-                >
-                  <v-img
-                    :src="slide.src"
-                    :alt="slide.alt"
-                    aspect-ratio="2.5"
-                    cover
-                    class="slide-image"
-                  />
-                  <div class="slide-overlay">
-                    <div class="slide-content">
-                      <h3 class="text-h5 text-white font-weight-bold mb-2">
-                        {{ slide.alt }}
-                      </h3>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Slider Controls -->
-              <div class="slider-controls">
-                <v-btn
-                  icon
-                  size="small"
-                  class="control-btn prev"
-                  @click="currentSlide = (currentSlide - 1 + slides.length) % slides.length"
-                >
-                  <v-icon>mdi-chevron-left</v-icon>
-                </v-btn>
-                <v-btn
-                  icon
-                  size="small"
-                  class="control-btn next"
-                  @click="currentSlide = (currentSlide + 1) % slides.length"
-                >
-                  <v-icon>mdi-chevron-right</v-icon>
-                </v-btn>
-              </div>
-
-              <!-- Slider Indicators -->
-              <div class="slider-indicators">
-                <button
-                  v-for="(slide, index) in slides"
-                  :key="index"
-                  class="indicator"
-                  :class="{ active: index === currentSlide }"
-                  @click="currentSlide = index"
-                />
-              </div>
-            </div>
-          </v-card-text>
-        </v-card>
+        <SimpleSlider />
       </v-col>
     </v-row>
 
     <!-- Projects Management Section -->
-    <v-row>
+    <v-row class="mt-2">
       <v-col cols="12">
         <v-card class="mb-4" elevation="2">
           <v-card-title class="d-flex align-center">
@@ -390,40 +280,8 @@ useSeoMeta({
 
         <!-- Statistics Cards -->
         <v-row class="mt-6">
-          <v-col cols="12" md="4">
-            <v-card color="success" variant="tonal" class="text-center">
-              <v-card-text>
-                <v-icon icon="mdi-check-circle" size="48" class="mb-2" />
-                <div class="text-h4">
-                  {{ projects?.filter((p) => p?.status === 'completed').length || 0 }}
-                </div>
-                <div class="text-subtitle-1">Projetos Concluídos</div>
-              </v-card-text>
-            </v-card>
-          </v-col>
-          <v-col cols="12" md="4">
-            <v-card color="primary" variant="tonal" class="text-center">
-              <v-card-text>
-                <v-icon icon="mdi-progress-clock" size="48" class="mb-2" />
-                <div class="text-h4">
-                  {{ projects?.filter((p) => p?.status === 'in-progress').length || 0 }}
-                </div>
-                <div class="text-subtitle-1">Em Andamento</div>
-              </v-card-text>
-            </v-card>
-          </v-col>
-          <v-col cols="12" md="4">
-            <v-card color="info" variant="tonal" class="text-center">
-              <v-card-text>
-                <v-icon icon="mdi-account-group" size="48" class="mb-2" />
-                <div class="text-h4">
-                  {{
-                    projects?.reduce((total, p) => total + (p?.collaborators?.length || 0), 0) || 0
-                  }}
-                </div>
-                <div class="text-subtitle-1">Colaboradores</div>
-              </v-card-text>
-            </v-card>
+          <v-col v-for="(card, index) in statisticsCards" :key="index" cols="12" md="4">
+            <SimpleCard :card-data="card" size="big" />
           </v-col>
         </v-row>
 
@@ -501,33 +359,8 @@ useSeoMeta({
           </v-card-title>
           <v-card-text>
             <v-row>
-              <v-col cols="12" md="3">
-                <v-card color="primary" variant="tonal" class="text-center pa-4">
-                  <v-icon icon="mdi-office-building" size="48" class="mb-2" />
-                  <div class="text-h6 mb-2">500+</div>
-                  <div class="text-body-2">Empresas médio/grande porte na região Norte</div>
-                </v-card>
-              </v-col>
-              <v-col cols="12" md="3">
-                <v-card color="success" variant="tonal" class="text-center pa-4">
-                  <v-icon icon="mdi-hand-heart" size="48" class="mb-2" />
-                  <div class="text-h6 mb-2">200+</div>
-                  <div class="text-body-2">ONGs e organizações do terceiro setor</div>
-                </v-card>
-              </v-col>
-              <v-col cols="12" md="3">
-                <v-card color="info" variant="tonal" class="text-center pa-4">
-                  <v-icon icon="mdi-school" size="48" class="mb-2" />
-                  <div class="text-h6 mb-2">50+</div>
-                  <div class="text-body-2">Instituições de ensino superior</div>
-                </v-card>
-              </v-col>
-              <v-col cols="12" md="3">
-                <v-card color="warning" variant="tonal" class="text-center pa-4">
-                  <v-icon icon="mdi-account-multiple" size="48" class="mb-2" />
-                  <div class="text-h6 mb-2">2Mi+</div>
-                  <div class="text-body-2">Potenciais beneficiários na região</div>
-                </v-card>
+              <v-col v-for="(card, index) in targetAudienceCards" :key="index" cols="12" md="3">
+                <SimpleCard :card-data="card" />
               </v-col>
             </v-row>
           </v-card-text>
@@ -678,147 +511,5 @@ useSeoMeta({
 :deep(.v-img) {
   border-radius: 20px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-}
-
-/* Slider Styles */
-.slider-card {
-  background: rgba(33, 38, 45, 0.9) !important;
-  border: 1px solid rgba(25, 118, 210, 0.2);
-  overflow: hidden;
-}
-
-.slider-container {
-  position: relative;
-  width: 100%;
-  height: 300px;
-  overflow: hidden;
-  border-radius: 0 0 16px 16px;
-}
-
-.slider-wrapper {
-  position: relative;
-  width: 100%;
-  height: 100%;
-}
-
-.slide {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
-  transform: translateX(100%);
-  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.slide.active {
-  opacity: 1;
-  transform: translateX(0);
-}
-
-.slide-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 0;
-}
-
-.slide-overlay {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: linear-gradient(
-    to top,
-    rgba(0, 0, 0, 0.8) 0%,
-    rgba(0, 0, 0, 0.4) 50%,
-    transparent 100%
-  );
-  padding: 32px 24px 24px;
-}
-
-.slide-content {
-  transform: translateY(20px);
-  opacity: 0;
-  transition: all 0.6s ease 0.2s;
-}
-
-.slide.active .slide-content {
-  transform: translateY(0);
-  opacity: 1;
-}
-
-/* Slider Controls */
-.slider-controls {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  padding: 0 16px;
-  pointer-events: none;
-}
-
-.control-btn {
-  pointer-events: all;
-  background: rgba(0, 0, 0, 0.5) !important;
-  color: white !important;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  backdrop-filter: blur(8px);
-  transition: all 0.3s ease;
-}
-
-.control-btn:hover {
-  background: rgba(25, 118, 210, 0.8) !important;
-  border-color: rgba(25, 118, 210, 0.8);
-  transform: scale(1.1);
-}
-
-/* Slider Indicators */
-.slider-indicators {
-  position: absolute;
-  bottom: 16px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 8px;
-}
-
-.indicator {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.5);
-  background: transparent;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.indicator.active {
-  background: rgba(25, 118, 210, 0.9);
-  border-color: rgba(25, 118, 210, 0.9);
-  transform: scale(1.2);
-}
-
-.indicator:hover {
-  border-color: rgba(255, 255, 255, 0.8);
-  transform: scale(1.1);
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .slider-container {
-    height: 250px;
-  }
-
-  .slide-overlay {
-    padding: 20px 16px 16px;
-  }
-
-  .slide-content h3 {
-    font-size: 1.1rem;
-  }
 }
 </style>

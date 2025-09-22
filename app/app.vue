@@ -16,7 +16,7 @@ useHead({
         description: 'Plataforma de Transparência e Gestão de Responsabilidade Social',
         url: 'https://ser-responsavel.vercel.app/',
         logo: 'https://ser-responsavel.vercel.app/logoserresp600_598.png',
-        foundingDate: '2024',
+        foundingDate: '2025',
         founders: [
           {
             '@type': 'Organization',

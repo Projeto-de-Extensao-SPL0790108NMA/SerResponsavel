@@ -1,4 +1,5 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+// noinspection JSUnusedGlobalSymbols
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
@@ -85,18 +86,20 @@ export default defineNuxtConfig({
   },
 
   vuetify: {
-    theme: {
-      defaultTheme: 'dark',
-      themes: {
-        dark: {
-          colors: {
-            primary: '#1976D2',
-            secondary: '#424242',
-            accent: '#82B1FF',
-            error: '#FF5252',
-            info: '#2196F3',
-            success: '#4CAF50',
-            warning: '#FFC107',
+    vuetifyOptions: {
+      theme: {
+        defaultTheme: 'dark',
+        themes: {
+          dark: {
+            colors: {
+              primary: '#1976D2',
+              secondary: '#424242',
+              accent: '#82B1FF',
+              error: '#FF5252',
+              info: '#2196F3',
+              success: '#4CAF50',
+              warning: '#FFC107',
+            },
           },
         },
       },
