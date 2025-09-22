@@ -17,7 +17,9 @@ watchDebounced(
   },
 )
 
-const signin = async () => {
+const signIn = async () => {
+  if (loading.value) return
+
   const { error } = await login(formData.value)
   if (!error) return navigateTo('/home')
 
@@ -30,7 +32,7 @@ const signin = async () => {
       <v-icon icon="mdi-login" class="me-2" color="primary" />
       Acesse a Plataforma
     </v-card-title>
-    <v-form @submit.prevent="signin">
+    <v-form :aria-busy="loading" @submit.prevent="signIn">
       <v-text-field
         v-model="formData.email"
         label="Email"
@@ -64,6 +66,8 @@ const signin = async () => {
         color="primary"
         size="small"
         block
+        :loading="loading"
+        :disabled="loading"
         class="mb-3"
         prepend-icon="mdi-login"
       >
@@ -76,6 +80,7 @@ const signin = async () => {
         size="small"
         block
         class="mb-4"
+        :disabled="loading"
         prepend-icon="mdi-account-plus"
       >
         Criar Conta
@@ -85,6 +90,7 @@ const signin = async () => {
           elevation="15"
           rounded="xl"
           type="submit"
+          :disabled="loading"
           variant="text"
           size="small"
           prepend-icon="mdi-help-circle"
