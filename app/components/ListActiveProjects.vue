@@ -1,14 +1,11 @@
 <script setup lang="ts">
 import { createStatisticsCards } from '~/constants/login'
-// Use the projects store
 const projectsStore = useProjectsStore()
 const { projects, loading, error, isCached } = storeToRefs(projectsStore)
 const { fetchProjects, refreshProjects, invalidateCache } = projectsStore
 
-// Statistics cards computed from projects data
 const statisticsCards = computed(() => createStatisticsCards(projects.value))
 
-// Load projects when page mounts
 onMounted(async () => {
   await fetchProjects()
 })
@@ -16,9 +13,9 @@ onMounted(async () => {
 
 <template>
   <!-- Loading State -->
-  <v-card v-if="loading" class="mb-4" elevation="15" rounded="xl">
+  <v-card class="mb-4" elevation="15" rounded="xl">
     <v-card-text class="text-center pa-8">
-      <v-progress-circular indeterminate color="primary" size="48" />
+      <v-progress-circular indeterminate color="primary" size="48" class="glowing-circular" />
       <div class="mt-4 text-h6">Carregando projetos sociais...</div>
       <p class="text-body-2 text-grey-darken-1 mt-2">
         Buscando as últimas iniciativas de responsabilidade social
@@ -181,7 +178,7 @@ onMounted(async () => {
   color: #ffcdd2 !important;
 }
 
-:deep(.v-progress-circular) {
+.glowing-circular {
   filter: drop-shadow(0 0 8px rgba(25, 118, 210, 0.4));
 }
 
