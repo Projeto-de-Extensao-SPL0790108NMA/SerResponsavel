@@ -1,3 +1,4 @@
+<!--suppress CssUnusedSymbol -->
 <script setup lang="ts">
 interface CardData {
   icon: string
@@ -22,10 +23,8 @@ const iconSize = computed(() => (props.size === 'big' ? '40px' : '32px'))
 const titleClass = computed(() => (props.size === 'big' ? 'text-h4' : 'text-h6'))
 const subtitleClass = computed(() => (props.size === 'big' ? 'text-subtitle-1' : 'text-caption'))
 
-// Animações disponíveis para os ícones
+// Animações disponíveis
 const iconAnimations = ['icon-bounce', 'icon-pulse', 'icon-swing', 'icon-shake', 'icon-float']
-
-// Animações de fundo disponíveis
 const backgroundAnimations = [
   'bg-glow',
   'bg-pulse',
@@ -34,18 +33,16 @@ const backgroundAnimations = [
   'bg-breathe',
 ]
 
-// Escolhe uma animação aleatória se animated for true
-const randomIconAnimation = computed(() => {
-  if (!props.animated) return ''
-  const randomIndex = Math.floor(Math.random() * iconAnimations.length)
-  return iconAnimations[randomIndex]
-})
+// Sorteio estável por instância (evita trocar a cada re-render)
+const iconAnim = ref('')
+const bgAnim = ref('')
 
-// Escolhe uma animação de fundo aleatória se animated for true
-const randomBackgroundAnimation = computed(() => {
-  if (!props.animated) return ''
-  const randomIndex = Math.floor(Math.random() * backgroundAnimations.length)
-  return backgroundAnimations[randomIndex]
+onMounted(() => {
+  if (props.animated) {
+    iconAnim.value = iconAnimations[Math.floor(Math.random() * iconAnimations.length)] || ''
+    bgAnim.value =
+      backgroundAnimations[Math.floor(Math.random() * backgroundAnimations.length)] || ''
+  }
 })
 </script>
 
@@ -53,18 +50,20 @@ const randomBackgroundAnimation = computed(() => {
   <v-card
     :color="props.cardData.color || 'primary'"
     variant="tonal"
-    :class="['text-center pa-4', randomBackgroundAnimation]"
+    :class="['text-center pa-4', bgAnim]"
     rounded="xl"
     elevation="15"
   >
-    <v-icon :icon="props.cardData.icon" :size="iconSize" :class="['mb-2', randomIconAnimation]" />
+    <v-icon :icon="props.cardData.icon" :size="iconSize" :class="['mb-2', iconAnim]" />
     <div :class="titleClass">{{ props.cardData.title }}</div>
     <div :class="subtitleClass">{{ props.cardData.subtitle }}</div>
   </v-card>
 </template>
 
 <style scoped>
-/* SimpleCard Icon Animations */
+/* eslint-disable vue-scoped-css/no-unused-selector */
+/* SimpleCard Icon Animations - Classes applied dynamically via refs */
+/* noinspection CssUnusedSymbol */
 @keyframes icon-bounce {
   0%,
   20%,
@@ -142,7 +141,7 @@ const randomBackgroundAnimation = computed(() => {
   }
 }
 
-/* Animation classes */
+/* Classes de animação de ícone */
 .icon-bounce {
   animation: icon-bounce 2s infinite;
 }
@@ -186,13 +185,13 @@ const randomBackgroundAnimation = computed(() => {
 
 @keyframes bg-gradient-shift {
   0% {
-    background-position: 0% 50%;
+    background-position: 0 50%;
   }
   50% {
     background-position: 100% 50%;
   }
   100% {
-    background-position: 0% 50%;
+    background-position: 0 50%;
   }
 }
 
@@ -220,19 +219,22 @@ const randomBackgroundAnimation = computed(() => {
   animation: bg-glow 2.5s ease-in-out infinite;
 }
 
+/* Menos custoso: cor apenas */
 .bg-pulse {
   animation: bg-pulse 2s ease-in-out infinite;
 }
 
 .bg-gradient-shift {
-  background: linear-gradient(
+  background-color: rgba(25, 118, 210, 0.15);
+  background-image: linear-gradient(
     45deg,
     rgba(25, 118, 210, 0.1),
     rgba(25, 118, 210, 0.3),
     rgba(25, 118, 210, 0.1)
   );
   background-size: 300% 300%;
-  animation: bg-gradient-shift 3s ease infinite;
+  background-position: 0 50%;
+  animation: bg-gradient-shift 3s ease-in-out infinite;
 }
 
 .bg-shimmer {
@@ -243,11 +245,10 @@ const randomBackgroundAnimation = computed(() => {
 .bg-shimmer::before {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent);
+  background-size: 200% 100%;
   animation: bg-shimmer 2s infinite;
   pointer-events: none;
 }
@@ -255,5 +256,22 @@ const randomBackgroundAnimation = computed(() => {
 .bg-breathe {
   animation: bg-breathe 3s ease-in-out infinite;
   transform-origin: center;
+}
+
+/* Respeita usuários com redução de movimento */
+@media (prefers-reduced-motion: reduce) {
+  .icon-bounce,
+  .icon-pulse,
+  .icon-swing,
+  .icon-shake,
+  .icon-float,
+  .bg-glow,
+  .bg-pulse,
+  .bg-gradient-shift,
+  .bg-shimmer::before,
+  .bg-breathe {
+    animation: none !important;
+    transition: none !important;
+  }
 }
 </style>
