@@ -11,51 +11,8 @@ onMounted(async () => {
 </script>
 
 <template>
-  <v-card
-    class="mb-4"
-    elevation="2"
-    rounded="xl"
-    title="Projetos de Responsabilidade Social"
-    prepend-icon="mdi-folder-multiple"
-  >
-    <v-card-subtitle>
-      Gerencie e acompanhe todas as iniciativas sociais da instituição
-    </v-card-subtitle>
-
-    <v-card-actions class="pa-4">
-      <v-spacer />
-      <v-chip :color="isCached ? 'success' : 'info'" size="small" class="me-2">
-        <v-icon :icon="isCached ? 'mdi-database' : 'mdi-cloud-sync'" start />
-        {{ isCached ? 'Cache Ativo' : 'Sincronizando' }}
-      </v-chip>
-      <v-btn
-        variant="outlined"
-        size="small"
-        class="me-2"
-        :loading="loading"
-        rounded="xl"
-        elevation="15"
-        prepend-icon="mdi-refresh"
-        @click="refreshProjects"
-      >
-        Atualizar
-      </v-btn>
-      <v-btn
-        variant="outlined"
-        color="warning"
-        rounded="xl"
-        size="small"
-        elevation="15"
-        prepend-icon="mdi-cached"
-        @click="invalidateCache"
-      >
-        Limpar Cache
-      </v-btn>
-    </v-card-actions>
-  </v-card>
-
   <!-- Loading State -->
-  <v-card v-if="loading" class="mb-4" elevation="1" rounded="xl">
+  <v-card v-if="loading" class="mb-4" elevation="15" rounded="xl">
     <v-card-text class="text-center pa-8">
       <v-progress-circular indeterminate color="primary" size="48" />
       <div class="mt-4 text-h6">Carregando projetos sociais...</div>
@@ -66,19 +23,59 @@ onMounted(async () => {
   </v-card>
 
   <!-- Error State -->
-  <v-alert v-if="error" type="error" class="mb-4 custom-alert" variant="tonal" rounded="xl">
+  <v-alert
+    v-if="error"
+    type="error"
+    class="mb-4 custom-alert"
+    variant="tonal"
+    rounded="xl"
+    elevation="15"
+  >
     <v-icon icon="mdi-alert-circle" />
     <strong>Erro ao carregar projetos:</strong> {{ error }}
   </v-alert>
 
   <!-- Projects Display -->
-  <v-card
-    v-if="!loading && projects"
-    elevation="1"
-    rounded="xl"
-    :title="`Projetos Ativos (${projects?.length || 0})`"
-    prepend-icon="mdi-view-list"
-  >
+  <v-card v-if="!loading && projects" elevation="15" rounded="xl">
+    <v-card-title class="text-white">
+      <v-row>
+        <v-col>
+          <v-icon icon="mdi-view-list" class="me-2" color="primary" />
+          Projetos de Responsabilidade Social Ativos ({{ projects?.length || 0 }})
+        </v-col>
+        <v-col class="text-right">
+          <v-spacer />
+          <v-chip :color="isCached ? 'success' : 'info'" size="small" class="me-2">
+            <v-icon :icon="isCached ? 'mdi-database' : 'mdi-cloud-sync'" start />
+            {{ isCached ? 'Cache Ativo' : 'Sincronizando' }}
+          </v-chip>
+          <v-btn
+            variant="outlined"
+            size="small"
+            class="me-2"
+            :loading="loading"
+            rounded="xl"
+            elevation="15"
+            prepend-icon="mdi-refresh"
+            @click="refreshProjects"
+          >
+            Atualizar
+          </v-btn>
+          <v-btn
+            variant="outlined"
+            color="warning"
+            rounded="xl"
+            size="small"
+            elevation="15"
+            prepend-icon="mdi-cached"
+            @click="invalidateCache"
+          >
+            Limpar Cache
+          </v-btn>
+        </v-col>
+      </v-row>
+    </v-card-title>
+
     <v-divider />
 
     <v-card-text class="pa-0">

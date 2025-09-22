@@ -25,7 +25,7 @@ const signin = async () => {
 }
 </script>
 <template>
-  <v-card elevation="3" class="login-card pa-6 sticky-login">
+  <v-card elevation="15" class="login-card pa-6 sticky-login">
     <v-card-title class="text-center mb-4 text-white">
       <v-icon icon="mdi-login" class="me-2" color="primary" />
       Acesse a Plataforma

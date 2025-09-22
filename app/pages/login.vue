@@ -52,7 +52,7 @@ useSeoMeta({
       <!-- mission and info cards -->
       <v-col cols="12" lg="8">
         <!-- mission -->
-        <v-card elevation="2" class="mission-card pa-6 mb-6" rounded="xl">
+        <v-card elevation="15" class="mission-card pa-6 mb-6" rounded="xl">
           <v-card-text class="mission-text">
             <v-icon icon="mdi-target" color="primary" class="me-2" />
             <strong class="text-white">Missão:</strong>
@@ -81,7 +81,7 @@ useSeoMeta({
     </v-row>
 
     <!-- Projects Management Section -->
-    <v-row class="mt-2" dense>
+    <v-row class="mt-4" dense>
       <v-col cols="12">
         <ListActiveProjects />
       </v-col>
@@ -100,7 +100,7 @@ useSeoMeta({
         <!-- Platform Benefits Section -->
         <v-card
           class="mt-5 mb-4"
-          elevation="2"
+          elevation="15"
           rounded="xl"
           title="Diferenciais da Plataforma"
           prepend-icon="mdi-star"
@@ -168,7 +168,7 @@ useSeoMeta({
         <!-- Target Audience Section -->
         <v-card
           class="mb-4"
-          elevation="2"
+          elevation="15"
           rounded="xl"
           title="Público-Alvo"
           prepend-icon="mdi-account-group"
@@ -271,9 +271,6 @@ useSeoMeta({
 }
 
 /* Enhanced shadows */
-:deep(.v-card) {
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
-}
 
 :deep(.v-btn:hover) {
   transform: translateY(-1px);

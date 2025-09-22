@@ -27,6 +27,7 @@ const subtitleClass = computed(() => (props.size === 'big' ? 'text-subtitle-1' :
     variant="tonal"
     class="text-center pa-4"
     rounded="xl"
+    elevation="15"
   >
     <v-icon :icon="props.cardData.icon" :size="iconSize" class="mb-2" />
     <div :class="titleClass">{{ props.cardData.title }}</div>
