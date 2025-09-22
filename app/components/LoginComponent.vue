@@ -108,6 +108,7 @@ const signIn = async () => {
   background: rgba(33, 38, 45, 0.95) !important;
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px !important; /* xl = 24px */
 }
 
 .sticky-login {

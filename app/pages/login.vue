@@ -19,19 +19,55 @@ useSeoMeta({
     <div class="background-overlay"></div>
     <v-container class="page-container">
       <!-- Hero Section -->
-      <v-row class="text-center mb-6">
+      <v-row class="text-center">
         <v-col>
-          <v-img
-            src="~/assets/img/logoserresp600_598.png"
-            alt="SerResponsável Logo"
-            max-width="200"
-            class="mx-auto mb-4"
-          />
-          <h1 class="text-h3 font-weight-bold mb-4 text-primary">SerResponsável</h1>
-          <h2 class="text-h5 mb-4 text-grey-lighten-1">
-            Plataforma de Transparência e Gestão de Responsabilidade Social
-          </h2>
-          <p class="text-h6 mb-6 text-grey-lighten-2">Uninorte - Centro Universitário do Norte</p>
+          <div class="hero-content fade-in-up">
+            <v-img
+              src="~/assets/img/logoserresp600_598.png"
+              alt="SerResponsável Logo"
+              max-width="200"
+              class="mx-auto mb-4 logo-hover"
+            />
+            <h1 class="text-h3 font-weight-bold mb-4 text-gradient hero-title">SerResponsável</h1>
+            <h2 class="text-h5 mb-4 text-grey-lighten-1 hero-subtitle">
+              Plataforma de Transparência e Gestão de Responsabilidade Social
+            </h2>
+            <p class="text-h6 mb-6 text-grey-lighten-2 hero-description">
+              <v-icon icon="mdi-school" color="primary" class="me-2" />
+              Uninorte - Centro Universitário do Norte
+            </p>
+
+            <!-- Badge/Chips informativos -->
+            <div class="d-flex justify-center flex-wrap gap-2">
+              <v-chip
+                color="primary"
+                variant="tonal"
+                size="small"
+                prepend-icon="mdi-trophy"
+                class="hero-chip mx-3"
+              >
+                Pioneiro
+              </v-chip>
+              <v-chip
+                color="success"
+                variant="tonal"
+                size="small"
+                prepend-icon="mdi-check-circle"
+                class="hero-chip"
+              >
+                Verificado
+              </v-chip>
+              <v-chip
+                color="info"
+                variant="tonal"
+                size="small"
+                prepend-icon="mdi-rocket-launch"
+                class="hero-chip mx-3"
+              >
+                Inovador
+              </v-chip>
+            </div>
+          </div>
         </v-col>
       </v-row>
 
@@ -65,6 +101,8 @@ useSeoMeta({
           </v-row>
         </v-col>
       </v-row>
+
+      <v-divider class="mt-6" />
 
       <!-- Image Slider Section -->
       <v-row class="mt-2">
@@ -217,8 +255,46 @@ useSeoMeta({
   backdrop-filter: blur(5px);
 }
 
-/* Enhanced shadows */
+/* Hero Section Styles */
+.hero-content {
+  padding: 2rem 0;
+}
 
+.logo-hover {
+  transition: all 0.4s ease;
+  filter: drop-shadow(0 4px 15px rgba(25, 118, 210, 0.3));
+}
+
+.logo-hover:hover {
+  transform: scale(1.05) rotate(2deg);
+  filter: drop-shadow(0 8px 25px rgba(25, 118, 210, 0.5));
+}
+
+.hero-title {
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  animation: fadeInUp 0.8s ease-out;
+}
+
+.hero-subtitle {
+  animation: fadeInUp 1s ease-out 0.2s both;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.hero-description {
+  animation: fadeInUp 1.2s ease-out 0.4s both;
+}
+
+.hero-chip {
+  animation: fadeInUp 1.4s ease-out 0.6s both;
+  transition: all 0.3s ease;
+}
+
+.hero-chip:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(25, 118, 210, 0.4);
+}
+
+/* Enhanced shadows */
 :deep(.v-btn:hover) {
   transform: translateY(-1px);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
