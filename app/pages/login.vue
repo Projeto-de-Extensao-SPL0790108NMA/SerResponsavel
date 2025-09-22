@@ -167,19 +167,6 @@ useSeoMeta({
             </v-row>
           </v-card-text>
         </v-card>
-
-        <!-- Raw Data (for debugging) - Hidden by default -->
-        <v-expansion-panels v-show="false" class="mt-4">
-          <v-expansion-panel>
-            <v-expansion-panel-title>
-              <v-icon icon="mdi-bug" class="me-2" />
-              Dados de Debug (Desenvolvimento)
-            </v-expansion-panel-title>
-            <v-expansion-panel-text>
-              <pre class="text-caption">{{ JSON.stringify(projects, null, 2) }}</pre>
-            </v-expansion-panel-text>
-          </v-expansion-panel>
-        </v-expansion-panels>
       </v-col>
     </v-row>
   </v-container>
