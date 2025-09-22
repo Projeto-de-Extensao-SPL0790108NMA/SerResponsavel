@@ -148,6 +148,10 @@ onMounted(async () => {
   color: #ffcdd2 !important;
 }
 
+:deep(.v-progress-circular) {
+  filter: drop-shadow(0 0 8px rgba(25, 118, 210, 0.4));
+}
+
 .custom-alert strong {
   color: #ffffff !important;
 }

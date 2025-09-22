@@ -215,43 +215,10 @@ useSeoMeta({
   line-height: 1.6;
 }
 
-/* Global rounded styles */
-
-:deep(.v-chip) {
-  border-radius: 10px !important;
-}
-
-:deep(.v-avatar) {
-  border-radius: 12px !important;
-}
-
-:deep(.v-expansion-panel) {
-  border-radius: 12px !important;
-}
-
-:deep(.v-progress-circular) {
-  filter: drop-shadow(0 0 8px rgba(25, 118, 210, 0.4));
-}
-
-/* Enhanced visual effects */
-:deep(.v-card) {
-  background: rgba(33, 38, 45, 0.8) !important;
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-:deep(.v-card--variant-tonal) {
-  backdrop-filter: blur(10px);
-}
-
 /* Improved button styles */
 :deep(.v-btn--variant-outlined) {
   border: 2px solid rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(5px);
-}
-
-:deep(.v-btn--variant-outlined:hover) {
-  background: rgba(255, 255, 255, 0.05);
 }
 
 /* Text field improvements */
@@ -262,12 +229,6 @@ useSeoMeta({
 
 :deep(.v-text-field--variant-outlined .v-field:hover) {
   border-color: rgba(25, 118, 210, 0.5);
-}
-
-/* Glassmorphism effect for chips */
-:deep(.v-chip) {
-  background: rgba(255, 255, 255, 0.1) !important;
-  backdrop-filter: blur(8px);
 }
 
 /* Enhanced shadows */
