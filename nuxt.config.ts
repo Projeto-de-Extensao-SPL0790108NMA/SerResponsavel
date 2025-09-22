@@ -18,6 +18,9 @@ export default defineNuxtConfig({
 
   ssr: true,
 
+  // Global CSS
+  css: ['~/assets/css/custom.css'],
+
   // SEO and meta tag configuration
   app: {
     head: {

@@ -13,7 +13,7 @@ onMounted(async () => {
 
 <template>
   <!-- Loading State -->
-  <v-card v-if="loading" class="mb-4" elevation="15" rounded="xl">
+  <v-card v-if="loading" class="mb-4 simple-border" elevation="15" rounded="xl">
     <v-card-text class="text-center pa-8">
       <v-progress-circular indeterminate color="primary" size="48" class="glowing-circular" />
       <div class="mt-4 text-h6">Carregando projetos sociais...</div>
@@ -38,7 +38,7 @@ onMounted(async () => {
 
   <!-- Projects Display -->
   <ClientOnly>
-    <v-card v-if="!loading && projects" elevation="15" rounded="xl">
+    <v-card v-if="!loading && projects" elevation="15" rounded="xl" class="simple-border">
       <v-card-title class="text-white">
         <v-row>
           <v-col>

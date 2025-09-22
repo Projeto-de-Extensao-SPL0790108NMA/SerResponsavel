@@ -85,7 +85,7 @@ useSeoMeta({
         <v-col cols="12">
           <!-- Platform Benefits Section -->
           <v-card
-            class="mt-5 mb-4"
+            class="mt-5 mb-4 simple-border"
             elevation="15"
             rounded="xl"
             title="Diferenciais da Plataforma"
@@ -155,7 +155,7 @@ useSeoMeta({
 
           <!-- Target Audience Section -->
           <v-card
-            class="mb-4"
+            class="mb-4 simple-border"
             elevation="15"
             rounded="xl"
             title="Público-Alvo"

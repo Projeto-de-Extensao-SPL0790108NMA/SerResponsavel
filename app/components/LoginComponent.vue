@@ -27,7 +27,7 @@ const signIn = async () => {
 }
 </script>
 <template>
-  <v-card elevation="15" class="login-card pa-6 sticky-login">
+  <v-card elevation="15" class="login-card pa-6 sticky-login" rounded="xl">
     <v-card-title class="text-center mb-4 text-white">
       <v-icon icon="mdi-login" class="me-2" color="primary" />
       Acesse a Plataforma
@@ -108,7 +108,6 @@ const signIn = async () => {
   background: rgba(33, 38, 45, 0.95) !important;
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 20px !important;
 }
 
 .sticky-login {
