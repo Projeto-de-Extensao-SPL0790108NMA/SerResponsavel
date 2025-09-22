@@ -1,8 +1,8 @@
-import { supabase } from '@/lib/supabaseClient'
 import type { CreateNewTask } from '@/types/CreateNewForm'
-import type { QueryData } from '@supabase/supabase-js'
+import type { QueryData, SupabaseClient } from '@supabase/supabase-js'
 
-export const tasksWithProjectsQuery = supabase.from('tasks').select(`
+export const createTasksWithProjectsQuery = (supabase: SupabaseClient) =>
+  supabase.from('tasks').select(`
     *,
     projects (
       id,
@@ -10,12 +10,12 @@ export const tasksWithProjectsQuery = supabase.from('tasks').select(`
       slug
     )
   `)
-export type TasksWithProjects = QueryData<typeof tasksWithProjectsQuery>
+export type TasksWithProjects = QueryData<ReturnType<typeof createTasksWithProjectsQuery>>
 
-export const projectsQuery = supabase.from('projects').select()
-export type Projects = QueryData<typeof projectsQuery>
+export const createProjectsQuery = (supabase: SupabaseClient) => supabase.from('projects').select()
+export type Projects = QueryData<ReturnType<typeof createProjectsQuery>>
 
-export const projectQuery = (slug: string) =>
+export const createProjectQuery = (supabase: SupabaseClient, slug: string) =>
   supabase
     .from('projects')
     .select(
@@ -32,13 +32,17 @@ export const projectQuery = (slug: string) =>
     .eq('slug', slug)
     .single()
 
-export type Project = QueryData<ReturnType<typeof projectQuery>>
+export type Project = QueryData<ReturnType<typeof createProjectQuery>>
 
-export const updateProjectQuery = (updatedProject = {}, id: number) => {
+export const createUpdateProjectQuery = (
+  supabase: SupabaseClient,
+  updatedProject = {},
+  id: number,
+) => {
   return supabase.from('projects').update(updatedProject).eq('id', id)
 }
 
-export const taskQuery = (id: number) => {
+export const createTaskQuery = (supabase: SupabaseClient, id: number) => {
   return supabase
     .from('tasks')
     .select(
@@ -54,26 +58,30 @@ export const taskQuery = (id: number) => {
     .eq('id', id)
     .single()
 }
-export type Task = QueryData<ReturnType<typeof taskQuery>>
+export type Task = QueryData<ReturnType<typeof createTaskQuery>>
 
-export const updateTaskQuery = (updatedTask = {}, id: number) => {
+export const createUpdateTaskQuery = (supabase: SupabaseClient, updatedTask = {}, id: number) => {
   return supabase.from('tasks').update(updatedTask).eq('id', id)
 }
 
-export const deleteTaskQuery = (id: number) => {
+export const createDeleteTaskQuery = (supabase: SupabaseClient, id: number) => {
   return supabase.from('tasks').delete().eq('id', id)
 }
 
-export const profileQuery = ({ column, value }: { column: string; value: string }) => {
+export const createProfileQuery = (
+  supabase: SupabaseClient,
+  { column, value }: { column: string; value: string },
+) => {
   return supabase.from('profiles').select().eq(column, value).single()
 }
 
-export const profilesQuery = supabase.from('profiles').select(`id, full_name`)
+export const createProfilesQuery = (supabase: SupabaseClient) =>
+  supabase.from('profiles').select(`id, full_name`)
 
-export const groupedProfilesQuery = (userIds: string[]) =>
+export const createGroupedProfilesQuery = (supabase: SupabaseClient, userIds: string[]) =>
   supabase.from('profiles').select('username, avatar_url, id, full_name').in('id', userIds)
-export type Collabs = QueryData<ReturnType<typeof groupedProfilesQuery>>
+export type Collabs = QueryData<ReturnType<typeof createGroupedProfilesQuery>>
 
-export const createNewTaskQuery = (newTask: CreateNewTask) => {
+export const createNewTaskQuery = (supabase: SupabaseClient, newTask: CreateNewTask) => {
   return supabase.from('tasks').insert(newTask)
 }

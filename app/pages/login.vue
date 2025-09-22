@@ -1,13 +1,6 @@
 <script lang="ts" setup>
 // Imports
-import { informativeCards, targetAudienceCards, createStatisticsCards } from '~/constants/login'
-
-// Use the projects store
-const projectsStore = useProjectsStore()
-const { projects } = storeToRefs(projectsStore)
-
-// Statistics cards computed from projects data
-const statisticsCards = computed(() => createStatisticsCards(projects.value))
+import { informativeCards, targetAudienceCards } from '~/constants/login'
 
 // SEO
 useSeoMeta({
@@ -87,16 +80,9 @@ useSeoMeta({
       </v-col>
     </v-row>
 
-    <!-- statistics, benefits, and target audience cards -->
+    <!-- benefits, and target audience cards -->
     <v-row dense class="mt-0">
       <v-col cols="12">
-        <!-- Statistics Cards -->
-        <v-row class="mt-1">
-          <v-col v-for="(card, index) in statisticsCards" :key="index" cols="12" md="4">
-            <ui-simple-card :card-data="card" size="big" />
-          </v-col>
-        </v-row>
-
         <!-- Platform Benefits Section -->
         <v-card
           class="mt-5 mb-4"

@@ -1,8 +1,8 @@
-import { supabase } from '@/lib/supabaseClient'
 import type { LoginForm, RegisterForm } from '@/types/AuthForm'
 
 export const loading = ref(false)
 export const register = async (formData: RegisterForm) => {
+  const supabase = useSupabaseClient()
   const { data, error } = await supabase.auth.signUp({
     email: formData.email,
     password: formData.password,
@@ -26,6 +26,7 @@ export const register = async (formData: RegisterForm) => {
 export const login = async (formData: LoginForm) => {
   loading.value = true
   try {
+    const supabase = useSupabaseClient()
     const { data, error } = await supabase.auth.signInWithPassword({
       email: formData.email,
       password: formData.password,
@@ -39,6 +40,7 @@ export const login = async (formData: LoginForm) => {
 }
 
 export const logout = async () => {
+  const supabase = useSupabaseClient()
   const { error } = await supabase.auth.signOut()
   if (error) return console.log(error)
   return true
