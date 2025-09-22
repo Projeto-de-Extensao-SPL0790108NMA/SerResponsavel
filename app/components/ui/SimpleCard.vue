@@ -22,7 +22,12 @@ const subtitleClass = computed(() => (props.size === 'big' ? 'text-subtitle-1' :
 </script>
 
 <template>
-  <v-card :color="props.cardData.color || 'primary'" variant="tonal" class="text-center pa-4">
+  <v-card
+    :color="props.cardData.color || 'primary'"
+    variant="tonal"
+    class="text-center pa-4"
+    rounded="xl"
+  >
     <v-icon :icon="props.cardData.icon" :size="iconSize" class="mb-2" />
     <div :class="titleClass">{{ props.cardData.title }}</div>
     <div :class="subtitleClass">{{ props.cardData.subtitle }}</div>

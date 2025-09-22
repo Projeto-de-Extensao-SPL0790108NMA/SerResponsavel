@@ -20,7 +20,7 @@ onMounted(async () => {
 })
 </script>
 <template>
-  <v-card elevation="2" class="slider-card">
+  <v-card elevation="2" class="slider-card" rounded="xl">
     <v-card-title class="d-flex align-center pa-4">
       <v-icon icon="mdi-image-multiple" class="me-2" color="primary" />
       Projetos em Destaque

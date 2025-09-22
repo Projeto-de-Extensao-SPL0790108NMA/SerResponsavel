@@ -36,6 +36,7 @@ const signin = async () => {
         label="Email"
         variant="outlined"
         density="compact"
+        rounded
         prepend-inner-icon="mdi-account"
         class="mb-2"
         required
@@ -45,6 +46,7 @@ const signin = async () => {
         label="Senha"
         density="compact"
         variant="outlined"
+        rounded
         prepend-inner-icon="mdi-lock"
         type="password"
         class="mb-2"
@@ -55,14 +57,30 @@ const signin = async () => {
         {{ serverError }}
       </v-alert>
 
-      <v-btn type="submit" color="primary" size="small" block class="mb-3" prepend-icon="mdi-login">
+      <v-btn
+        type="submit"
+        rounded="xl"
+        color="primary"
+        size="small"
+        block
+        class="mb-3"
+        prepend-icon="mdi-login"
+      >
         Entrar
       </v-btn>
-      <v-btn variant="outlined" size="small" block class="mb-4" prepend-icon="mdi-account-plus">
+      <v-btn
+        rounded="xl"
+        variant="outlined"
+        size="small"
+        block
+        class="mb-4"
+        prepend-icon="mdi-account-plus"
+      >
         Criar Conta
       </v-btn>
       <div class="text-center">
         <v-btn
+          rounded="xl"
           type="submit"
           variant="text"
           size="small"
@@ -75,3 +93,18 @@ const signin = async () => {
     </v-form>
   </v-card>
 </template>
+
+<style scoped>
+.login-card {
+  background: rgba(33, 38, 45, 0.95) !important;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px !important;
+}
+
+.sticky-login {
+  position: sticky;
+  top: 20px;
+  height: fit-content;
+}
+</style>

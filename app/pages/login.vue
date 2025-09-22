@@ -58,7 +58,7 @@ useSeoMeta({
       <!-- mission and info cards -->
       <v-col cols="12" lg="8">
         <!-- mission -->
-        <v-card elevation="2" class="mission-card pa-6 mb-6">
+        <v-card elevation="2" class="mission-card pa-6 mb-6" rounded="xl">
           <v-card-text class="mission-text">
             <v-icon icon="mdi-target" color="primary" class="me-2" />
             <strong class="text-white">Missão:</strong>
@@ -89,11 +89,13 @@ useSeoMeta({
     <!-- Projects Management Section -->
     <v-row class="mt-2">
       <v-col cols="12">
-        <v-card class="mb-4" elevation="2">
-          <v-card-title class="d-flex align-center">
-            <v-icon icon="mdi-folder-multiple" class="me-2" />
-            Projetos de Responsabilidade Social
-          </v-card-title>
+        <v-card
+          class="mb-4"
+          elevation="2"
+          rounded="xl"
+          title="Projetos de Responsabilidade Social"
+          prepend-icon="mdi-folder-multiple"
+        >
           <v-card-subtitle>
             Gerencie e acompanhe todas as iniciativas sociais da instituição
           </v-card-subtitle>
@@ -109,6 +111,7 @@ useSeoMeta({
               size="small"
               class="me-2"
               :loading="loading"
+              rounded="xl"
               prepend-icon="mdi-refresh"
               @click="refreshProjects"
             >
@@ -117,6 +120,7 @@ useSeoMeta({
             <v-btn
               variant="outlined"
               color="warning"
+              rounded="xl"
               size="small"
               prepend-icon="mdi-cached"
               @click="invalidateCache"
@@ -127,7 +131,7 @@ useSeoMeta({
         </v-card>
 
         <!-- Loading State -->
-        <v-card v-if="loading" class="mb-4" elevation="1">
+        <v-card v-if="loading" class="mb-4" elevation="1" rounded="xl">
           <v-card-text class="text-center pa-8">
             <v-progress-circular indeterminate color="primary" size="48" />
             <div class="mt-4 text-h6">Carregando projetos sociais...</div>
@@ -138,18 +142,19 @@ useSeoMeta({
         </v-card>
 
         <!-- Error State -->
-        <v-alert v-if="error" type="error" class="mb-4 custom-alert" variant="tonal">
+        <v-alert v-if="error" type="error" class="mb-4 custom-alert" variant="tonal" rounded="xl">
           <v-icon icon="mdi-alert-circle" />
           <strong>Erro ao carregar projetos:</strong> {{ error }}
         </v-alert>
 
         <!-- Projects Display -->
-        <v-card v-if="!loading && projects" elevation="1">
-          <v-card-title class="d-flex align-center pa-4">
-            <v-icon icon="mdi-view-list" class="me-2" />
-            Projetos Ativos ({{ projects?.length || 0 }})
-          </v-card-title>
-
+        <v-card
+          v-if="!loading && projects"
+          elevation="1"
+          rounded="xl"
+          :title="`Projetos Ativos (${projects?.length || 0})`"
+          prepend-icon="mdi-view-list"
+        >
           <v-divider />
 
           <v-card-text class="pa-0">
@@ -164,7 +169,9 @@ useSeoMeta({
               <p class="text-body-2 text-grey-darken-1">
                 Comece criando seu primeiro projeto de responsabilidade social
               </p>
-              <v-btn color="primary" class="mt-4" prepend-icon="mdi-plus"> Criar Projeto</v-btn>
+              <v-btn rounded="xl" color="primary" class="mt-4" prepend-icon="mdi-plus">
+                Criar Projeto</v-btn
+              >
             </div>
 
             <v-list v-else lines="three">
@@ -201,7 +208,7 @@ useSeoMeta({
                         />
                         {{ project?.status === 'completed' ? 'Concluído' : 'Em Andamento' }}
                       </v-chip>
-                      <v-btn variant="outlined" size="small" prepend-icon="mdi-eye">
+                      <v-btn rounded="xl" variant="outlined" size="small" prepend-icon="mdi-eye">
                         Ver Detalhes
                       </v-btn>
                     </div>
@@ -221,15 +228,17 @@ useSeoMeta({
         </v-row>
 
         <!-- Platform Benefits Section -->
-        <v-card class="mt-8 mb-4" elevation="2">
-          <v-card-title class="d-flex align-center pa-6">
-            <v-icon icon="mdi-star" class="me-2" color="primary" />
-            Diferenciais da Plataforma
-          </v-card-title>
+        <v-card
+          class="mt-8 mb-4"
+          elevation="2"
+          rounded="xl"
+          title="Diferenciais da Plataforma"
+          prepend-icon="mdi-star"
+        >
           <v-card-text>
             <v-row>
               <v-col cols="12" md="6">
-                <v-list>
+                <v-list rounded="xl">
                   <v-list-item>
                     <template #prepend>
                       <v-icon icon="mdi-trophy" color="warning" />
@@ -257,7 +266,7 @@ useSeoMeta({
                 </v-list>
               </v-col>
               <v-col cols="12" md="6">
-                <v-list>
+                <v-list rounded="xl">
                   <v-list-item>
                     <template #prepend>
                       <v-icon icon="mdi-certificate" color="primary" />
@@ -287,11 +296,13 @@ useSeoMeta({
         </v-card>
 
         <!-- Target Audience Section -->
-        <v-card class="mb-4" elevation="2">
-          <v-card-title class="d-flex align-center pa-6">
-            <v-icon icon="mdi-account-group" class="me-2" color="primary" />
-            Público-Alvo
-          </v-card-title>
+        <v-card
+          class="mb-4"
+          elevation="2"
+          rounded="xl"
+          title="Público-Alvo"
+          prepend-icon="mdi-account-group"
+        >
           <v-card-text>
             <v-row>
               <v-col v-for="(card, index) in targetAudienceCards" :key="index" cols="12" md="3">
@@ -324,19 +335,6 @@ useSeoMeta({
   z-index: 1;
 }
 
-.login-card {
-  background: rgba(33, 38, 45, 0.95) !important;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 20px !important;
-}
-
-.sticky-login {
-  position: sticky;
-  top: 20px;
-  height: fit-content;
-}
-
 .mission-card {
   background: rgba(33, 38, 45, 0.9) !important;
   border: 1px solid rgba(25, 118, 210, 0.2);
@@ -358,24 +356,9 @@ useSeoMeta({
 }
 
 /* Global rounded styles */
-:deep(.v-card) {
-  border-radius: 16px !important;
-}
-
-:deep(.v-btn) {
-  border-radius: 12px !important;
-}
-
-:deep(.v-text-field .v-field) {
-  border-radius: 12px !important;
-}
 
 :deep(.v-chip) {
   border-radius: 10px !important;
-}
-
-:deep(.v-alert) {
-  border-radius: 12px !important;
 }
 
 :deep(.v-avatar) {
@@ -440,11 +423,5 @@ useSeoMeta({
   transform: translateY(-1px);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
   transition: all 0.2s ease;
-}
-
-/* Logo styling */
-:deep(.v-img) {
-  border-radius: 20px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 </style>
