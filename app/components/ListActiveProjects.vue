@@ -156,7 +156,7 @@ onMounted(async () => {
   <ClientOnly>
     <v-row class="mt-1">
       <v-col v-for="(card, index) in statisticsCards" :key="index" cols="12" md="4">
-        <ui-simple-card :card-data="card" size="big" />
+        <ui-simple-card animated :card-data="card" size="big" />
       </v-col>
     </v-row>
     <template #fallback>

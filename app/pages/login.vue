@@ -96,7 +96,7 @@ useSeoMeta({
           <!-- info cards -->
           <v-row class="mb-6">
             <v-col v-for="(card, index) in informativeCards" :key="index" cols="12" md="4">
-              <ui-simple-card :card-data="card" />
+              <ui-simple-card :card-data="card" animated />
             </v-col>
           </v-row>
         </v-col>
@@ -202,7 +202,7 @@ useSeoMeta({
             <v-card-text>
               <v-row>
                 <v-col v-for="(card, index) in targetAudienceCards" :key="index" cols="12" md="3">
-                  <ui-simple-card :card-data="card" />
+                  <ui-simple-card :card-data="card" animated />
                 </v-col>
               </v-row>
             </v-card-text>
