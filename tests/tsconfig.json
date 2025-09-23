@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": "..",
+    "paths": {
+      "@/*": ["app/*"],
+      "@": ["app"],
+      "~/*": ["app/*"],
+      "~": ["app"]
+    },
+    "types": ["vitest/globals", "node"]
+  },
+  "include": ["./**/*.ts", "./**/*.vue", "../app/**/*.ts", "../app/**/*.vue"],
+  "exclude": ["../node_modules", "../.nuxt", "../dist", "../coverage"]
+}
