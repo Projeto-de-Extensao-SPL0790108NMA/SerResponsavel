@@ -40,41 +40,51 @@ onMounted(async () => {
   <ClientOnly>
     <v-card v-if="!loading && projects" elevation="15" rounded="xl" class="simple-border">
       <v-card-title class="text-white">
-        <v-row>
-          <v-col>
-            <v-icon icon="mdi-view-list" class="me-2" color="primary" />
-            Projetos de Responsabilidade Social Ativos ({{ projects?.length || 0 }})
+        <v-row align="center">
+          <v-col cols="12" md="8">
+            <div class="d-flex align-center">
+              <v-icon icon="mdi-view-list" class="me-2" color="primary" />
+              <span class="text-h6 text-md-h5 text-truncate">
+                Projetos de Responsabilidade Social Ativos ({{ projects?.length || 0 }})
+              </span>
+            </div>
           </v-col>
-          <v-col class="text-right">
-            <v-spacer />
-            <v-chip :color="isCached ? 'success' : 'info'" size="small" class="me-2">
-              <v-icon :icon="isCached ? 'mdi-database' : 'mdi-cloud-sync'" start />
-              {{ isCached ? 'Cache Ativo' : 'Sincronizando' }}
-            </v-chip>
-            <v-btn
-              variant="outlined"
-              size="small"
-              class="me-2 light-btn-outlined-variant btn-selected-custom"
-              :loading="loading"
-              rounded="xl"
-              elevation="15"
-              prepend-icon="mdi-refresh"
-              @click="refreshProjects"
-            >
-              Atualizar
-            </v-btn>
-            <v-btn
-              variant="outlined"
-              color="warning"
-              rounded="xl"
-              size="small"
-              elevation="15"
-              class="btn-selected-custom"
-              prepend-icon="mdi-cached"
-              @click="invalidateCache"
-            >
-              Limpar Cache
-            </v-btn>
+          <v-col cols="12" md="4" class="text-center text-md-right">
+            <div class="d-flex flex-row flex-md-row justify-center justify-md-end align-center">
+              <v-chip
+                :color="isCached ? 'success' : 'info'"
+                size="small"
+                class="me-2 text-no-wrap"
+                style="min-width: max-content"
+              >
+                <v-icon :icon="isCached ? 'mdi-database' : 'mdi-cloud-sync'" start />
+                {{ isCached ? 'Cache Ativo' : 'Sincronizando' }}
+              </v-chip>
+              <v-btn
+                variant="outlined"
+                size="small"
+                class="me-2 light-btn-outlined-variant btn-selected-custom"
+                :loading="loading"
+                rounded="xl"
+                elevation="15"
+                prepend-icon="mdi-refresh"
+                @click="refreshProjects"
+              >
+                Atualizar
+              </v-btn>
+              <v-btn
+                variant="outlined"
+                color="warning"
+                rounded="xl"
+                size="small"
+                elevation="15"
+                class="btn-selected-custom"
+                prepend-icon="mdi-cached"
+                @click="invalidateCache"
+              >
+                Limpar Cache
+              </v-btn>
+            </div>
           </v-col>
         </v-row>
       </v-card-title>
