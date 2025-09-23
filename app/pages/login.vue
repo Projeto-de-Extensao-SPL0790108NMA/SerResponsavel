@@ -20,7 +20,7 @@ useSeoMeta({
 </script>
 
 <template>
-  <v-container>
+  <v-container max-width="1080">
     <!-- Hero Section -->
     <v-row class="text-center">
       <v-col class="hero-content fade-in-up">
