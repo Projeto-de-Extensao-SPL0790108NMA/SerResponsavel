@@ -1,37 +1,27 @@
-import type { Projects, Project } from '@/services/supaQueries'
+import { ProjectsService } from '@/services/projects.service'
 
 export const useProjects = () => {
   const supabase = useSupabaseClient()
+  const projectsService = new ProjectsService(supabase)
 
-  // Fetch all projects
   const getProjects = async () => {
-    const { data, error } = await supabase.from('projects').select()
-
-    return { data: data as Projects, error }
+    try {
+      const data = await projectsService.getProjects()
+      return { data, error: null }
+    } catch (error) {
+      return { data: null, error }
+    }
   }
 
-  // Fetch single project by slug with tasks
   const getProject = async (slug: string) => {
-    const { data, error } = await supabase
-      .from('projects')
-      .select(
-        `
-        *,
-        tasks (
-          id,
-          name,
-          status,
-          due_date
-        )
-      `,
-      )
-      .eq('slug', slug)
-      .single()
-
-    return { data: data as Project, error }
+    try {
+      const data = await projectsService.getProject(slug)
+      return { data, error: null }
+    } catch (error) {
+      return { data: null, error }
+    }
   }
 
-  // Create new project
   const createProject = async (project: {
     name: string
     slug: string
@@ -39,12 +29,14 @@ export const useProjects = () => {
     status?: 'in-progress' | 'completed'
     collaborators?: string[]
   }) => {
-    const { data, error } = await supabase.from('projects').insert(project).select().single()
-
-    return { data, error }
+    try {
+      const data = await projectsService.createProject(project)
+      return { data, error: null }
+    } catch (error) {
+      return { data: null, error }
+    }
   }
 
-  // Update project
   const updateProject = async (
     id: number,
     updates: {
@@ -55,21 +47,21 @@ export const useProjects = () => {
       collaborators?: string[]
     },
   ) => {
-    const { data, error } = await supabase
-      .from('projects')
-      .update(updates)
-      .eq('id', id)
-      .select()
-      .single()
-
-    return { data, error }
+    try {
+      const data = await projectsService.updateProject(id, updates)
+      return { data, error: null }
+    } catch (error) {
+      return { data: null, error }
+    }
   }
 
-  // Delete project
   const deleteProject = async (id: number) => {
-    const { data, error } = await supabase.from('projects').delete().eq('id', id)
-
-    return { data, error }
+    try {
+      const data = await projectsService.deleteProject(id)
+      return { data, error: null }
+    } catch (error) {
+      return { data: null, error }
+    }
   }
 
   return {

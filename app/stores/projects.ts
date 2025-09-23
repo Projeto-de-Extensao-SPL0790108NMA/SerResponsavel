@@ -1,4 +1,4 @@
-import type { Projects, Project } from '@/services/supaQueries'
+import type { Projects, Project } from '@/types/supabase'
 
 export const useProjectsStore = defineStore(
   'projects',

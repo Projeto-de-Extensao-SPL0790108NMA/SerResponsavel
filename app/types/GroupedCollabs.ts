@@ -1,4 +1,4 @@
-import type { Collabs } from '@/utils/supaQueries'
+import type { Collabs } from '@/types/supabase'
 
 export type GroupedCollabs = {
   [key: string]: Collabs

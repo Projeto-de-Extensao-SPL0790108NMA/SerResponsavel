@@ -1,47 +1,83 @@
 import type { LoginForm, RegisterForm } from '@/types/AuthForm'
+import { AuthService } from '@/services/auth.service'
 
-export const loading = ref(false)
-export const register = async (formData: RegisterForm) => {
+export const useAuth = () => {
   const supabase = useSupabaseClient()
-  const { data, error } = await supabase.auth.signUp({
-    email: formData.email,
-    password: formData.password,
-  })
+  const authService = new AuthService(supabase)
+  const loading = ref(false)
 
-  if (error) return console.log(error)
-
-  if (data.user) {
-    const { error } = await supabase.from('profiles').insert({
-      id: data.user.id,
-      username: formData.username,
-      full_name: formData.firstName.concat(' ', formData.lastName),
-    })
-
-    if (error) return console.log('Profiles err: ', error)
+  const register = async (formData: RegisterForm) => {
+    loading.value = true
+    try {
+      const data = await authService.register(formData)
+      return { data, error: null }
+    } catch (error) {
+      console.log(error)
+      return { data: null, error }
+    } finally {
+      loading.value = false
+    }
   }
 
-  return true
-}
-
-export const login = async (formData: LoginForm) => {
-  loading.value = true
-  try {
-    const supabase = useSupabaseClient()
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: formData.email,
-      password: formData.password,
-    })
-    return { data, error }
-  } catch (err) {
-    return { err }
-  } finally {
-    loading.value = false
+  const login = async (formData: LoginForm) => {
+    loading.value = true
+    try {
+      const data = await authService.login(formData)
+      return { data, error: null }
+    } catch (error) {
+      return { data: null, error }
+    } finally {
+      loading.value = false
+    }
   }
-}
 
-export const logout = async () => {
-  const supabase = useSupabaseClient()
-  const { error } = await supabase.auth.signOut()
-  if (error) return console.log(error)
-  return true
+  const logout = async () => {
+    loading.value = true
+    try {
+      await authService.logout()
+      return { success: true, error: null }
+    } catch (error) {
+      console.log(error)
+      return { success: false, error }
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const getProfile = async (params: { column: string; value: string }) => {
+    try {
+      const data = await authService.getProfile(params)
+      return { data, error: null }
+    } catch (error) {
+      return { data: null, error }
+    }
+  }
+
+  const getProfiles = async () => {
+    try {
+      const data = await authService.getProfiles()
+      return { data, error: null }
+    } catch (error) {
+      return { data: null, error }
+    }
+  }
+
+  const getGroupedProfiles = async (userIds: string[]) => {
+    try {
+      const data = await authService.getGroupedProfiles(userIds)
+      return { data, error: null }
+    } catch (error) {
+      return { data: null, error }
+    }
+  }
+
+  return {
+    loading: readonly(loading),
+    register,
+    login,
+    logout,
+    getProfile,
+    getProfiles,
+    getGroupedProfiles,
+  }
 }

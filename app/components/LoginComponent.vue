@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const { serverError, handleServerError, handleLoginForm } = useFormErrors()
+const { login, loading } = useAuth()
 
 const formData = ref({
   email: '',
