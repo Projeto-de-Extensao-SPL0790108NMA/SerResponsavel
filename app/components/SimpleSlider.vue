@@ -68,11 +68,11 @@ onMounted(async () => {
         <!-- Slider Indicators -->
         <div class="slider-indicators">
           <button
-            v-for="(slide, index) in slides"
-            :key="index"
+            v-for="index in slides.length"
+            :key="`indicator-${index - 1}`"
             class="indicator"
-            :class="{ active: index === currentSlide }"
-            @click="currentSlide = index"
+            :class="{ active: index - 1 === currentSlide }"
+            @click="currentSlide = index - 1"
           />
         </div>
       </div>

@@ -1,0 +1,210 @@
+<script setup lang="ts">
+const authStore = useAuthStore()
+const { logout } = useAuth()
+const dialog = ref(false)
+
+// Reactive state
+const drawer = ref(false)
+
+// Computed properties
+const isAuthenticated = computed(() => authStore.isAuthenticated)
+const fullName = computed(() => authStore.fullName)
+const username = computed(() => authStore.username)
+const avatarUrl = computed(() => authStore.avatarUrl)
+
+// Methods
+const handleLogout = async () => {
+  try {
+    await logout()
+    await navigateTo('/login')
+  } catch (error) {
+    console.error('Logout error:', error)
+  }
+}
+
+// Close drawer when route changes
+watch(
+  () => useRoute().path,
+  () => {
+    drawer.value = false
+  },
+)
+</script>
+
+<template>
+  <v-app-bar app fixed elevation="15" class="navbar-color">
+    <!-- Logo/Brand -->
+    <v-app-bar-title>
+      <v-row>
+        <v-col cols="12" md="6" class="d-none d-md-flex align-center">
+          <v-img
+            src="/logoserresp600_598.png"
+            alt="SerResponsável Logo"
+            max-width="40"
+            max-height="40"
+            class="d-block mr-5"
+          />
+          SerResponsável
+        </v-col>
+      </v-row>
+    </v-app-bar-title>
+
+    <v-spacer />
+
+    <!-- Navigation Items -->
+    <div class="d-none d-md-flex align-center">
+      <template v-if="isAuthenticated">
+        <!-- Authenticated Navigation -->
+        <v-btn variant="text" class="text-white"> Projetos </v-btn>
+
+        <v-btn variant="text" class="text-white"> Tarefas </v-btn>
+
+        <!-- User Menu -->
+        <v-menu>
+          <template #activator="{ props }">
+            <v-btn v-bind="props" variant="text" class="text-white ms-2">
+              <v-avatar size="32" class="me-2">
+                <v-img v-if="avatarUrl" :src="avatarUrl" :alt="fullName" />
+                <v-icon v-else>mdi-account-circle</v-icon>
+              </v-avatar>
+              {{ fullName }}
+              <v-icon>mdi-chevron-down</v-icon>
+            </v-btn>
+          </template>
+
+          <v-list>
+            <v-list-item>
+              <v-list-item-title>Perfil</v-list-item-title>
+            </v-list-item>
+            <v-list-item>
+              <v-list-item-title>Configurações</v-list-item-title>
+            </v-list-item>
+            <v-divider />
+            <v-list-item @click="handleLogout">
+              <v-list-item-title>Sair</v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+      </template>
+
+      <template v-else>
+        <v-btn
+          size="small"
+          rounded="xl"
+          variant="outlined"
+          class="text-white ms-2 light-btn-outlined-variant"
+          border="white"
+          prepend-icon="mdi-login"
+          @click="dialog = true"
+        >
+          Entrar
+        </v-btn>
+
+        <v-btn
+          variant="flat"
+          prepend-icon="mdi-account-plus"
+          class="ms-2 mr-5"
+          color="secondary"
+          size="small"
+          rounded="xl"
+        >
+          Cadastrar
+        </v-btn>
+      </template>
+    </div>
+
+    <!-- Mobile Menu -->
+    <v-app-bar-nav-icon class="d-md-none" @click="drawer = !drawer" />
+  </v-app-bar>
+
+  <!-- Mobile Navigation Drawer -->
+  <v-navigation-drawer v-model="drawer" temporary location="right" width="280">
+    <v-list>
+      <!-- User Info (if authenticated) -->
+      <template v-if="isAuthenticated">
+        <v-list-item class="px-4 py-3">
+          <template #prepend>
+            <v-avatar size="48">
+              <v-img v-if="avatarUrl" :src="avatarUrl" :alt="fullName" />
+              <v-icon v-else size="48">mdi-account-circle</v-icon>
+            </v-avatar>
+          </template>
+          <v-list-item-title class="font-weight-bold">
+            {{ fullName }}
+          </v-list-item-title>
+          <v-list-item-subtitle>
+            {{ username }}
+          </v-list-item-subtitle>
+        </v-list-item>
+
+        <v-divider />
+
+        <!-- Authenticated Mobile Navigation -->
+        <v-list-item>
+          <template #prepend>
+            <v-icon>mdi-folder-multiple</v-icon>
+          </template>
+          <v-list-item-title>Projetos</v-list-item-title>
+        </v-list-item>
+
+        <v-list-item>
+          <template #prepend>
+            <v-icon>mdi-format-list-checks</v-icon>
+          </template>
+          <v-list-item-title>Tarefas</v-list-item-title>
+        </v-list-item>
+
+        <v-list-item>
+          <template #prepend>
+            <v-icon>mdi-account</v-icon>
+          </template>
+          <v-list-item-title>Perfil</v-list-item-title>
+        </v-list-item>
+
+        <v-list-item>
+          <template #prepend>
+            <v-icon>mdi-cog</v-icon>
+          </template>
+          <v-list-item-title>Configurações</v-list-item-title>
+        </v-list-item>
+
+        <v-divider />
+
+        <v-list-item @click="handleLogout">
+          <template #prepend>
+            <v-icon>mdi-logout</v-icon>
+          </template>
+          <v-list-item-title>Sair</v-list-item-title>
+        </v-list-item>
+      </template>
+
+      <template v-else>
+        <!-- Unauthenticated Mobile Navigation -->
+        <v-list-item>
+          <template #prepend>
+            <v-icon>mdi-information</v-icon>
+          </template>
+          <v-list-item-title>Sobre</v-list-item-title>
+        </v-list-item>
+
+        <v-list-item>
+          <template #prepend>
+            <v-icon>mdi-login</v-icon>
+          </template>
+          <v-list-item-title>Entrar</v-list-item-title>
+        </v-list-item>
+
+        <v-list-item>
+          <template #prepend>
+            <v-icon>mdi-account-plus</v-icon>
+          </template>
+          <v-list-item-title>Cadastrar</v-list-item-title>
+        </v-list-item>
+      </template>
+    </v-list>
+  </v-navigation-drawer>
+
+  <v-dialog v-model="dialog" max-width="50%">
+    <LoginComponent @close="dialog = false" />
+  </v-dialog>
+</template>

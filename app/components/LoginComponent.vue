@@ -1,4 +1,9 @@
 <script setup lang="ts">
+// Emits
+const emit = defineEmits<{
+  close: []
+}>()
+
 const { serverError, handleServerError, handleLoginForm } = useFormErrors()
 const { login, loading } = useAuth()
 
@@ -22,13 +27,21 @@ const signIn = async () => {
   if (loading.value) return
 
   const { error } = await login(formData.value)
-  if (!error) return navigateTo('/home')
+  if (!error) {
+    emit('close') // Fechar dialog após login bem-sucedido
+    return navigateTo('/home')
+  }
 
   handleServerError(error)
 }
+
+// Função para cancelar e fechar o dialog
+const handleCancel = () => {
+  emit('close')
+}
 </script>
 <template>
-  <v-card elevation="15" class="login-card pa-6 sticky-login" rounded="xl">
+  <v-card elevation="15" class="login-card pa-6 borda-radial-branco" rounded="xl">
     <v-card-title class="text-center mb-4 text-white">
       <v-icon icon="mdi-login" class="me-2" color="primary" />
       Acesse a Plataforma
@@ -74,32 +87,36 @@ const signIn = async () => {
       >
         Entrar
       </v-btn>
-      <v-btn
-        elevation="15"
-        rounded="xl"
-        variant="outlined"
-        size="small"
-        block
-        class="mb-4 light-btn-outlined-variant btn-selected-custom"
-        :disabled="loading"
-        prepend-icon="mdi-account-plus"
-      >
-        Criar Conta
-      </v-btn>
-      <div class="text-center">
-        <v-btn
-          elevation="15"
-          rounded="xl"
-          type="submit"
-          :disabled="loading"
-          variant="text"
-          size="small"
-          prepend-icon="mdi-help-circle"
-          class="text-grey-lighten-1 btn-selected-custom"
-        >
-          Esqueci minha senha
-        </v-btn>
-      </div>
+
+      <v-row class="text-center mt-5">
+        <v-col>
+          <v-btn
+            elevation="15"
+            rounded="xl"
+            type="submit"
+            :disabled="loading"
+            variant="text"
+            size="small"
+            prepend-icon="mdi-help-circle"
+            class="text-grey-lighten-1 btn-selected-custom ma-2"
+          >
+            Esqueci minha senha
+          </v-btn>
+
+          <v-btn
+            elevation="15"
+            rounded="xl"
+            :disabled="loading"
+            variant="tonal"
+            size="small"
+            prepend-icon="mdi-close"
+            class="text-grey-lighten-1 btn-selected-custom ma-2"
+            @click="handleCancel"
+          >
+            Cancelar
+          </v-btn>
+        </v-col>
+      </v-row>
     </v-form>
   </v-card>
 </template>
@@ -108,13 +125,5 @@ const signIn = async () => {
 .login-card {
   background: rgba(33, 38, 45, 0.95) !important;
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 24px !important; /* xl = 24px */
-}
-
-.sticky-login {
-  position: sticky;
-  top: 20px;
-  height: fit-content;
 }
 </style>

@@ -77,10 +77,10 @@ export const useAuthStore = defineStore(
     const avatarUrl = computed(() => profile.value?.avatar_url || '')
 
     return {
-      // State
-      user: readonly(user),
-      profile: readonly(profile),
-      isLoading: readonly(isLoading),
+      // State - não usar readonly aqui para evitar warnings de hidratação
+      user,
+      profile,
+      isLoading,
       isAuthenticated,
 
       // Actions
@@ -101,7 +101,7 @@ export const useAuthStore = defineStore(
   {
     persist: {
       storage: piniaPluginPersistedstate.localStorage(),
-      pick: ['profile'], // Só persistir o profile, o user vem do Supabase
+      paths: ['profile'], // Usar paths ao invés de pick
     },
   },
 )

@@ -1,4 +1,5 @@
 import type { LoginForm, RegisterForm } from '@/types/AuthForm'
+import type { AuthError } from '@supabase/supabase-js'
 import { AuthService } from '@/services/auth.service'
 import { MeService } from '@/services/me.service'
 
@@ -15,7 +16,7 @@ export const useAuth = () => {
       return { data, error: null }
     } catch (error) {
       console.log(error)
-      return { data: null, error }
+      return { data: null, error: error as AuthError }
     } finally {
       loading.value = false
     }
@@ -42,7 +43,7 @@ export const useAuth = () => {
 
       return { data, error: null }
     } catch (error) {
-      return { data: null, error }
+      return { data: null, error: error as AuthError }
     } finally {
       loading.value = false
     }
@@ -60,7 +61,7 @@ export const useAuth = () => {
       return { success: true, error: null }
     } catch (error) {
       console.log(error)
-      return { success: false, error }
+      return { success: false, error: error as AuthError }
     } finally {
       loading.value = false
     }
