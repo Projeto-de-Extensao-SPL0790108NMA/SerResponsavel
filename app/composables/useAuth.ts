@@ -1,9 +1,11 @@
 import type { LoginForm, RegisterForm } from '@/types/AuthForm'
 import { AuthService } from '@/services/auth.service'
+import { MeService } from '@/services/me.service'
 
 export const useAuth = () => {
   const supabase = useSupabaseClient()
   const authService = new AuthService(supabase)
+  const meService = new MeService(supabase)
   const loading = ref(false)
 
   const register = async (formData: RegisterForm) => {
@@ -23,6 +25,21 @@ export const useAuth = () => {
     loading.value = true
     try {
       const data = await authService.login(formData)
+
+      // Buscar perfil do usuário após login bem-sucedido
+      if (data.user) {
+        const authStore = useAuthStore()
+        await authStore.login(data.user)
+
+        // Buscar perfil
+        try {
+          const { fetchCurrentUserProfile } = useProfile()
+          await fetchCurrentUserProfile()
+        } catch (profileError) {
+          console.warn('Could not fetch user profile:', profileError)
+        }
+      }
+
       return { data, error: null }
     } catch (error) {
       return { data: null, error }
@@ -35,6 +52,11 @@ export const useAuth = () => {
     loading.value = true
     try {
       await authService.logout()
+
+      // Limpar store após logout bem-sucedido
+      const authStore = useAuthStore()
+      authStore.logout()
+
       return { success: true, error: null }
     } catch (error) {
       console.log(error)
@@ -71,6 +93,15 @@ export const useAuth = () => {
     }
   }
 
+  const getCurrentUser = async () => {
+    try {
+      const data = await meService.getCurrentUser()
+      return { data, error: null }
+    } catch (error) {
+      return { data: null, error }
+    }
+  }
+
   return {
     loading: readonly(loading),
     register,
@@ -79,5 +110,6 @@ export const useAuth = () => {
     getProfile,
     getProfiles,
     getGroupedProfiles,
+    getCurrentUser,
   }
 }

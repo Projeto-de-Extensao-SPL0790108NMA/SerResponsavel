@@ -1,4 +1,7 @@
-import type { Projects, Project } from '@/types/supabase'
+import type { Database } from '~~/database/types'
+
+type Project = Database['public']['Tables']['projects']['Row']
+type Projects = Project[]
 
 export const useProjectsStore = defineStore(
   'projects',
