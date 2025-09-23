@@ -184,18 +184,19 @@
     #21262d 75%,
     #0d1117 100%
   ) !important;
+  z-index: 1000 !important;
 }
 
 .app-background {
   background: linear-gradient(
-    135deg,
-    #0d1117 0%,
-    #161b22 25%,
-    #1c2128 50%,
-    #21262d 75%,
-    #0d1117 100%
-  ) !important;
-  background-attachment: fixed !important;
+      135deg,
+      #0d1117 0%,
+      #161b22 25%,
+      #1c2128 50%,
+      #21262d 75%,
+      #0d1117 100%
+    )
+    fixed !important;
   min-height: 100vh !important;
 }
 
