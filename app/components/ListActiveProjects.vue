@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { createStatisticsCards } from '~/constants/login'
+
 const projectsStore = useProjectsStore()
 const { projects, loading, error, isCached } = storeToRefs(projectsStore)
 const { fetchProjects, invalidateCache } = projectsStore
@@ -135,6 +136,24 @@ onMounted(async () => {
                 <v-avatar color="primary" class="me-3">
                   <v-icon icon="mdi-handshake" />
                 </v-avatar>
+              </template>
+
+              <template #append>
+                <v-row no-gutters justify="center">
+                  <v-col cols="12" class="text-center">
+                    <div class="text-body-2 mb-2">
+                      {{ project?.organization?.name || 'Sem organização' }}
+                    </div>
+                  </v-col>
+                  <v-col cols="12" class="text-center">
+                    <v-avatar v-if="project?.organization?.logo_url" size="32">
+                      <v-img :src="project.organization.logo_url" />
+                    </v-avatar>
+                    <v-avatar v-else color="grey-lighten-2" size="32">
+                      <v-icon icon="mdi-domain" />
+                    </v-avatar>
+                  </v-col>
+                </v-row>
               </template>
             </v-list-item>
             <v-divider v-if="index < (projects?.length || 0) - 1" />

@@ -21,6 +21,7 @@
     "test:run": "vitest run",
     "supabase:init": "pnpx supabase init",
     "supabase:login": "pnpx supabase login",
+    "run:migrations": "pnpx supabase db push",
     "supabase:link": "pnpx supabase link --project-ref mqcsfvmzqegblqjkvisp",
     "supabase:types": "pnpx supabase gen types typescript --project-id mqcsfvmzqegblqjkvisp --schema public > database/types.ts",
     "db:migrate:new": "pnpx supabase migration new",

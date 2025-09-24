@@ -2,14 +2,17 @@ import type { Database } from '~~/database/types'
 import type { RealtimeChannel } from '@supabase/supabase-js'
 
 type Project = Database['public']['Tables']['projects']['Row']
-type Projects = Project[]
+type ProjectWithOrganization = Project & {
+  organization: Database['public']['Tables']['organizations']['Row'] | null
+}
+type Projects = ProjectWithOrganization[]
 
 export const useProjectsStore = defineStore(
   'projects',
   () => {
     // State
     const projects = ref<Projects | null>(null)
-    const currentProject = ref<Project | null>(null)
+    const currentProject = ref<ProjectWithOrganization | null>(null)
     const loading = ref(false)
     const error = ref<string | null>(null)
     const lastFetch = ref<number | null>(null)

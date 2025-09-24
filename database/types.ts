@@ -8,6 +8,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      organizations: {
+        Row: {
+          bio: string | null
+          created_at: string
+          id: string
+          logo_url: string | null
+          name: string
+        }
+        Insert: {
+          bio?: string | null
+          created_at?: string
+          id?: string
+          logo_url?: string | null
+          name: string
+        }
+        Update: {
+          bio?: string | null
+          created_at?: string
+          id?: string
+          logo_url?: string | null
+          name?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -16,6 +40,7 @@ export type Database = {
           full_name: string
           id: string
           mode: string
+          organization_id: string | null
           username: string
         }
         Insert: {
@@ -25,6 +50,7 @@ export type Database = {
           full_name: string
           id: string
           mode?: string
+          organization_id?: string | null
           username: string
         }
         Update: {
@@ -34,9 +60,18 @@ export type Database = {
           full_name?: string
           id?: string
           mode?: string
+          organization_id?: string | null
           username?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: 'profiles_organization_id_fkey'
+            columns: ['organization_id']
+            isOneToOne: false
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
+          },
+        ]
       }
       projects: {
         Row: {
@@ -45,6 +80,7 @@ export type Database = {
           description: string
           id: number
           name: string
+          organization_id: string | null
           slug: string
           status: Database['public']['Enums']['current_status']
         }
@@ -54,6 +90,7 @@ export type Database = {
           description?: string
           id?: never
           name: string
+          organization_id?: string | null
           slug: string
           status?: Database['public']['Enums']['current_status']
         }
@@ -63,10 +100,19 @@ export type Database = {
           description?: string
           id?: never
           name?: string
+          organization_id?: string | null
           slug?: string
           status?: Database['public']['Enums']['current_status']
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: 'projects_organization_id_fkey'
+            columns: ['organization_id']
+            isOneToOne: false
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
+          },
+        ]
       }
       tasks: {
         Row: {

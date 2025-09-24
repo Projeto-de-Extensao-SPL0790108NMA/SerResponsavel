@@ -4,9 +4,11 @@ export class ProjectsService {
   constructor(private supabase: SupabaseClient) {}
 
   async getProjects(status?: 'in-progress' | 'completed' | 'all') {
-    let query = this.supabase.from('projects').select('*').order('created_at', { ascending: false })
+    let query = this.supabase
+      .from('projects')
+      .select('*, organization:organizations (*)')
+      .order('created_at', { ascending: false })
 
-    // Aplica filtro de status apenas se não for 'all'
     if (status && status !== 'all') {
       query = query.eq('status', status).not('status', 'is', null)
     }
@@ -18,7 +20,6 @@ export class ProjectsService {
       throw error
     }
 
-    // Filtro adicional no lado client como garantia (apenas se status específico)
     if (status && status !== 'all') {
       return data?.filter((project) => project.status === status) || []
     }
