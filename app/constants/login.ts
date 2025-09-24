@@ -24,10 +24,16 @@ export const informativeCards: CardData[] = [
 
 type Project = Database['public']['Tables']['projects']['Row']
 
-export const createStatisticsCards = (projects: Project[] | null): CardData[] => [
+export const createStatisticsCards = (
+  projects: Project[] | null,
+  completedProjectsCount?: number,
+): CardData[] => [
   {
     icon: 'mdi-check-circle',
-    title: projects?.filter((p: Project) => p?.status === 'completed').length || 0,
+    title:
+      completedProjectsCount ??
+      projects?.filter((p: Project) => p?.status === 'completed').length ??
+      0,
     subtitle: 'Projetos Concluídos',
     color: 'success',
   },

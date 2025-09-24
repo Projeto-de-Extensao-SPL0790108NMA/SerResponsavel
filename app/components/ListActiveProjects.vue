@@ -2,13 +2,15 @@
 import { createStatisticsCards } from '~/constants/login'
 
 const projectsStore = useProjectsStore()
-const { projects, loading, error, isCached } = storeToRefs(projectsStore)
-const { fetchProjects, invalidateCache } = projectsStore
+const { projects, loading, error, isCached, completedProjectsCount } = storeToRefs(projectsStore)
+const { fetchProjects, invalidateCache, fetchCompletedProjectsCount } = projectsStore
 
-const statisticsCards = computed(() => createStatisticsCards(projects.value))
+const statisticsCards = computed(() =>
+  createStatisticsCards(projects.value, completedProjectsCount.value),
+)
 
 onMounted(async () => {
-  await fetchProjects(false, 'in-progress')
+  await Promise.all([fetchProjects(false, 'in-progress'), fetchCompletedProjectsCount()])
 })
 </script>
 

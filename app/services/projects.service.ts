@@ -27,6 +27,20 @@ export class ProjectsService {
     return data || []
   }
 
+  async getCountConcludedProjects() {
+    const { count, error } = await this.supabase
+      .from('projects')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'completed')
+
+    if (error) {
+      console.error('Error counting completed projects:', error)
+      throw error
+    }
+
+    return count || 0
+  }
+
   async getProject(slug: string) {
     const { data, error } = await this.supabase
       .from('projects')

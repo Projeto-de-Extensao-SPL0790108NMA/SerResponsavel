@@ -64,11 +64,21 @@ export const useProjects = () => {
     }
   }
 
+  const getCountConcludedProjects = async () => {
+    try {
+      const data = await projectsService.getCountConcludedProjects()
+      return { data, error: null }
+    } catch (error) {
+      return { data: null, error }
+    }
+  }
+
   return {
     getProjects,
     getProject,
     createProject,
     updateProject,
     deleteProject,
+    getCountConcludedProjects,
   }
 }

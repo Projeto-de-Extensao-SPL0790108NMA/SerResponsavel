@@ -13,6 +13,7 @@ export const useProjectsStore = defineStore(
     // State
     const projects = ref<Projects | null>(null)
     const currentProject = ref<ProjectWithOrganization | null>(null)
+    const completedProjectsCount = ref<number>(0)
     const loading = ref(false)
     const error = ref<string | null>(null)
     const lastFetch = ref<number | null>(null)
@@ -23,7 +24,14 @@ export const useProjectsStore = defineStore(
     const currentProjectSubscription = ref<RealtimeChannel | null>(null)
 
     // Actions using the composable
-    const { getProjects, getProject, createProject, updateProject, deleteProject } = useProjects()
+    const {
+      getProjects,
+      getProject,
+      createProject,
+      updateProject,
+      deleteProject,
+      getCountConcludedProjects,
+    } = useProjects()
 
     // Check if cache is still valid
     const isCacheValid = () => {
@@ -233,6 +241,22 @@ export const useProjectsStore = defineStore(
       return fetchProjects(true)
     }
 
+    // Fetch completed projects count
+    const fetchCompletedProjectsCount = async () => {
+      try {
+        const { data, error: supabaseError } = await getCountConcludedProjects()
+
+        if (supabaseError) {
+          console.error('Error fetching completed projects count:', supabaseError)
+          return
+        }
+
+        completedProjectsCount.value = data || 0
+      } catch (err) {
+        console.error('Error fetching completed projects count:', err)
+      }
+    }
+
     // Cleanup subscriptions (for component unmount)
     const cleanup = () => {
       if (projectsSubscription.value) {
@@ -256,6 +280,7 @@ export const useProjectsStore = defineStore(
       // State
       projects,
       currentProject,
+      completedProjectsCount,
       lastFetch,
       loading,
       error,
@@ -263,6 +288,7 @@ export const useProjectsStore = defineStore(
       // Actions
       fetchProjects,
       fetchProject,
+      fetchCompletedProjectsCount,
       addProject,
       editProject,
       removeProject,
