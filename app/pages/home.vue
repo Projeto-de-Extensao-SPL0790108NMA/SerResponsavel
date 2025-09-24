@@ -6,6 +6,7 @@ definePageMeta({
 })
 
 const user = useSupabaseUser()
+const { toggleSection, activeSection, hasActiveSection } = useHomeNavigation()
 
 const homeCards: CardData[] = [
   {
@@ -13,23 +14,33 @@ const homeCards: CardData[] = [
     title: 'Perfil',
     subtitle: 'Gerencie suas informações pessoais',
     color: 'primary',
-    to: '/home',
   },
   {
     icon: 'mdi-handshake',
     title: 'Projetos',
     subtitle: 'Visualize e gerencie seus projetos',
     color: 'success',
-    to: '/home',
   },
   {
     icon: 'mdi-chart-line',
     title: 'Relatórios',
     subtitle: 'Acompanhe métricas e resultados',
     color: 'info',
-    to: '/home',
   },
 ]
+
+const handleCardClick = (cardData: CardData) => {
+  const sectionMap: Record<string, 'profile' | 'projects' | 'reports'> = {
+    Perfil: 'profile',
+    Projetos: 'projects',
+    Relatórios: 'reports',
+  }
+
+  const section = sectionMap[cardData.title as string]
+  if (section) {
+    toggleSection(section)
+  }
+}
 
 useSeoMeta({
   title: 'Home - SerResponsável',
@@ -57,7 +68,37 @@ useSeoMeta({
     <!-- home cards-->
     <v-row>
       <v-col v-for="(card, index) in homeCards" :key="index" cols="12" md="4">
-        <ui-simple-card :card-data="card" clickable />
+        <ui-simple-card :card-data="card" clickable @click="handleCardClick" />
+      </v-col>
+    </v-row>
+
+    <!-- dynamic section content -->
+    <v-row v-if="hasActiveSection" class="mt-4">
+      <v-col cols="12">
+        <v-card class="borda-radial-branco-simples" rounded="xl" elevation="15">
+          <v-card-title class="d-flex justify-space-between align-center">
+            <span class="text-h5">
+              {{
+                activeSection === 'profile'
+                  ? 'Perfil'
+                  : activeSection === 'projects'
+                    ? 'Projetos'
+                    : 'Relatórios'
+              }}
+            </span>
+            <v-btn
+              icon="mdi-close"
+              variant="text"
+              size="small"
+              @click="toggleSection(activeSection!)"
+            />
+          </v-card-title>
+          <v-card-text>
+            <HomeProfileSection v-if="activeSection === 'profile'" />
+            <HomeProjectsSection v-else-if="activeSection === 'projects'" />
+            <HomeReportsSection v-else-if="activeSection === 'reports'" />
+          </v-card-text>
+        </v-card>
       </v-col>
     </v-row>
   </v-container>

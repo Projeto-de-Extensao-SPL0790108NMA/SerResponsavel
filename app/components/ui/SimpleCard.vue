@@ -10,6 +10,10 @@ const props = withDefaults(defineProps<Props>(), {
   clickable: false,
 })
 
+const emit = defineEmits<{
+  click: [cardData: Props['cardData']]
+}>()
+
 // Computed para classes e tamanhos baseado no size
 const iconSize = computed(() => (props.size === 'big' ? '40px' : '32px'))
 const titleClass = computed(() => (props.size === 'big' ? 'text-h4' : 'text-h6'))
@@ -36,6 +40,12 @@ onMounted(() => {
       backgroundAnimations[Math.floor(Math.random() * backgroundAnimations.length)] || ''
   }
 })
+
+const handleClick = () => {
+  if (props.clickable) {
+    emit('click', props.cardData)
+  }
+}
 </script>
 
 <template>
@@ -45,8 +55,8 @@ onMounted(() => {
     :class="['text-center pa-4', bgAnim, { 'card-clickable': props.clickable }]"
     rounded="xl"
     elevation="15"
-    :to="props.clickable && props.cardData.to ? props.cardData.to : undefined"
     :hover="props.clickable"
+    @click="handleClick"
   >
     <v-icon :icon="props.cardData.icon" :size="iconSize" :class="['mb-2', iconAnim]" />
     <div :class="titleClass">{{ props.cardData.title }}</div>
