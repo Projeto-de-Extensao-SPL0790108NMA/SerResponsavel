@@ -24,12 +24,6 @@
 <script setup lang="ts">
 // Computed properties
 const currentYear = computed(() => new Date().getFullYear())
-
-// Layout meta
-definePageMeta({
-  layout: false,
-  middleware: 'auth',
-})
 </script>
 
 <style scoped>
