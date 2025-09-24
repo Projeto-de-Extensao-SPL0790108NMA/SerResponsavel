@@ -4,9 +4,9 @@ export const useProjects = () => {
   const supabase = useSupabaseClient()
   const projectsService = new ProjectsService(supabase)
 
-  const getProjects = async () => {
+  const getProjects = async (status: 'in-progress' | 'completed' | 'all' = 'all') => {
     try {
-      const data = await projectsService.getProjects()
+      const data = await projectsService.getProjects(status)
       return { data, error: null }
     } catch (error) {
       return { data: null, error }

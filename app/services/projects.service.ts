@@ -3,10 +3,27 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 export class ProjectsService {
   constructor(private supabase: SupabaseClient) {}
 
-  async getProjects() {
-    const { data, error } = await this.supabase.from('projects').select()
-    if (error) throw error
-    return data
+  async getProjects(status?: 'in-progress' | 'completed' | 'all') {
+    let query = this.supabase.from('projects').select('*').order('created_at', { ascending: false })
+
+    // Aplica filtro de status apenas se não for 'all'
+    if (status && status !== 'all') {
+      query = query.eq('status', status).not('status', 'is', null)
+    }
+
+    const { data, error } = await query
+
+    if (error) {
+      console.error('Error fetching projects:', error)
+      throw error
+    }
+
+    // Filtro adicional no lado client como garantia (apenas se status específico)
+    if (status && status !== 'all') {
+      return data?.filter((project) => project.status === status) || []
+    }
+
+    return data || []
   }
 
   async getProject(slug: string) {

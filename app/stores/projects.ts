@@ -1,4 +1,5 @@
 import type { Database } from '~~/database/types'
+import type { RealtimeChannel } from '@supabase/supabase-js'
 
 type Project = Database['public']['Tables']['projects']['Row']
 type Projects = Project[]
@@ -15,10 +16,8 @@ export const useProjectsStore = defineStore(
     const cacheTime = 5 * 60 * 1000 // 5 minutes in milliseconds
 
     // Real-time subscription refs
-    const projectsSubscription = ref<ReturnType<typeof useSupabaseClient>['channel'] | null>(null)
-    const currentProjectSubscription = ref<ReturnType<typeof useSupabaseClient>['channel'] | null>(
-      null,
-    )
+    const projectsSubscription = ref<RealtimeChannel | null>(null)
+    const currentProjectSubscription = ref<RealtimeChannel | null>(null)
 
     // Actions using the composable
     const { getProjects, getProject, createProject, updateProject, deleteProject } = useProjects()
@@ -40,13 +39,16 @@ export const useProjectsStore = defineStore(
           console.log('🔄 Projects changed:', payload)
           // Invalidate cache and refetch
           lastFetch.value = null
-          fetchProjects(true) // Force refresh
+          void fetchProjects(true) // Force refresh
         })
         .subscribe()
     }
 
     // Fetch all projects with cache logic
-    const fetchProjects = async (forceRefresh = false) => {
+    const fetchProjects = async (
+      forceRefresh = false,
+      status?: 'in-progress' | 'completed' | 'all',
+    ) => {
       // Check cache first (unless forced refresh)
       if (!forceRefresh && projects.value && isCacheValid()) {
         console.log('📦 Using cached projects')
@@ -57,11 +59,11 @@ export const useProjectsStore = defineStore(
       error.value = null
 
       try {
-        console.log('🌐 Fetching projects from Supabase')
-        const { data, error: supabaseError } = await getProjects()
+        console.log('🌐 Fetching projects from Supabase', status ? `with status: ${status}` : '')
+        const { data, error: supabaseError } = await getProjects(status)
 
         if (supabaseError) {
-          error.value = supabaseError.message
+          error.value = (supabaseError as Error)?.message || 'Erro desconhecido'
           return
         }
 
@@ -86,7 +88,7 @@ export const useProjectsStore = defineStore(
         const { data, error: supabaseError } = await getProject(slug)
 
         if (supabaseError) {
-          error.value = supabaseError.message
+          error.value = (supabaseError as Error)?.message || 'Erro desconhecido'
           return
         }
 
@@ -113,7 +115,7 @@ export const useProjectsStore = defineStore(
         const { data, error: supabaseError } = await createProject(projectData)
 
         if (supabaseError) {
-          error.value = supabaseError.message
+          error.value = (supabaseError as Error)?.message || 'Erro desconhecido'
           return null
         }
 
@@ -149,7 +151,7 @@ export const useProjectsStore = defineStore(
         const { data, error: supabaseError } = await updateProject(id, updates)
 
         if (supabaseError) {
-          error.value = supabaseError.message
+          error.value = (supabaseError as Error)?.message || 'Erro desconhecido'
           return null
         }
 
@@ -184,7 +186,7 @@ export const useProjectsStore = defineStore(
         const { error: supabaseError } = await deleteProject(id)
 
         if (supabaseError) {
-          error.value = supabaseError.message
+          error.value = (supabaseError as Error)?.message || 'Erro desconhecido'
           return false
         }
 

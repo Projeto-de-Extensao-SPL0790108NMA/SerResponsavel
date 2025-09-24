@@ -2,12 +2,12 @@
 import { createStatisticsCards } from '~/constants/login'
 const projectsStore = useProjectsStore()
 const { projects, loading, error, isCached } = storeToRefs(projectsStore)
-const { fetchProjects, refreshProjects, invalidateCache } = projectsStore
+const { fetchProjects, invalidateCache } = projectsStore
 
 const statisticsCards = computed(() => createStatisticsCards(projects.value))
 
 onMounted(async () => {
-  await fetchProjects()
+  await fetchProjects(false, 'in-progress')
 })
 </script>
 
@@ -68,7 +68,7 @@ onMounted(async () => {
                 rounded="xl"
                 elevation="15"
                 prepend-icon="mdi-refresh"
-                @click="refreshProjects"
+                @click="() => fetchProjects(true, 'in-progress')"
               >
                 Atualizar
               </v-btn>
