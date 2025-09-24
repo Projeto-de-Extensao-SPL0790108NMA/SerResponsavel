@@ -77,11 +77,11 @@ const footerLinks = [
       <v-row>
         <v-col cols="12" class="text-center">
           <p class="text-caption text-grey-lighten-1 mb-0">
-            © {{ currentYear }} SerResponsável. Todos os direitos reservados.
+            © {{ currentYear }} SerResponsável (1.0.0-alpha.70). Todos os direitos reservados.<br />
             <span class="text-grey-darken-1">
               Desenvolvido com
               <v-icon size="12" color="red">mdi-heart</v-icon>
-              para transparência social
+              para transparência social.
             </span>
           </p>
         </v-col>
