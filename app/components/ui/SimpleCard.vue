@@ -1,21 +1,13 @@
 <!--suppress CssUnusedSymbol -->
 <script setup lang="ts">
-interface CardData {
-  icon: string
-  color?: string
-  title: string | number
-  subtitle: string
-}
+import type { CardProps } from '~/types/ui'
 
-interface Props {
-  cardData: CardData
-  size?: 'normal' | 'big'
-  animated?: boolean
-}
+type Props = CardProps
 
 const props = withDefaults(defineProps<Props>(), {
   size: 'normal',
   animated: false,
+  clickable: false,
 })
 
 // Computed para classes e tamanhos baseado no size
@@ -50,9 +42,11 @@ onMounted(() => {
   <v-card
     :color="props.cardData.color || 'primary'"
     variant="tonal"
-    :class="['text-center pa-4', bgAnim]"
+    :class="['text-center pa-4', bgAnim, { 'card-clickable': props.clickable }]"
     rounded="xl"
     elevation="15"
+    :to="props.clickable && props.cardData.to ? props.cardData.to : undefined"
+    :hover="props.clickable"
   >
     <v-icon :icon="props.cardData.icon" :size="iconSize" :class="['mb-2', iconAnim]" />
     <div :class="titleClass">{{ props.cardData.title }}</div>
@@ -258,6 +252,22 @@ onMounted(() => {
   transform-origin: center;
 }
 
+/* Clickable card styles */
+.card-clickable {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.card-clickable:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3) !important;
+}
+
+.card-clickable:active {
+  transform: translateY(-2px) scale(1.01);
+  transition: all 0.1s ease;
+}
+
 /* Respeita usuários com redução de movimento */
 @media (prefers-reduced-motion: reduce) {
   .icon-bounce,
@@ -271,6 +281,12 @@ onMounted(() => {
   .bg-shimmer::before,
   .bg-breathe {
     animation: none !important;
+    transition: none !important;
+  }
+
+  .card-clickable:hover,
+  .card-clickable:active {
+    transform: none !important;
     transition: none !important;
   }
 }

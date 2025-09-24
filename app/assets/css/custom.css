@@ -234,7 +234,7 @@
   z-index: 1;
   background:
     linear-gradient(135deg, rgba(18, 18, 18, 0.85) 0%, rgba(33, 38, 45, 0.9) 10%),
-    url('respSoc.png') center/cover no-repeat fixed;
+    url('/respSoc.png') center/cover no-repeat fixed;
 }
 
 .login-page-wrapper::before {
@@ -268,14 +268,25 @@
   position: relative !important;
   padding: 2rem !important;
   border: 6px solid transparent !important;
-
-  /* Simulação da borda gradiente radial */
   border-image: radial-gradient(
       circle at center,
       rgba(255, 255, 255, 1) 0%,
-      /* branco forte */ rgba(255, 255, 255, 0.6) 40%,
-      /* branco translúcido */ rgba(255, 255, 255, 0.1) 80%,
-      /* quase invisível */ rgba(255, 255, 255, 0) 100% /* transparente na borda */
+      rgba(255, 255, 255, 0.6) 40%,
+      rgba(255, 255, 255, 0.1) 80%,
+      rgba(255, 255, 255, 0) 100%
+    )
+    1 !important;
+}
+
+.borda-radial-branco-simples {
+  position: relative !important;
+  border: 3px solid transparent !important;
+  border-image: radial-gradient(
+      circle at center,
+      rgba(255, 255, 255, 1) 0%,
+      rgba(255, 255, 255, 0.6) 40%,
+      rgba(255, 255, 255, 0.1) 80%,
+      rgba(255, 255, 255, 0) 100%
     )
     1 !important;
 }

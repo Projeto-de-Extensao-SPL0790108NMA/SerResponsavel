@@ -20,7 +20,6 @@
 <style scoped>
 .main-layout {
   min-height: calc(100vh - 64px); /* Full height minus navbar only */
-  padding-top: 64px; /* Account for fixed navbar */
 }
 
 /* Responsive adjustments */

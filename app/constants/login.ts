@@ -1,6 +1,7 @@
 import type { Database } from '~~/database/types'
+import type { CardData } from '~/types/ui'
 
-export const informativeCards = [
+export const informativeCards: CardData[] = [
   {
     icon: 'mdi-chart-line',
     title: '90%',
@@ -23,7 +24,7 @@ export const informativeCards = [
 
 type Project = Database['public']['Tables']['projects']['Row']
 
-export const createStatisticsCards = (projects: Project[] | null) => [
+export const createStatisticsCards = (projects: Project[] | null): CardData[] => [
   {
     icon: 'mdi-check-circle',
     title: projects?.filter((p: Project) => p?.status === 'completed').length || 0,
@@ -46,7 +47,7 @@ export const createStatisticsCards = (projects: Project[] | null) => [
   },
 ]
 
-export const targetAudienceCards = [
+export const targetAudienceCards: CardData[] = [
   {
     icon: 'mdi-office-building',
     title: '500+',
