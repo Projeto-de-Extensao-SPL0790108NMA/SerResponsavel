@@ -18,7 +18,7 @@ const footerLinks = [
 
 <template>
   <v-footer class="footer-gradient">
-    <v-container>
+    <v-container max-width="1080">
       <v-row align="center" justify="center">
         <!-- Logo e Descrição -->
         <v-col cols="12" md="4" class="text-center text-md-start">
@@ -86,6 +86,34 @@ const footerLinks = [
           </p>
         </v-col>
       </v-row>
+
+      <!-- Powered by -->
+      <v-row>
+        <v-col cols="12" class="text-center mb-2">
+          <div class="d-flex align-center justify-center">
+            <span class="text-caption text-grey-darken-1 me-2">Powered by</span>
+            <v-tooltip location="top" content-class="custom-tooltip-bg" offset="8">
+              <template #activator="{ props }">
+                <a
+                  v-bind="props"
+                  href="https://stdout.dev.br"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="powered-by-link"
+                >
+                  <v-avatar color="white" class="pa-1">
+                    <v-img src="/logo/logoStd500_500.png" alt="StdOut Dev Br" max-width="80" />
+                  </v-avatar>
+                </a>
+              </template>
+              <div class="tooltip-content">
+                <div class="tooltip-title">✨ StdOut Dev</div>
+                <div class="tooltip-subtitle">Todo poder emana do código!</div>
+              </div>
+            </v-tooltip>
+          </div>
+        </v-col>
+      </v-row>
     </v-container>
   </v-footer>
 </template>
@@ -127,5 +155,64 @@ const footerLinks = [
   color: rgb(var(--v-theme-primary)) !important;
   transform: scale(1.1);
   transition: all 0.2s ease;
+}
+
+.powered-by-link {
+  text-decoration: none;
+  display: inline-block;
+  transition: all 0.3s ease;
+}
+
+.powered-by-link:hover {
+  transform: translateY(-2px) scale(1.5);
+}
+
+.powered-by-link:hover .v-avatar {
+  box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3);
+}
+
+.tooltip-content {
+  text-align: center;
+  padding: 8px 12px;
+}
+
+.tooltip-title {
+  font-weight: 600;
+  font-size: 14px;
+  color: #ffffff;
+  margin-bottom: 2px;
+}
+
+.tooltip-subtitle {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 400;
+}
+
+/* Custom tooltip background */
+:global(.custom-tooltip-bg) {
+  background: linear-gradient(
+    135deg,
+    rgba(25, 118, 210, 0.95) 0%,
+    rgba(13, 71, 161, 0.95) 100%
+  ) !important;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px !important;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+  animation: tooltip-appear 0.3s ease-out;
+}
+
+@keyframes tooltip-appear {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 </style>

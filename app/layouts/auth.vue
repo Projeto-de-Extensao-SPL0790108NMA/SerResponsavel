@@ -1,16 +1,3 @@
-<template>
-  <v-app theme="dark" class="app-background">
-    <!-- Navigation Bar -->
-    <NavBar />
-    <!-- Main Content -->
-    <v-main class="login-page-wrapper">
-      <NuxtPage />
-    </v-main>
-
-    <footer-component />
-  </v-app>
-</template>
-
 <script setup lang="ts">
 // Structured data for better SEO - only keeping this here
 useHead({
@@ -45,3 +32,15 @@ useHead({
   ],
 })
 </script>
+<template>
+  <v-app theme="dark" class="app-background">
+    <!-- Navigation Bar -->
+    <NavBar />
+    <!-- Main Content -->
+    <v-main class="login-page-wrapper">
+      <NuxtPage />
+    </v-main>
+
+    <footer-component />
+  </v-app>
+</template>

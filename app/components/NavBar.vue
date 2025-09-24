@@ -33,88 +33,86 @@ watch(
 
 <template>
   <v-app-bar app fixed elevation="15" class="navbar-color">
-    <!-- Logo/Brand -->
-    <v-app-bar-title>
-      <v-row>
-        <v-col cols="12" md="6" class="d-none d-md-flex align-center">
-          <v-img
-            src="/logoserresp600_598.png"
-            alt="SerResponsável Logo"
-            max-width="40"
-            max-height="40"
-            class="d-block mr-5"
-          />
-          SerResponsável
-        </v-col>
-      </v-row>
-    </v-app-bar-title>
+    <v-container style="max-width: 1080px" class="d-flex align-center pa-0">
+      <!-- Logo/Brand -->
+      <div class="d-flex align-center">
+        <v-img
+          src="/logoserresp600_598.png"
+          alt="SerResponsável Logo"
+          width="50"
+          height="50"
+          class="mx-3"
+        />
+        <span class="text-h6 font-weight-bold text-white">SerResponsável</span>
+      </div>
 
-    <v-spacer />
+      <v-spacer />
 
-    <!-- Navigation Items -->
-    <div class="d-none d-md-flex align-center">
-      <template v-if="isAuthenticated">
-        <!-- Authenticated Navigation -->
-        <v-btn variant="text" class="text-white"> Projetos </v-btn>
+      <!-- Navigation Items -->
+      <div class="d-none d-md-flex align-center">
+        <template v-if="isAuthenticated">
+          <!-- Authenticated Navigation -->
+          <v-btn variant="text" class="text-white"> Projetos </v-btn>
 
-        <v-btn variant="text" class="text-white"> Tarefas </v-btn>
+          <v-btn variant="text" class="text-white"> Tarefas </v-btn>
 
-        <!-- User Menu -->
-        <v-menu>
-          <template #activator="{ props }">
-            <v-btn v-bind="props" variant="text" class="text-white ms-2">
-              <v-avatar size="32" class="me-2">
-                <v-img v-if="avatarUrl" :src="avatarUrl" :alt="fullName" />
-                <v-icon v-else>mdi-account-circle</v-icon>
-              </v-avatar>
-              {{ fullName }}
-              <v-icon>mdi-chevron-down</v-icon>
-            </v-btn>
-          </template>
+          <!-- User Menu -->
+          <v-menu>
+            <template #activator="{ props }">
+              <v-btn v-bind="props" variant="text" class="text-white ms-2">
+                <v-avatar size="32" class="me-2">
+                  <v-img v-if="avatarUrl" :src="avatarUrl" :alt="fullName" />
+                  <v-icon v-else>mdi-account-circle</v-icon>
+                </v-avatar>
+                {{ fullName }}
+                <v-icon>mdi-chevron-down</v-icon>
+              </v-btn>
+            </template>
 
-          <v-list>
-            <v-list-item>
-              <v-list-item-title>Perfil</v-list-item-title>
-            </v-list-item>
-            <v-list-item>
-              <v-list-item-title>Configurações</v-list-item-title>
-            </v-list-item>
-            <v-divider />
-            <v-list-item @click="handleLogout">
-              <v-list-item-title>Sair</v-list-item-title>
-            </v-list-item>
-          </v-list>
-        </v-menu>
-      </template>
+            <v-list>
+              <v-list-item>
+                <v-list-item-title>Perfil</v-list-item-title>
+              </v-list-item>
+              <v-list-item>
+                <v-list-item-title>Configurações</v-list-item-title>
+              </v-list-item>
+              <v-divider />
+              <v-list-item @click="handleLogout">
+                <v-list-item-title>Sair</v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-menu>
+        </template>
 
-      <template v-else>
-        <v-btn
-          size="small"
-          rounded="xl"
-          variant="outlined"
-          class="text-white ms-2 light-btn-outlined-variant"
-          border="white"
-          prepend-icon="mdi-login"
-          @click="dialog = true"
-        >
-          Entrar
-        </v-btn>
+        <template v-else>
+          <v-btn
+            size="small"
+            rounded="xl"
+            variant="outlined"
+            class="text-white ms-2 light-btn-outlined-variant"
+            border="white"
+            prepend-icon="mdi-login"
+            @click="dialog = true"
+          >
+            Entrar
+          </v-btn>
 
-        <v-btn
-          variant="flat"
-          prepend-icon="mdi-account-plus"
-          class="ms-2 mr-5"
-          color="secondary"
-          size="small"
-          rounded="xl"
-        >
-          Cadastrar
-        </v-btn>
-      </template>
-    </div>
+          <v-btn
+            variant="flat"
+            prepend-icon="mdi-account-plus"
+            class="ms-2 mr-5"
+            color="secondary"
+            size="small"
+            rounded="xl"
+          >
+            Cadastrar
+          </v-btn>
+        </template>
+      </div>
 
-    <!-- Mobile Menu -->
-    <v-app-bar-nav-icon class="d-md-none" @click="drawer = !drawer" />
+      <!-- Mobile Menu -->
+      <v-app-bar-nav-icon class="d-md-none" @click="drawer = !drawer" />
+    </v-container>
   </v-app-bar>
 
   <!-- Mobile Navigation Drawer -->
