@@ -270,6 +270,8 @@ useSeoMeta({
   animation-duration: 20s;
   animation-timing-function: linear;
   animation-iteration-count: infinite;
+  filter: blur(1px);
+  opacity: 0.4;
 }
 
 /* Animações de movimento flutuante */
