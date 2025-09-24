@@ -6,6 +6,8 @@
     <v-main class="login-page-wrapper">
       <NuxtPage />
     </v-main>
+
+    <footer-component />
   </v-app>
 </template>
 
