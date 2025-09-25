@@ -1,4 +1,5 @@
 import type { Database } from '~~/database/types'
+import { usePreferencesStore } from '@/stores/preferences'
 
 export default defineNuxtPlugin(async () => {
   if (import.meta.client) {
@@ -6,6 +7,7 @@ export default defineNuxtPlugin(async () => {
   }
 
   const authStore = useAuthStore()
+  const preferencesStore = usePreferencesStore()
   const supabaseUser = useSupabaseUser()
 
   if (!supabaseUser.value) {
@@ -24,6 +26,11 @@ export default defineNuxtPlugin(async () => {
 
     if (data) {
       authStore.setProfile(data)
+      if (data.mode) {
+        preferencesStore.initializeTheme(data.mode as 'light' | 'dark')
+      }
     }
+  } else if (authStore.profile?.mode) {
+    preferencesStore.initializeTheme(authStore.profile.mode as 'light' | 'dark')
   }
 })

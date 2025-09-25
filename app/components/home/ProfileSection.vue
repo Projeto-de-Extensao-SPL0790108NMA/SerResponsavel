@@ -11,26 +11,60 @@
             <v-list>
               <v-list-item>
                 <template #prepend>
-                  <v-icon icon="mdi-email" />
-                </template>
-                <v-list-item-title>Email</v-list-item-title>
-                <v-list-item-subtitle>{{ user?.email || 'Não informado' }}</v-list-item-subtitle>
-              </v-list-item>
-              <v-list-item>
-                <template #prepend>
                   <v-icon icon="mdi-account-circle" />
                 </template>
                 <v-list-item-title>Nome</v-list-item-title>
-                <v-list-item-subtitle>{{
-                  user?.user_metadata?.full_name || 'Não informado'
-                }}</v-list-item-subtitle>
+                <v-list-item-subtitle>{{ personalInfo.fullName }}</v-list-item-subtitle>
               </v-list-item>
+              <v-list-item>
+                <template #prepend>
+                  <v-icon icon="mdi-email" />
+                </template>
+                <v-list-item-title>Email</v-list-item-title>
+                <v-list-item-subtitle>{{ personalInfo.email }}</v-list-item-subtitle>
+              </v-list-item>
+              <v-list-item>
+                <template #prepend>
+                  <v-icon icon="mdi-account-badge-outline" />
+                </template>
+                <v-list-item-title>Username</v-list-item-title>
+                <v-list-item-subtitle>{{ personalInfo.username }}</v-list-item-subtitle>
+              </v-list-item>
+              <v-list-item>
+                <template #prepend>
+                  <v-icon icon="mdi-domain" />
+                </template>
+                <v-list-item-title>Organização</v-list-item-title>
+                <v-list-item-subtitle>{{ personalInfo.organization }}</v-list-item-subtitle>
+              </v-list-item>
+              <v-list-item>
+                <template #prepend>
+                  <v-icon icon="mdi-text" />
+                </template>
+                <v-list-item-title>Bio</v-list-item-title>
+                <v-list-item-subtitle>{{ personalInfo.bio }}</v-list-item-subtitle>
+              </v-list-item>
+              <v-divider class="my-2" />
               <v-list-item>
                 <template #prepend>
                   <v-icon icon="mdi-calendar" />
                 </template>
                 <v-list-item-title>Membro desde</v-list-item-title>
-                <v-list-item-subtitle>{{ formatDate(user?.created_at) }}</v-list-item-subtitle>
+                <v-list-item-subtitle>{{ personalInfo.memberSince }}</v-list-item-subtitle>
+              </v-list-item>
+              <v-list-item>
+                <template #prepend>
+                  <v-icon icon="mdi-clock-outline" />
+                </template>
+                <v-list-item-title>Último acesso</v-list-item-title>
+                <v-list-item-subtitle>{{ personalInfo.lastSignIn }}</v-list-item-subtitle>
+              </v-list-item>
+              <v-list-item>
+                <template #prepend>
+                  <v-icon icon="mdi-palette" />
+                </template>
+                <v-list-item-title>Tema preferido</v-list-item-title>
+                <v-list-item-subtitle>{{ personalInfo.themeLabel }}</v-list-item-subtitle>
               </v-list-item>
             </v-list>
           </v-card-text>
@@ -40,29 +74,42 @@
         <v-card variant="tonal" rounded="xl" elevation="8" class="mb-4">
           <v-card-title class="d-flex align-center">
             <v-icon icon="mdi-cog" class="me-2" color="success" />
-            Configurações
+            Preferências
           </v-card-title>
           <v-card-text>
             <v-list>
               <v-list-item>
-                <v-list-item-title>Notificações</v-list-item-title>
+                <v-list-item-title>Tema Escuro</v-list-item-title>
+                <v-list-item-subtitle>
+                  Alterna entre tema claro e escuro da interface
+                </v-list-item-subtitle>
                 <template #append>
-                  <v-switch color="primary" />
+                  <v-switch
+                    v-model="themeModel"
+                    color="primary"
+                    :loading="themeLoading"
+                    :disabled="themeLoading"
+                  />
                 </template>
               </v-list-item>
               <v-list-item>
-                <v-list-item-title>Tema Escuro</v-list-item-title>
+                <v-list-item-title>Notificações</v-list-item-title>
+                <v-list-item-subtitle>Em breve</v-list-item-subtitle>
                 <template #append>
-                  <v-switch color="primary" />
+                  <v-switch color="primary" disabled />
                 </template>
               </v-list-item>
               <v-list-item>
                 <v-list-item-title>Updates por Email</v-list-item-title>
+                <v-list-item-subtitle>Em breve</v-list-item-subtitle>
                 <template #append>
-                  <v-switch color="primary" />
+                  <v-switch color="primary" disabled />
                 </template>
               </v-list-item>
             </v-list>
+            <v-alert v-if="themeError" type="error" density="compact" variant="tonal" class="mt-3">
+              {{ themeError }}
+            </v-alert>
           </v-card-text>
         </v-card>
       </v-col>
@@ -71,10 +118,87 @@
 </template>
 
 <script setup lang="ts">
-const user = useSupabaseUser()
+import { computed, ref } from 'vue'
+import { storeToRefs } from 'pinia'
+import { usePreferencesStore } from '@/stores/preferences'
+import { useProfile } from '@/composables/useProfile'
+
+const authStore = useAuthStore()
+const { profile } = storeToRefs(authStore)
+
+const supabaseUser = useSupabaseUser()
+const preferencesStore = usePreferencesStore()
+const { theme } = storeToRefs(preferencesStore)
+
+const { updateProfile } = useProfile()
+
+const themeLoading = ref(false)
+const themeError = ref('')
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return 'Não informado'
   return new Date(dateString).toLocaleDateString('pt-BR')
+}
+
+const formatDateTime = (dateString?: string) => {
+  if (!dateString) return 'Não informado'
+  return new Date(dateString).toLocaleString('pt-BR', {
+    dateStyle: 'short',
+    timeStyle: 'short',
+  })
+}
+
+const personalInfo = computed(() => {
+  const fullName =
+    profile.value?.full_name || supabaseUser.value?.user_metadata?.full_name || 'Não informado'
+
+  return {
+    fullName,
+    email: supabaseUser.value?.email || 'Não informado',
+    username: profile.value?.username || 'Não informado',
+    bio: profile.value?.bio || 'Nenhuma bio cadastrada',
+    organization: profile.value?.organization_id || 'Não informado',
+    memberSince:
+      formatDate(profile.value?.created_at || supabaseUser.value?.created_at) || 'Não informado',
+    lastSignIn: formatDateTime(supabaseUser.value?.last_sign_in_at),
+    themeLabel: theme.value === 'dark' ? 'Escuro' : 'Claro',
+  }
+})
+
+const themeModel = computed({
+  get: () => theme.value === 'dark',
+  set: (value: boolean) => {
+    void handleThemeChange(value)
+  },
+})
+
+const handleThemeChange = async (value: boolean) => {
+  const newMode: 'light' | 'dark' = value ? 'dark' : 'light'
+
+  if (newMode === theme.value) {
+    return
+  }
+
+  const previousMode = theme.value
+  preferencesStore.setTheme(newMode)
+  themeLoading.value = true
+  themeError.value = ''
+
+  try {
+    const { error } = await updateProfile({ mode: newMode })
+
+    if (error) {
+      preferencesStore.setTheme(previousMode)
+      themeError.value = 'Não foi possível atualizar o tema. Tente novamente.'
+      console.error('Failed to update theme preference:', error)
+      return
+    }
+  } catch (error) {
+    preferencesStore.setTheme(previousMode)
+    themeError.value = 'Não foi possível atualizar o tema. Tente novamente.'
+    console.error('Failed to update theme preference:', error)
+  } finally {
+    themeLoading.value = false
+  }
 }
 </script>

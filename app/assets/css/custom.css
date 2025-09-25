@@ -187,17 +187,33 @@
   z-index: 1000 !important;
 }
 
+/* Application Backgrounds */
 .app-background {
-  background: linear-gradient(
-      135deg,
-      #0d1117 0%,
-      #161b22 25%,
-      #1c2128 50%,
-      #21262d 75%,
-      #0d1117 100%
-    )
-    fixed !important;
+  background:
+    radial-gradient(circle at top left, rgba(25, 118, 210, 0.1), transparent 45%),
+    radial-gradient(circle at bottom right, rgba(76, 175, 80, 0.12), transparent 40%),
+    linear-gradient(135deg, #0d1117 0%, #161b22 25%, #1c2128 50%, #21262d 75%, #0d1117 100%) fixed !important;
   min-height: 100vh !important;
+}
+
+.home-background-dark {
+  background:
+    radial-gradient(circle at top left, rgba(25, 118, 210, 0.1), transparent 45%),
+    radial-gradient(circle at bottom right, rgba(76, 175, 80, 0.12), transparent 40%),
+    linear-gradient(135deg, #0d1117 0%, #161b22 25%, #1c2128 50%, #21262d 75%, #0d1117 100%) fixed !important;
+}
+
+.home-background-light {
+  background:
+    radial-gradient(circle at top left, rgba(25, 118, 210, 0.2), transparent 45%),
+    radial-gradient(circle at bottom right, rgba(76, 175, 80, 0.25), transparent 40%),
+    linear-gradient(135deg, #f5f9ff 0%, #f2f7fb 40%, #e9f1ff 70%, #e2ecfb 100%) fixed !important;
+  min-height: 100vh !important;
+}
+
+.home-page-wrapper {
+  min-height: 100vh;
+  padding-bottom: 48px;
 }
 
 .app-background::before {
@@ -287,6 +303,19 @@
       rgba(255, 255, 255, 0.6) 40%,
       rgba(255, 255, 255, 0.1) 80%,
       rgba(255, 255, 255, 0) 100%
+    )
+    1 !important;
+}
+
+.borda-radial-clara-simples {
+  position: relative !important;
+  border: 3px solid transparent !important;
+  border-image: radial-gradient(
+      circle at center,
+      rgba(25, 118, 210, 0.85) 0%,
+      rgba(25, 118, 210, 0.45) 35%,
+      rgba(25, 118, 210, 0.15) 75%,
+      rgba(25, 118, 210, 0) 100%
     )
     1 !important;
 }

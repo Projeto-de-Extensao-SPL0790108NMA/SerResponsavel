@@ -1,6 +1,9 @@
 import type { User } from '@supabase/supabase-js'
 import type { WatchStopHandle } from 'vue'
 import type { Database } from '~~/database/types'
+import { usePreferencesStore } from '@/stores/preferences'
+
+type ThemeMode = 'light' | 'dark'
 
 type Profile = Database['public']['Tables']['profiles']['Row']
 
@@ -20,6 +23,10 @@ export const useAuthStore = defineStore(
 
     const setProfile = (profileData: Profile | null) => {
       profile.value = profileData
+      if (profileData?.mode) {
+        const preferencesStore = usePreferencesStore()
+        preferencesStore.initializeTheme(profileData.mode as ThemeMode)
+      }
     }
 
     const updateProfile = (updates: Partial<Profile>) => {

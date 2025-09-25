@@ -1,6 +1,33 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { computed, watch } from 'vue'
+import { storeToRefs } from 'pinia'
+import { useTheme } from 'vuetify'
+import { usePreferencesStore } from '@/stores/preferences'
+
+const preferencesStore = usePreferencesStore()
+const { theme } = storeToRefs(preferencesStore)
+const vuetifyTheme = useTheme()
+
+if (import.meta.server) {
+  vuetifyTheme.change(theme.value)
+} else {
+  vuetifyTheme.change(theme.value)
+
+  watch(
+    theme,
+    (mode) => {
+      vuetifyTheme.change(mode)
+    },
+    { immediate: false },
+  )
+}
+
+const currentTheme = computed(() => theme.value)
+
+const layoutBackgroundClass = computed(() => 'app-background')
+</script>
 <template>
-  <v-app class="app-background" theme="dark">
+  <v-app :class="layoutBackgroundClass" :theme="currentTheme">
     <!-- Navigation Bar -->
     <nav-bar />
 
