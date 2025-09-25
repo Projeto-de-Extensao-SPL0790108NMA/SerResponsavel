@@ -83,6 +83,7 @@ Este projeto está sendo desenvolvido com tecnologias modernas e robustas:
 - **Testes:** Vitest + @vue/test-utils (em progresso)
 - **Qualidade de Código:** ESLint + Prettier + Husky
 - **CI/CD:** GitHub Actions (planejado)
+
 - **Deploy:** Vercel (planejado)
 
 <a id="roadmap"></a>
@@ -229,6 +230,7 @@ pnpm supabase:types   # Gerar tipos TypeScript do schema
 # Testes
 pnpm test             # Executar todos os testes
 pnpm test:watch       # Executar testes em modo watch
+
 pnpm test:coverage    # Executar testes com cobertura
 pnpm test:ui          # Interface visual dos testes
 ```
@@ -379,11 +381,13 @@ A licença MIT permite:
 - ✅ Uso comercial
 - ✅ Modificação
 - ✅ Distribuição
+
 - ✅ Uso privado
 
 Requer apenas:
 
 - 📄 Incluir a licença original
+
 - 📄 Incluir o copyright
 
 <a id="equipe"></a>
@@ -446,6 +450,7 @@ A platform for promoting and disseminating Social Responsibility actions by publ
 
 - [📋 About the Project](#about-project)
 - [🎯 Objectives](#objectives-en)
+
 - [🚀 Technologies](#technologies-en)
 - [🗓️ Roadmap](#roadmap-en)
 - [🔧 Development Setup](#development-setup)
@@ -627,6 +632,7 @@ pnpm lint             # Check code
 pnpm lint:fix         # Fix issues automatically
 pnpm format           # Format code
 pnpm typecheck        # Type checking
+
 
 # Database commands
 pnpm db:migrate:new   # Create new migration
