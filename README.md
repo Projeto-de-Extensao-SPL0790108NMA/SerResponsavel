@@ -1,12 +1,12 @@
-<div align="center">
+<p style="text-align: center;">
   <img src="./public/uninorte-logo.png" alt="Logo Uninorte" width="300">
-</div>
+</p>
 
-<div id="pt-br"></div>
+<a id="pt-br"></a>
 
 ## 🌐 Language / Idioma
 
-<div align="center">
+<div style="text-align: center;">
 
 | Language         | Link                         |
 | ---------------- | ---------------------------- |
@@ -17,11 +17,11 @@
 
 ---
 
-# SerResponsável
+## SerResponsável
 
-<div align="center">
-  <img src="./app/assets/img/logoserresp300_299.png" alt="Logo Uninorte" width="150">
-</div>
+<p style="text-align: center;">
+  <img src="./app/assets/img/logoserresp300_299.png" alt="Logo SerResponsável" width="150">
+</p>
 
 #### (disponível em https://ser-responsavel.vercel.app/)
 
@@ -36,16 +36,18 @@ Uma plataforma de divulgação e promoção de ações voltadas à Responsabilid
 
 ## 📑 Índice
 
-- [📋 Sobre o Projeto](#-sobre-o-projeto)
-- [🎯 Objetivos](#-objetivos)
-- [🚀 Tecnologias](#-tecnologias)
-- [🗓️ Roadmap](#️-roadmap)
-- [🔧 Setup de Desenvolvimento](#-setup-de-desenvolvimento)
-- [📋 Padrões e Boas Práticas](#-padrões-e-boas-práticas)
-- [🤝 Contribuição](#-contribuição)
-- [📄 Licença](#-licença)
-- [👥 Equipe](#-equipe)
-- [📞 Contato](#-contato)
+- [📋 Sobre o Projeto](#sobre-projeto)
+- [🎯 Objetivos](#objetivos)
+- [🚀 Tecnologias](#tecnologias)
+- [🗓️ Roadmap](#roadmap)
+- [🔧 Setup de Desenvolvimento](#setup-desenvolvimento)
+- [📋 Padrões e Boas Práticas](#padroes-boas-praticas)
+- [🤝 Contribuição](#contribuicao)
+- [📄 Licença](#licenca)
+- [👥 Equipe](#equipe)
+- [📞 Contato](#contato)
+
+<a id="sobre-projeto"></a>
 
 ## 📋 Sobre o Projeto
 
@@ -58,6 +60,8 @@ Este projeto integra as disciplinas:
 - **Fábrica de Software**
 - **Tópicos Avançados de Ciência da Computação**
 
+<a id="objetivos"></a>
+
 ## 🎯 Objetivos
 
 - Centralizar informações sobre ações de responsabilidade social
@@ -65,6 +69,8 @@ Este projeto integra as disciplinas:
 - Promover maior engajamento entre instituições e sociedade
 - Criar uma rede colaborativa de responsabilidade social
 - Aumentar o impacto e alcance das iniciativas sociais
+
+<a id="tecnologias"></a>
 
 ## 🚀 Tecnologias
 
@@ -74,10 +80,12 @@ Este projeto está sendo desenvolvido com tecnologias modernas e robustas:
 - **UI Framework:** Vuetify 3 (Material Design)
 - **Backend/Database:** Supabase (PostgreSQL + Auth + Real-time)
 - **Estado:** Pinia com persistência
-- **Testes:** Vitest + Testing Library (planejado)
+- **Testes:** Vitest + @vue/test-utils (em progresso)
 - **Qualidade de Código:** ESLint + Prettier + Husky
 - **CI/CD:** GitHub Actions (planejado)
 - **Deploy:** Vercel (planejado)
+
+<a id="roadmap"></a>
 
 ## 🗓️ Roadmap
 
@@ -137,6 +145,8 @@ Este projeto está sendo desenvolvido com tecnologias modernas e robustas:
 - Arquitetura moderna e escalável
 - Performance e otimizações
 
+<a id="setup-desenvolvimento"></a>
+
 ## 🔧 Setup de Desenvolvimento
 
 ### Pré-requisitos
@@ -154,6 +164,9 @@ git clone [url-do-repositorio]
 
 # Instalar dependências
 pnpm install
+
+# Ativar hooks do Husky
+pnpm prepare
 
 # Iniciar servidor de desenvolvimento
 pnpm dev
@@ -181,12 +194,17 @@ pnpm db:seed
 ```
 
 **Variáveis de ambiente necessárias:**
-Crie um arquivo `.env.local` na raiz do projeto:
+Crie um arquivo `.env` na raiz do projeto:
 
 ```
 SUPABASE_URL=sua_url_do_supabase
-SUPABASE_ANON_KEY=sua_chave_anonima_do_supabase
+SUPABASE_KEY=sua_chave_anonima_do_supabase
+SUPABASE_SERVICE_ROLE_KEY=sua_service_role_key_do_supabase # use apenas em ambiente local
+TESTING_USER_EMAIL=email_para_seed_opcional
+TESTING_USER_PASSWORD=senha_para_seed_opcional
 ```
+
+> ⚠️ **Importante**: nunca exponha a `SUPABASE_SERVICE_ROLE_KEY` fora do ambiente local. Ela é utilizada apenas pelos scripts de seed (`pnpm db:seed`).
 
 ### Comandos Úteis
 
@@ -208,12 +226,14 @@ pnpm db:reset         # Resetar banco para última migração
 pnpm db:seed          # Popular banco com dados iniciais
 pnpm supabase:types   # Gerar tipos TypeScript do schema
 
-# Testes (planejado)
+# Testes
 pnpm test             # Executar todos os testes
 pnpm test:watch       # Executar testes em modo watch
 pnpm test:coverage    # Executar testes com cobertura
 pnpm test:ui          # Interface visual dos testes
 ```
+
+<a id="padroes-boas-praticas"></a>
 
 ## 📋 Padrões e Boas Práticas
 
@@ -310,6 +330,8 @@ Aplicação automática de ferramentas de qualidade apenas nos arquivos modifica
 - **Type Safety**: TypeScript em todo o projeto com tipos gerados do Supabase
 - **Component Library**: Vuetify 3 para UI consistente e acessível
 
+<a id="contribuicao"></a>
+
 ## 🤝 Contribuição
 
 Este é um projeto acadêmico, mas contribuições são bem-vindas! Siga estas diretrizes:
@@ -346,6 +368,8 @@ Este é um projeto acadêmico, mas contribuições são bem-vindas! Siga estas d
 - Adicione screenshots se aplicável
 - Especifique browser/OS quando relevante
 
+<a id="licenca"></a>
+
 ## 📄 Licença
 
 Este projeto está licenciado sob a **MIT License** - veja o arquivo [LICENSE](LICENSE) para detalhes.
@@ -362,9 +386,13 @@ Requer apenas:
 - 📄 Incluir a licença original
 - 📄 Incluir o copyright
 
+<a id="equipe"></a>
+
 ## 👥 Equipe
 
 Projeto desenvolvido pelo aluno Tiago Brilhante da Faculdade Uninorte como parte das disciplinas de extensão e tecnologia.
+
+<a id="contato"></a>
 
 ## 📞 Contato
 
@@ -376,17 +404,17 @@ _Projeto em desenvolvimento - Mais informações serão adicionadas conforme o p
 
 ---
 
-<div id="en-us"></div>
+<a id="en-us"></a>
 
 # English Version
 
-<div align="center">
+<p style="text-align: center;">
   <img src="./public/uninorte-logo.png" alt="Uninorte Logo" width="300">
-</div>
+</p>
 
 ## 🌐 Language / Idioma
 
-<div align="center">
+<div style="text-align: center;">
 
 | Language         | Link                       |
 | ---------------- | -------------------------- |
@@ -397,11 +425,11 @@ _Projeto em desenvolvimento - Mais informações serão adicionadas conforme o p
 
 ---
 
-# SerResponsável
+## SerResponsável
 
-<div align="center">
-  <img src="./app/assets/img/logoserresp300_299.png" alt="Logo Uninorte" width="150">
-</div>
+<p style="text-align: center;">
+  <img src="./app/assets/img/logoserresp300_299.png" alt="Logo SerResponsável" width="150">
+</p>
 
 #### (available at https://ser-responsavel.vercel.app/)
 
@@ -416,16 +444,18 @@ A platform for promoting and disseminating Social Responsibility actions by publ
 
 ## 📑 Table of Contents
 
-- [📋 About the Project](#-about-the-project)
-- [🎯 Objectives](#-objectives)
-- [🚀 Technologies](#-technologies)
-- [🗓️ Roadmap](#️-roadmap-1)
-- [🔧 Development Setup](#-development-setup)
-- [📋 Standards and Best Practices](#-standards-and-best-practices)
-- [🤝 Contributing](#-contributing)
-- [📄 License](#-license-1)
-- [👥 Team](#-team-1)
-- [📞 Contact](#-contact-1)
+- [📋 About the Project](#about-project)
+- [🎯 Objectives](#objectives-en)
+- [🚀 Technologies](#technologies-en)
+- [🗓️ Roadmap](#roadmap-en)
+- [🔧 Development Setup](#development-setup)
+- [📋 Standards and Best Practices](#standards-best-practices)
+- [🤝 Contributing](#contributing)
+- [📄 License](#license)
+- [👥 Team](#team)
+- [📞 Contact](#contact)
+
+<a id="about-project"></a>
 
 ## 📋 About the Project
 
@@ -438,6 +468,8 @@ This project integrates the following disciplines:
 - **Software Factory**
 - **Advanced Topics in Computer Science**
 
+<a id="objectives-en"></a>
+
 ## 🎯 Objectives
 
 - Centralize information about social responsibility actions
@@ -445,6 +477,8 @@ This project integrates the following disciplines:
 - Promote greater engagement between institutions and society
 - Create a collaborative network for social responsibility
 - Increase the impact and reach of social initiatives
+
+<a id="technologies-en"></a>
 
 ## 🚀 Technologies
 
@@ -454,10 +488,12 @@ This project is being developed with modern and robust technologies:
 - **UI Framework:** Vuetify 3 (Material Design)
 - **Backend/Database:** Supabase (PostgreSQL + Auth + Real-time)
 - **State Management:** Pinia with persistence
-- **Testing:** Vitest + Testing Library (planned)
+- **Testing:** Vitest + @vue/test-utils (in progress)
 - **Code Quality:** ESLint + Prettier + Husky
 - **CI/CD:** GitHub Actions (planned)
 - **Deploy:** Vercel (planned)
+
+<a id="roadmap-en"></a>
 
 ## 🗓️ Roadmap
 
@@ -517,6 +553,8 @@ This project is being developed with modern and robust technologies:
 - Modern and scalable architecture
 - Performance and optimizations
 
+<a id="development-setup"></a>
+
 ## 🔧 Development Setup
 
 ### Prerequisites
@@ -534,6 +572,9 @@ git clone [repository-url]
 
 # Install dependencies
 pnpm install
+
+# Enable Husky git hooks
+pnpm prepare
 
 # Start development server
 pnpm dev
@@ -561,12 +602,17 @@ pnpm db:seed
 ```
 
 **Required environment variables:**
-Create a `.env.local` file in the project root:
+Create a `.env` file in the project root:
 
 ```
 SUPABASE_URL=your_supabase_url
-SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key # local use only
+TESTING_USER_EMAIL=optional_seed_user_email
+TESTING_USER_PASSWORD=optional_seed_user_password
 ```
+
+> ⚠️ **Important**: never expose `SUPABASE_SERVICE_ROLE_KEY` in public environments. It is used only by local seed scripts (`pnpm db:seed`).
 
 ### Useful Commands
 
@@ -588,12 +634,14 @@ pnpm db:reset         # Reset database to latest migration
 pnpm db:seed          # Populate database with initial data
 pnpm supabase:types   # Generate TypeScript types from schema
 
-# Testing (planned)
+# Testing
 pnpm test             # Run all tests
 pnpm test:watch       # Run tests in watch mode
 pnpm test:coverage    # Run tests with coverage
 pnpm test:ui          # Visual test interface
 ```
+
+<a id="standards-best-practices"></a>
 
 ## 📋 Standards and Best Practices
 
@@ -690,6 +738,8 @@ Automatic application of quality tools only on modified files:
 - **Type Safety:** TypeScript throughout the project with types generated from Supabase
 - **Component Library:** Vuetify 3 for consistent and accessible UI
 
+<a id="contributing"></a>
+
 ## 🤝 Contributing
 
 This is an academic project, but contributions are welcome! Follow these guidelines:
@@ -726,6 +776,8 @@ This is an academic project, but contributions are welcome! Follow these guideli
 - Add screenshots if applicable
 - Specify browser/OS when relevant
 
+<a id="license"></a>
+
 ## 📄 License
 
 This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
@@ -742,9 +794,13 @@ Requires only:
 - 📄 Include the original license
 - 📄 Include the copyright
 
+<a id="team"></a>
+
 ## 👥 Team
 
 Project developed by student Tiago Brilhante from Uninorte College as part of extension and technology disciplines.
+
+<a id="contact"></a>
 
 ## 📞 Contact
 
