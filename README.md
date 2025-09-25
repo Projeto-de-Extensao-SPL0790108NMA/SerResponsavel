@@ -145,8 +145,7 @@ Este projeto está sendo desenvolvido com tecnologias modernas e robustas:
 
 - Arquitetura moderna e escalável
 - Performance e otimizações
-
-<a id="setup-desenvolvimento"></a>
+  <a id="setup-desenvolvimento"></a>
 
 ## 🔧 Setup de Desenvolvimento
 
@@ -331,8 +330,7 @@ Aplicação automática de ferramentas de qualidade apenas nos arquivos modifica
 - **Hot Reload**: Desenvolvimento com recarga automática
 - **Type Safety**: TypeScript em todo o projeto com tipos gerados do Supabase
 - **Component Library**: Vuetify 3 para UI consistente e acessível
-
-<a id="contribuicao"></a>
+  <a id="contribuicao"></a>
 
 ## 🤝 Contribuição
 
@@ -369,8 +367,7 @@ Este é um projeto acadêmico, mas contribuições são bem-vindas! Siga estas d
 - Inclua steps para reproduzir o problema
 - Adicione screenshots se aplicável
 - Especifique browser/OS quando relevante
-
-<a id="licenca"></a>
+  <a id="licenca"></a>
 
 ## 📄 Licença
 
@@ -482,8 +479,7 @@ This project integrates the following disciplines:
 - Promote greater engagement between institutions and society
 - Create a collaborative network for social responsibility
 - Increase the impact and reach of social initiatives
-
-<a id="technologies-en"></a>
+  <a id="technologies-en"></a>
 
 ## 🚀 Technologies
 
@@ -497,8 +493,7 @@ This project is being developed with modern and robust technologies:
 - **Code Quality:** ESLint + Prettier + Husky
 - **CI/CD:** GitHub Actions (planned)
 - **Deploy:** Vercel (planned)
-
-<a id="roadmap-en"></a>
+  <a id="roadmap-en"></a>
 
 ## 🗓️ Roadmap
 
