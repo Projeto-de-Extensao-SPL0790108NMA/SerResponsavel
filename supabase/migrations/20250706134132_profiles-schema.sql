@@ -1,8 +1,5 @@
-drop table if exists profiles;
-TRUNCATE auth.users cascade;
-
-create table
-    profiles
+-- noinspection SqlResolve
+create table if not exists public.profiles
 (
     id         uuid references auth.users on delete cascade not null,
     created_at timestamptz default now()                    not null,

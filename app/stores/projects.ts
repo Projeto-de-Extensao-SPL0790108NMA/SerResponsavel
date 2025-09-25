@@ -47,7 +47,7 @@ export const useProjectsStore = defineStore(
       projectsSubscription.value = supabase
         .channel('projects-changes')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'projects' }, (payload) => {
-          console.log('🔄 Projects changed:', payload)
+          console.debug('🔄 Projects changed:', payload)
           // Invalidate cache and refetch
           lastFetch.value = null
           void fetchProjects(true) // Force refresh
@@ -62,7 +62,7 @@ export const useProjectsStore = defineStore(
     ) => {
       // Check cache first (unless forced refresh)
       if (!forceRefresh && projects.value && isCacheValid()) {
-        console.log('📦 Using cached projects')
+        console.debug('📦 Using cached projects')
         return
       }
 
@@ -70,7 +70,7 @@ export const useProjectsStore = defineStore(
       error.value = null
 
       try {
-        console.log('🌐 Fetching projects from Supabase', status ? `with status: ${status}` : '')
+        console.debug('🌐 Fetching projects from Supabase', status ? `with status: ${status}` : '')
         const { data, error: supabaseError } = await getProjects(status)
 
         if (supabaseError) {
@@ -233,7 +233,7 @@ export const useProjectsStore = defineStore(
     // Invalidate cache - force next fetch to hit Supabase
     const invalidateCache = () => {
       lastFetch.value = null
-      console.log('🗑️ Cache invalidated')
+      console.debug('🗑️ Cache invalidated')
     }
 
     // Refresh projects - force refresh from Supabase

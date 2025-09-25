@@ -1,4 +1,5 @@
 import type { User } from '@supabase/supabase-js'
+import type { WatchStopHandle } from 'vue'
 import type { Database } from '~~/database/types'
 
 type Profile = Database['public']['Tables']['profiles']['Row']
@@ -43,11 +44,17 @@ export const useAuthStore = defineStore(
       setProfile(null)
     }
 
+    let authWatcherStop: WatchStopHandle | null = null
+
     const initializeFromSupabase = async () => {
       const supabaseUser = useSupabaseUser()
 
+      if (authWatcherStop) {
+        return
+      }
+
       // Escutar mudanças no estado de auth do Supabase
-      watch(
+      authWatcherStop = watch(
         supabaseUser,
         async (newUser) => {
           if (newUser) {

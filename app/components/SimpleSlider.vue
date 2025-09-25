@@ -8,15 +8,23 @@ const slides = [
 ]
 
 const currentSlide = ref(0)
+let intervalId: ReturnType<typeof setInterval> | null = null
 
 const startSlideShow = () => {
-  setInterval(() => {
+  intervalId = setInterval(() => {
     currentSlide.value = (currentSlide.value + 1) % slides.length
   }, 7000)
 }
 
-onMounted(async () => {
+onMounted(() => {
   startSlideShow()
+})
+
+onBeforeUnmount(() => {
+  if (intervalId) {
+    clearInterval(intervalId)
+    intervalId = null
+  }
 })
 </script>
 <template>

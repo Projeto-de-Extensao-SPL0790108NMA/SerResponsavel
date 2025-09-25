@@ -46,7 +46,13 @@
     </v-row>
 
     <v-row v-else>
-      <v-col v-for="project in filteredProjects" :key="project.id" cols="12" md="6" lg="4">
+      <v-col
+        v-for="project in filteredProjects"
+        :key="project?.id ?? project?.slug"
+        cols="12"
+        md="6"
+        lg="4"
+      >
         <v-card variant="tonal" rounded="xl" elevation="8" class="h-100">
           <v-card-title class="d-flex align-center">
             <v-icon
@@ -54,10 +60,10 @@
               :color="project.status === 'completed' ? 'success' : 'warning'"
               class="me-2"
             />
-            {{ project.title }}
+            {{ project?.name || 'Projeto sem nome' }}
           </v-card-title>
           <v-card-subtitle>
-            {{ project.description }}
+            {{ project?.description || 'Sem descrição disponível' }}
           </v-card-subtitle>
           <v-card-text>
             <v-chip
@@ -67,7 +73,7 @@
             >
               {{ project.status === 'completed' ? 'Concluído' : 'Em Progresso' }}
             </v-chip>
-            <p class="text-caption">Criado em: {{ formatDate(project.created_at) }}</p>
+            <p class="text-caption">Criado em: {{ formatDate(project?.created_at) }}</p>
           </v-card-text>
           <v-card-actions>
             <v-btn variant="outlined" size="small" prepend-icon="mdi-eye"> Ver Detalhes </v-btn>
@@ -94,18 +100,18 @@ const statusOptions = [
 ]
 
 const filteredProjects = computed(() => {
-  let filtered = projects.value
+  let filtered = [...(projects.value ?? [])]
 
   if (statusFilter.value !== 'all') {
-    filtered = filtered.filter((project) => project.status === statusFilter.value)
+    filtered = filtered.filter((project) => project?.status === statusFilter.value)
   }
 
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase()
     filtered = filtered.filter(
       (project) =>
-        project.title?.toLowerCase().includes(query) ||
-        project.description?.toLowerCase().includes(query),
+        project?.name?.toLowerCase().includes(query) ||
+        project?.description?.toLowerCase().includes(query),
     )
   }
 
@@ -118,6 +124,8 @@ const formatDate = (dateString?: string) => {
 }
 
 onMounted(() => {
-  projectsStore.fetchProjects()
+  if (!projects.value) {
+    void projectsStore.fetchProjects(false, 'all')
+  }
 })
 </script>

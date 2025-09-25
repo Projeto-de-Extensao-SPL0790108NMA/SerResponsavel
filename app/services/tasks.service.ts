@@ -1,8 +1,10 @@
 import type { CreateNewTask } from '@/types/CreateNewForm'
 import type { SupabaseClient } from '@supabase/supabase-js'
+import type { Database } from '~~/database/types'
+import { throwServiceError } from '@/utils/serviceLogger'
 
 export class TasksService {
-  constructor(private supabase: SupabaseClient) {}
+  constructor(private supabase: SupabaseClient<Database>) {}
 
   async getTasksWithProjects() {
     const { data, error } = await this.supabase.from('tasks').select(`
@@ -14,7 +16,7 @@ export class TasksService {
       )
     `)
 
-    if (error) throw error
+    if (error) throwServiceError('TasksService.getTasksWithProjects', error)
     return data
   }
 
@@ -34,14 +36,14 @@ export class TasksService {
       .eq('id', id)
       .single()
 
-    if (error) throw error
+    if (error) throwServiceError('TasksService.getTask', error)
     return data
   }
 
   async createTask(newTask: CreateNewTask) {
     const { data, error } = await this.supabase.from('tasks').insert(newTask).select().single()
 
-    if (error) throw error
+    if (error) throwServiceError('TasksService.createTask', error)
     return data
   }
 
@@ -53,14 +55,14 @@ export class TasksService {
       .select()
       .single()
 
-    if (error) throw error
+    if (error) throwServiceError('TasksService.updateTask', error)
     return data
   }
 
   async deleteTask(id: number) {
     const { data, error } = await this.supabase.from('tasks').delete().eq('id', id)
 
-    if (error) throw error
+    if (error) throwServiceError('TasksService.deleteTask', error)
     return data
   }
 }

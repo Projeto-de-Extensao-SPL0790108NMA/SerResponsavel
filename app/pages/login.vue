@@ -2,6 +2,15 @@
 // Imports
 import { informativeCards, targetAudienceCards } from '~/constants/login'
 
+const projectsStore = useProjectsStore()
+
+await callOnce(async () => {
+  await Promise.all([
+    projectsStore.fetchProjects(false, 'all'),
+    projectsStore.fetchCompletedProjectsCount(),
+  ])
+})
+
 // Layout
 definePageMeta({
   layout: 'auth',
@@ -66,10 +75,15 @@ useSeoMeta({
       <v-row class="text-center">
         <v-col class="hero-content fade-in-up">
           <v-img
-            src="~/assets/img/logoserresp600_598.png"
+            src="/logoserresp600_598.png"
             alt="SerResponsável Logo"
-            max-width="200"
+            width="200"
+            height="199"
+            eager
+            aspect-ratio="1"
             class="mx-auto mb-4 logo-hover"
+            :lazy-src="'/logoserresp600_598.png'"
+            cover
           />
           <h1 class="text-h3 font-weight-bold mb-4 text-gradient hero-title">SerResponsável</h1>
           <h2 class="text-h5 mb-4 text-grey-lighten-1 hero-subtitle">

@@ -9,8 +9,18 @@ const statisticsCards = computed(() =>
   createStatisticsCards(projects.value, completedProjectsCount.value),
 )
 
+const activeProjects = computed(() =>
+  (projects.value ?? []).filter((project) => project?.status === 'in-progress'),
+)
+
 onMounted(async () => {
-  await Promise.all([fetchProjects(false, 'in-progress'), fetchCompletedProjectsCount()])
+  if (!projects.value) {
+    await fetchProjects(false, 'all')
+  }
+
+  if (!completedProjectsCount.value) {
+    await fetchCompletedProjectsCount()
+  }
 })
 </script>
 
@@ -47,7 +57,7 @@ onMounted(async () => {
           <v-col cols="12" md="8" class="d-flex align-center">
             <v-icon icon="mdi-view-list" class="me-2" color="primary" />
             <span class="text-h6 text-md-h6 text-truncate">
-              Projetos de Responsabilidade Social Ativos ({{ projects?.length || 0 }})
+              Projetos de Responsabilidade Social Ativos ({{ activeProjects.length }})
             </span>
           </v-col>
           <v-col
@@ -72,7 +82,7 @@ onMounted(async () => {
               rounded="xl"
               elevation="15"
               prepend-icon="mdi-refresh"
-              @click="() => fetchProjects(true, 'in-progress')"
+              @click="() => fetchProjects(true, 'all')"
             >
               Atualizar
             </v-btn>
@@ -95,7 +105,7 @@ onMounted(async () => {
       <v-divider />
 
       <v-card-text class="pa-0">
-        <div v-if="projects?.length === 0" class="text-center pa-8">
+        <div v-if="activeProjects.length === 0" class="text-center pa-8">
           <v-icon icon="mdi-folder-open-outline" size="64" color="grey-lighten-1" class="mb-4" />
           <h3 class="text-h6 mb-2">Nenhum projeto encontrado</h3>
           <p class="text-body-2 text-grey-darken-1">
@@ -113,7 +123,7 @@ onMounted(async () => {
         </div>
 
         <v-list v-else lines="three">
-          <template v-for="(project, index) in projects" :key="project?.id || index">
+          <template v-for="(project, index) in activeProjects" :key="project?.id || index">
             <v-list-item class="pa-3">
               <v-list-item-title>
                 {{ project?.name || 'Projeto sem nome' }}
@@ -158,7 +168,7 @@ onMounted(async () => {
                 </v-row>
               </template>
             </v-list-item>
-            <v-divider v-if="index < (projects?.length || 0) - 1" />
+            <v-divider v-if="index < activeProjects.length - 1" />
           </template>
         </v-list>
       </v-card-text>

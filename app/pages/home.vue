@@ -7,7 +7,16 @@ definePageMeta({
 
 const user = useSupabaseUser()
 const { toggleSection, activeSection, hasActiveSection } = useHomeNavigation()
+const projectsStore = useProjectsStore()
 
+await callOnce(async () => {
+  await Promise.all([
+    projectsStore.fetchProjects(false, 'all'),
+    projectsStore.fetchCompletedProjectsCount(),
+  ])
+})
+
+// noinspection NonAsciiCharacters
 const homeCards: CardData[] = [
   {
     icon: 'mdi-account-circle',
@@ -30,6 +39,7 @@ const homeCards: CardData[] = [
 ]
 
 const handleCardClick = (cardData: CardData) => {
+  // noinspection NonAsciiCharacters
   const sectionMap: Record<string, 'profile' | 'projects' | 'reports'> = {
     Perfil: 'profile',
     Projetos: 'projects',

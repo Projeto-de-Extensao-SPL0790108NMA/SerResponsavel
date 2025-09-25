@@ -4,7 +4,7 @@ const emit = defineEmits<{
   close: []
 }>()
 
-const { serverError, handleServerError, handleLoginForm } = useFormErrors()
+const { serverError, realtimeErrors, handleServerError, handleLoginForm } = useFormErrors()
 const { login, loading } = useAuth()
 
 const formData = ref({
@@ -23,8 +23,17 @@ watchDebounced(
   },
 )
 
+const hasRealtimeErrors = () =>
+  Boolean(realtimeErrors.value.email.length || realtimeErrors.value.password.length)
+
 const signIn = async () => {
   if (loading.value) return
+
+  await handleLoginForm(formData.value)
+
+  if (hasRealtimeErrors()) {
+    return
+  }
 
   const { error } = await login(formData.value)
   if (!error) {
@@ -56,6 +65,7 @@ const handleCancel = () => {
         prepend-inner-icon="mdi-account"
         class="mb-2"
         required
+        :error-messages="realtimeErrors.email"
       />
       <v-text-field
         v-model="formData.password"
@@ -67,6 +77,7 @@ const handleCancel = () => {
         type="password"
         class="mb-2"
         required
+        :error-messages="realtimeErrors.password"
       />
       <!-- Error Alert -->
       <v-alert v-if="serverError" type="error" variant="tonal" class="mb-3" density="compact">

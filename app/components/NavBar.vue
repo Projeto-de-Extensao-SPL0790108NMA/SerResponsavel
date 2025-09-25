@@ -6,11 +6,8 @@ const dialog = ref(false)
 // Reactive state
 const drawer = ref(false)
 
-// Computed properties
-const isAuthenticated = computed(() => authStore.isAuthenticated)
-const fullName = computed(() => authStore.fullName)
-const username = computed(() => authStore.username)
-const avatarUrl = computed(() => authStore.avatarUrl)
+// Reactive store refs
+const { isAuthenticated, fullName, username, avatarUrl } = storeToRefs(authStore)
 
 // Methods
 const handleLogout = async () => {

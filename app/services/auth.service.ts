@@ -1,8 +1,10 @@
 import type { LoginForm, RegisterForm } from '@/types/AuthForm'
 import type { SupabaseClient } from '@supabase/supabase-js'
+import type { Database } from '~~/database/types'
+import { throwServiceError } from '@/utils/serviceLogger'
 
 export class AuthService {
-  constructor(private supabase: SupabaseClient) {}
+  constructor(private supabase: SupabaseClient<Database>) {}
 
   async register(formData: RegisterForm) {
     const { data, error } = await this.supabase.auth.signUp({
@@ -10,7 +12,7 @@ export class AuthService {
       password: formData.password,
     })
 
-    if (error) throw error
+    if (error) throwServiceError('AuthService.register', error)
 
     if (data.user) {
       const { error: profileError } = await this.supabase.from('profiles').insert({
@@ -19,7 +21,7 @@ export class AuthService {
         full_name: formData.firstName.concat(' ', formData.lastName),
       })
 
-      if (profileError) throw profileError
+      if (profileError) throwServiceError('AuthService.register.profile', profileError)
     }
 
     return data
@@ -31,13 +33,13 @@ export class AuthService {
       password: formData.password,
     })
 
-    if (error) throw error
+    if (error) throwServiceError('AuthService.login', error)
     return data
   }
 
   async logout() {
     const { error } = await this.supabase.auth.signOut()
-    if (error) throw error
+    if (error) throwServiceError('AuthService.logout', error)
     return true
   }
 
@@ -48,14 +50,14 @@ export class AuthService {
       .eq(params.column, params.value)
       .single()
 
-    if (error) throw error
+    if (error) throwServiceError('AuthService.getProfile', error)
     return data
   }
 
   async getProfiles() {
     const { data, error } = await this.supabase.from('profiles').select('id, full_name')
 
-    if (error) throw error
+    if (error) throwServiceError('AuthService.getProfiles', error)
     return data
   }
 
@@ -65,7 +67,7 @@ export class AuthService {
       .select('username, avatar_url, id, full_name')
       .in('id', userIds)
 
-    if (error) throw error
+    if (error) throwServiceError('AuthService.getGroupedProfiles', error)
     return data
   }
 }

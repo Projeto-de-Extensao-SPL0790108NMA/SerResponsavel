@@ -1,7 +1,4 @@
-drop table if exists organizations;
-
-create table
-    organizations
+create table if not exists public.organizations
 (
     id         uuid primary key default gen_random_uuid(),
     created_at timestamptz default now()                    not null,

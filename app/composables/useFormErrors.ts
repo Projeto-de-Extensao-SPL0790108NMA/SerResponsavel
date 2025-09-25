@@ -5,9 +5,14 @@ type UseFormErrors<T> = {
   [K in keyof T]: string[]
 }
 
+const createEmptyLoginErrors = (): UseFormErrors<LoginForm> => ({
+  email: [],
+  password: [],
+})
+
 export const useFormErrors = () => {
   const serverError = ref('')
-  const realtimeErrors = ref<UseFormErrors<LoginForm>>()
+  const realtimeErrors = ref<UseFormErrors<LoginForm>>(createEmptyLoginErrors())
 
   const handleServerError = (error: AuthError) => {
     if (error.message === 'Invalid login credentials') {
@@ -21,10 +26,7 @@ export const useFormErrors = () => {
   }
 
   const handleLoginForm = async (formData: LoginForm) => {
-    realtimeErrors.value = {
-      email: [],
-      password: [],
-    }
+    realtimeErrors.value = createEmptyLoginErrors()
 
     const { validateEmail, validatePassword } = await import('@/utils/formValidations')
 

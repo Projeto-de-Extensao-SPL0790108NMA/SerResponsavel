@@ -1,7 +1,8 @@
 import { ProjectsService } from '@/services/projects.service'
+import type { Database } from '~~/database/types'
 
 export const useProjects = () => {
-  const supabase = useSupabaseClient()
+  const supabase = useSupabaseClient<Database>()
   const projectsService = new ProjectsService(supabase)
 
   const getProjects = async (status: 'in-progress' | 'completed' | 'all' = 'all') => {

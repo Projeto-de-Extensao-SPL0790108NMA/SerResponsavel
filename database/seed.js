@@ -3,7 +3,16 @@
 import { fakerEN_US as faker } from '@faker-js/faker'
 import { createClient } from '@supabase/supabase-js'
 
-const supabase = createClient(process.env.VITE_SUPABASE_URL, process.env.VITE_SERVICE_ROLE_KEY)
+const supabaseUrl = process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL
+const supabaseServiceRoleKey =
+  process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.VITE_SERVICE_ROLE_KEY
+
+if (!supabaseUrl || !supabaseServiceRoleKey) {
+  console.error('Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY in environment variables')
+  process.exit(1)
+}
+
+const supabase = createClient(supabaseUrl, supabaseServiceRoleKey)
 
 const testingUserEmail = process.env.TESTING_USER_EMAIL
 const testingUserPassword = process.env.TESTING_USER_PASSWORD
@@ -20,7 +29,7 @@ const logErrorAndExit = (tableName, error) => {
 }
 
 const logStep = (stepMessage) => {
-  console.log(stepMessage)
+  console.info(stepMessage)
 }
 
 const PrimaryTestUserExists = async () => {
@@ -32,7 +41,7 @@ const PrimaryTestUserExists = async () => {
     .single()
 
   if (error) {
-    console.log('Primary test user not found. Will create one.')
+    console.info('Primary test user not found. Will create one.')
     return false
   }
 
@@ -83,7 +92,6 @@ const createPrimaryTestUser = async (organizations) => {
 
 const seedProjects = async (numEntries, userId, organizationsId) => {
   logStep('Seeding projects...')
-  console.log(organizationsId)
   const projects = []
 
   for (let i = 0; i < numEntries; i++) {

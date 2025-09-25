@@ -1,7 +1,9 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
+import type { Database } from '~~/database/types'
+import { throwServiceError } from '@/utils/serviceLogger'
 
 export class ProjectsService {
-  constructor(private supabase: SupabaseClient) {}
+  constructor(private supabase: SupabaseClient<Database>) {}
 
   async getProjects(status?: 'in-progress' | 'completed' | 'all') {
     let query = this.supabase
@@ -16,8 +18,7 @@ export class ProjectsService {
     const { data, error } = await query
 
     if (error) {
-      console.error('Error fetching projects:', error)
-      throw error
+      throwServiceError('ProjectsService.getProjects', error)
     }
 
     if (status && status !== 'all') {
@@ -34,8 +35,7 @@ export class ProjectsService {
       .eq('status', 'completed')
 
     if (error) {
-      console.error('Error counting completed projects:', error)
-      throw error
+      throwServiceError('ProjectsService.getCountConcludedProjects', error)
     }
 
     return count || 0
@@ -58,7 +58,7 @@ export class ProjectsService {
       .eq('slug', slug)
       .single()
 
-    if (error) throw error
+    if (error) throwServiceError('ProjectsService.getProject', error)
     return data
   }
 
@@ -71,7 +71,7 @@ export class ProjectsService {
   }) {
     const { data, error } = await this.supabase.from('projects').insert(project).select().single()
 
-    if (error) throw error
+    if (error) throwServiceError('ProjectsService.createProject', error)
     return data
   }
 
@@ -92,14 +92,14 @@ export class ProjectsService {
       .select()
       .single()
 
-    if (error) throw error
+    if (error) throwServiceError('ProjectsService.updateProject', error)
     return data
   }
 
   async deleteProject(id: number) {
     const { data, error } = await this.supabase.from('projects').delete().eq('id', id)
 
-    if (error) throw error
+    if (error) throwServiceError('ProjectsService.deleteProject', error)
     return data
   }
 }

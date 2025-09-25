@@ -2,9 +2,10 @@ import type { LoginForm, RegisterForm } from '@/types/AuthForm'
 import type { AuthError } from '@supabase/supabase-js'
 import { AuthService } from '@/services/auth.service'
 import { MeService } from '@/services/me.service'
+import type { Database } from '~~/database/types'
 
 export const useAuth = () => {
-  const supabase = useSupabaseClient()
+  const supabase = useSupabaseClient<Database>()
   const authService = new AuthService(supabase)
   const meService = new MeService(supabase)
   const loading = ref(false)
@@ -15,7 +16,7 @@ export const useAuth = () => {
       const data = await authService.register(formData)
       return { data, error: null }
     } catch (error) {
-      console.log(error)
+      console.error(error)
       return { data: null, error: error as AuthError }
     } finally {
       loading.value = false
@@ -60,7 +61,7 @@ export const useAuth = () => {
 
       return { success: true, error: null }
     } catch (error) {
-      console.log(error)
+      console.error(error)
       return { success: false, error: error as AuthError }
     } finally {
       loading.value = false

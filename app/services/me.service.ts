@@ -1,4 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
+import type { Database } from '~~/database/types'
+import { throwServiceError } from '@/utils/serviceLogger'
 
 interface MeResponse {
   user: {
@@ -20,14 +22,14 @@ interface MeResponse {
 }
 
 export class MeService {
-  constructor(private supabase: SupabaseClient) {}
+  constructor(private supabase: SupabaseClient<Database>) {}
 
   async getCurrentUser(): Promise<MeResponse> {
     const { data, error } = await this.supabase.functions.invoke('me', {
       method: 'GET',
     })
 
-    if (error) throw error
+    if (error) throwServiceError('MeService.getCurrentUser', error)
     return data as MeResponse
   }
 }
