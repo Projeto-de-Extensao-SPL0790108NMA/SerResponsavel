@@ -92,19 +92,19 @@ Este projeto está sendo desenvolvido com tecnologias modernas e robustas:
 
 ### 📅 Cronograma de Desenvolvimento
 
-#### **Fase 1: Fundação** _(Em andamento)_
+#### **Fase 1: Fundação** _(Concluída)_
 
 - ✅ Definição da stack tecnológica
 - ✅ Configuração da infraestrutura base
 - ✅ Setup inicial do projeto
-- 🔄 Modelagem do banco de dados
+- ✅ Modelagem do banco de dados
 - 📋 Configuração de CI/CD com GitHub Actions
 
-#### **Fase 2: Core Features** _(Próximos passos)_
+#### **Fase 2: Core Features** _(Em andamento)_
 
-- 🔲 Sistema de autenticação (Supabase Auth)
-- 🔲 CRUD de perfis de usuários
-- 🔲 CRUD de projetos sociais
+- ✅ Sistema de autenticação (Supabase Auth)
+- 🔄 CRUD de perfis de usuários
+- 🔄 CRUD de projetos sociais
 - 🔲 Sistema de busca e filtros
 - 🔲 Dashboard administrativo
 
@@ -499,19 +499,19 @@ This project is being developed with modern and robust technologies:
 
 ### 📅 Development Timeline
 
-#### **Phase 1: Foundation** _(In Progress)_
+#### **Phase 1: Foundation** _(Completed)_
 
 - ✅ Technology stack definition
 - ✅ Base infrastructure configuration
 - ✅ Initial project setup
-- 🔄 Database modeling
+- ✅ Database modeling
 - 📋 CI/CD configuration with GitHub Actions
 
-#### **Phase 2: Core Features** _(Next Steps)_
+#### **Phase 2: Core Features** _(In Progress)_
 
-- 🔲 Authentication system (Supabase Auth)
-- 🔲 User profile CRUD
-- 🔲 Social project CRUD
+- ✅ Authentication system (Supabase Auth)
+- 🔄 User profile CRUD
+- 🔄 Social project CRUD
 - 🔲 Search and filter system
 - 🔲 Administrative dashboard
 
