@@ -31,7 +31,7 @@ export const usePreferencesStore = defineStore(
   {
     persist: {
       storage: piniaPluginPersistedstate.localStorage(),
-      paths: ['theme'],
+      pick: ['theme'],
     },
   },
 )

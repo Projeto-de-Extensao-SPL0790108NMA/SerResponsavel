@@ -115,7 +115,7 @@ export const useAuthStore = defineStore(
   {
     persist: {
       storage: piniaPluginPersistedstate.localStorage(),
-      paths: ['profile'], // Usar paths ao invés de pick
+      pick: ['profile'],
     },
   },
 )

@@ -60,7 +60,7 @@ export const useOrganizationsStore = defineStore(
   {
     persist: {
       storage: piniaPluginPersistedstate.localStorage(),
-      paths: ['items'],
+      pick: ['items'],
     },
   },
 )
