@@ -26,7 +26,7 @@ export const useHomeNavigation = () => {
   const openSection = (section: Exclude<HomeSection, null>) => {
     isTransitioning.value = true
 
-    nextTick(() => {
+    void nextTick().then(() => {
       activeSection.value = section
       setTimeout(() => {
         isTransitioning.value = false

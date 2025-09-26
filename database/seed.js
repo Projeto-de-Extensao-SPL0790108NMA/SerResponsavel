@@ -32,8 +32,12 @@ const logStep = (stepMessage) => {
   console.info(stepMessage)
 }
 
-const PrimaryTestUserExists = async () => {
+/**
+ * @returns {Promise<string | null>}
+ */
+const primaryTestUserExists = async () => {
   logStep('Checking if primary test user exists...')
+
   const { data, error } = await supabase
     .from('profiles')
     .select('id, username')
@@ -42,11 +46,16 @@ const PrimaryTestUserExists = async () => {
 
   if (error) {
     console.info('Primary test user not found. Will create one.')
-    return false
+    return null
+  }
+
+  if (!data) {
+    console.info('Primary test user not found. Will create one.')
+    return null
   }
 
   logStep('Primary test user is found.')
-  return data?.id
+  return data.id
 }
 
 const createPrimaryTestUser = async (organizations) => {
@@ -170,7 +179,7 @@ const seedDatabase = async (numEntriesPerTable) => {
 
   let userId
 
-  const testUserId = await PrimaryTestUserExists()
+  const testUserId = await primaryTestUserExists()
 
   if (!testUserId) {
     userId = await createPrimaryTestUser(organizations)
@@ -192,4 +201,15 @@ const seedDatabase = async (numEntriesPerTable) => {
 
 const numEntriesPerTable = 10
 
-seedDatabase(numEntriesPerTable)
+const runSeed = async () => {
+  try {
+    await seedDatabase(numEntriesPerTable)
+    logStep('Database seeded successfully.')
+    process.exit(0)
+  } catch (error) {
+    console.error('Unexpected error while seeding database:', error)
+    process.exit(1)
+  }
+}
+
+void runSeed()
