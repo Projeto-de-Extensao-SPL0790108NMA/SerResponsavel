@@ -3,6 +3,8 @@ import { computed, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useTheme } from 'vuetify'
 import { usePreferencesStore } from '@/stores/preferences'
+import NavBar from '~/layouts/baseComponents/NavBar.vue'
+import FooterComponent from '~/layouts/baseComponents/FooterComponent.vue'
 
 const preferencesStore = usePreferencesStore()
 const { theme } = storeToRefs(preferencesStore)

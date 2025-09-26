@@ -70,10 +70,10 @@ useSeoMeta({
       </div>
     </div>
 
-    <v-container class="container-position" max-width="1080">
+    <v-container class="container-position fade-in-up" max-width="1080">
       <!-- Hero Section -->
       <v-row class="text-center">
-        <v-col class="hero-content fade-in-up">
+        <v-col class="hero-content">
           <v-img
             src="/logoserresp600_598.png"
             alt="SerResponsável Logo"
@@ -130,7 +130,7 @@ useSeoMeta({
       </v-row>
 
       <!-- mission/info cards -->
-      <v-row class="fade-in-up">
+      <v-row>
         <!-- mission and info cards -->
         <v-col cols="12">
           <!-- mission -->
@@ -149,30 +149,30 @@ useSeoMeta({
       </v-row>
 
       <!-- info cards -->
-      <v-row class="mb-6 fade-in-up">
+      <v-row class="mb-6">
         <v-col v-for="(card, index) in informativeCards" :key="index" cols="12" md="4">
           <ui-simple-card :card-data="card" animated />
         </v-col>
       </v-row>
 
-      <v-divider class="mt-6 fade-in-up" />
+      <v-divider class="mt-6" />
 
       <!-- Image Slider Section -->
-      <v-row class="mt-2 fade-in-up">
+      <v-row class="mt-2">
         <v-col cols="12">
           <SimpleSlider />
         </v-col>
       </v-row>
 
       <!-- Projects Management Section -->
-      <v-row class="mt-4 fade-in-up" dense>
+      <v-row class="mt-4" dense>
         <v-col cols="12">
           <ListActiveProjects />
         </v-col>
       </v-row>
 
       <!-- benefits, and target audience cards -->
-      <v-row dense class="mt-0 fade-in-up">
+      <v-row dense class="mt-0">
         <v-col cols="12">
           <!-- Platform Benefits Section -->
           <v-card
@@ -434,6 +434,7 @@ useSeoMeta({
 /* Garantir que o conteúdo fique acima dos ícones animados */
 .container-position {
   position: relative;
+  margin-top: 10px;
   z-index: 10;
 }
 

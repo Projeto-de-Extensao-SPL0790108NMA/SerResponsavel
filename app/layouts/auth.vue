@@ -1,5 +1,8 @@
 <script setup lang="ts">
 // Structured data for better SEO - only keeping this here
+import NavBar from '~/layouts/baseComponents/NavBar.vue'
+import FooterComponent from '~/layouts/baseComponents/FooterComponent.vue'
+
 useHead({
   script: [
     {
@@ -35,7 +38,7 @@ useHead({
 <template>
   <v-app theme="dark" class="app-background">
     <!-- Navigation Bar -->
-    <NavBar />
+    <nav-bar />
     <!-- Main Content -->
     <v-main class="login-page-wrapper">
       <NuxtPage />
