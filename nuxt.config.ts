@@ -87,6 +87,15 @@ export default defineNuxtConfig({
       ],
     },
   },
+  supabase: {
+    redirectOptions: {
+      login: '/',
+      callback: '/',
+      include: undefined,
+      exclude: [],
+      saveRedirectToCookie: false,
+    },
+  },
 
   vuetify: {
     vuetifyOptions: {

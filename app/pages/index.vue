@@ -2,15 +2,6 @@
 // Imports
 import { informativeCards, targetAudienceCards } from '~/constants/login'
 
-const projectsStore = useProjectsStore()
-
-await callOnce(async () => {
-  await Promise.all([
-    projectsStore.fetchProjects(false, 'all'),
-    projectsStore.fetchCompletedProjectsCount(),
-  ])
-})
-
 // Layout
 definePageMeta({
   layout: 'auth',

@@ -3,19 +3,16 @@ export default defineNuxtRouteMiddleware(async (to, _from) => {
   const user = useSupabaseUser()
   const authStore = useAuthStore()
 
-  const unprotectedRoutes = ['/', '/login']
+  const unprotectedRoutes = ['/']
 
-  // Se usuário autenticado tenta acessar rota desprotegida, redireciona para home
   if (user.value && unprotectedRoutes.includes(to.path)) {
     return navigateTo('/home')
   }
 
-  // Se usuário não autenticado tenta acessar página protegida
   if (!user.value && !unprotectedRoutes.includes(to.path)) {
-    return navigateTo('/login')
+    return navigateTo('/')
   }
 
-  // Carrega perfil se usuário está autenticado mas não tem perfil carregado
   if (user.value && !authStore.profile && !unprotectedRoutes.includes(to.path)) {
     try {
       authStore.setLoading(true)
