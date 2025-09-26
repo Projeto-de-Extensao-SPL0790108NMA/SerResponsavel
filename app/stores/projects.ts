@@ -1,29 +1,42 @@
 import type { Database } from '~~/database/types'
 import type { RealtimeChannel } from '@supabase/supabase-js'
 
-type Project = Database['public']['Tables']['projects']['Row']
-type ProjectWithOrganization = Project & {
-  organization: Database['public']['Tables']['organizations']['Row'] | null
+type ProjectRow = Database['public']['Tables']['projects']['Row']
+type OrganizationRow = Database['public']['Tables']['organizations']['Row']
+type TaskRow = Database['public']['Tables']['tasks']['Row']
+
+type ProjectWithRelations = ProjectRow & {
+  organization?: OrganizationRow | null
+  tasks?: TaskRow[] | null
 }
-type Projects = ProjectWithOrganization[]
+type Projects = ProjectWithRelations[]
+
+const mapToProjectWithRelations = (
+  project: ProjectRow | ProjectWithRelations,
+): ProjectWithRelations => {
+  const { organization = null, tasks = null, ...base } = project as ProjectWithRelations
+
+  return {
+    ...base,
+    organization,
+    tasks,
+  }
+}
 
 export const useProjectsStore = defineStore(
   'projects',
   () => {
-    // State
     const projects = ref<Projects | null>(null)
-    const currentProject = ref<ProjectWithOrganization | null>(null)
+    const currentProject = ref<ProjectWithRelations | null>(null)
     const completedProjectsCount = ref<number>(0)
     const loading = ref(false)
     const error = ref<string | null>(null)
     const lastFetch = ref<number | null>(null)
     const cacheTime = 5 * 60 * 1000 // 5 minutes in milliseconds
 
-    // Real-time subscription refs
     const projectsSubscription = ref<RealtimeChannel | null>(null)
     const currentProjectSubscription = ref<RealtimeChannel | null>(null)
 
-    // Actions using the composable
     const {
       getProjects,
       getProject,
@@ -33,13 +46,11 @@ export const useProjectsStore = defineStore(
       getCountConcludedProjects,
     } = useProjects()
 
-    // Check if cache is still valid
     const isCacheValid = () => {
       if (!lastFetch.value) return false
       return Date.now() - lastFetch.value < cacheTime
     }
 
-    // Setup real-time subscription for projects
     const setupProjectsSubscription = () => {
       if (projectsSubscription.value || import.meta.server) return
 
@@ -48,19 +59,16 @@ export const useProjectsStore = defineStore(
         .channel('projects-changes')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'projects' }, (payload) => {
           console.debug('🔄 Projects changed:', payload)
-          // Invalidate cache and refetch
           lastFetch.value = null
-          void fetchProjects(true) // Force refresh
+          void fetchProjects(true)
         })
         .subscribe()
     }
 
-    // Fetch all projects with cache logic
     const fetchProjects = async (
       forceRefresh = false,
       status?: 'in-progress' | 'completed' | 'all',
     ) => {
-      // Check cache first (unless forced refresh)
       if (!forceRefresh && projects.value && isCacheValid()) {
         console.debug('📦 Using cached projects')
         return
@@ -78,10 +86,9 @@ export const useProjectsStore = defineStore(
           return
         }
 
-        projects.value = data
+        projects.value = (data ?? []).map(mapToProjectWithRelations)
         lastFetch.value = Date.now()
 
-        // Setup subscription after first successful fetch
         setupProjectsSubscription()
       } catch (err) {
         error.value = err instanceof Error ? err.message : 'Unknown error occurred'
@@ -90,7 +97,6 @@ export const useProjectsStore = defineStore(
       }
     }
 
-    // Fetch single project
     const fetchProject = async (slug: string) => {
       loading.value = true
       error.value = null
@@ -103,7 +109,7 @@ export const useProjectsStore = defineStore(
           return
         }
 
-        currentProject.value = data
+        currentProject.value = data ? mapToProjectWithRelations(data) : null
       } catch (err) {
         error.value = err instanceof Error ? err.message : 'Unknown error occurred'
       } finally {
@@ -111,7 +117,6 @@ export const useProjectsStore = defineStore(
       }
     }
 
-    // Create new project
     const addProject = async (projectData: {
       name: string
       slug: string
@@ -130,12 +135,13 @@ export const useProjectsStore = defineStore(
           return null
         }
 
-        // Add to local state
-        if (projects.value && data) {
-          projects.value.push(data)
+        if (data) {
+          const mappedProject = mapToProjectWithRelations(data)
+          projects.value = [...(projects.value ?? []), mappedProject]
+          return mappedProject
         }
 
-        return data
+        return null
       } catch (err) {
         error.value = err instanceof Error ? err.message : 'Unknown error occurred'
         return null
@@ -144,7 +150,6 @@ export const useProjectsStore = defineStore(
       }
     }
 
-    // Update existing project
     const editProject = async (
       id: number,
       updates: {
@@ -166,20 +171,24 @@ export const useProjectsStore = defineStore(
           return null
         }
 
-        // Update local state
-        if (projects.value && data) {
-          const index = projects.value.findIndex((p) => p.id === id)
-          if (index !== -1) {
-            projects.value[index] = { ...projects.value[index], ...data }
+        if (data) {
+          const mappedProject = mapToProjectWithRelations(data)
+
+          if (projects.value) {
+            const index = projects.value.findIndex((p) => p.id === id)
+            if (index !== -1) {
+              projects.value[index] = mappedProject
+            }
           }
+
+          if (currentProject.value?.id === id) {
+            currentProject.value = mappedProject
+          }
+
+          return mappedProject
         }
 
-        // Update current project if it's the same
-        if (currentProject.value?.id === id && data) {
-          currentProject.value = { ...currentProject.value, ...data }
-        }
-
-        return data
+        return null
       } catch (err) {
         error.value = err instanceof Error ? err.message : 'Unknown error occurred'
         return null
@@ -188,7 +197,6 @@ export const useProjectsStore = defineStore(
       }
     }
 
-    // Delete project
     const removeProject = async (id: number) => {
       loading.value = true
       error.value = null
@@ -201,12 +209,10 @@ export const useProjectsStore = defineStore(
           return false
         }
 
-        // Remove from local state
         if (projects.value) {
           projects.value = projects.value.filter((p) => p.id !== id)
         }
 
-        // Clear current project if it's the deleted one
         if (currentProject.value?.id === id) {
           currentProject.value = null
         }
@@ -220,28 +226,23 @@ export const useProjectsStore = defineStore(
       }
     }
 
-    // Clear error
     const clearError = () => {
       error.value = null
     }
 
-    // Clear current project
     const clearCurrentProject = () => {
       currentProject.value = null
     }
 
-    // Invalidate cache - force next fetch to hit Supabase
     const invalidateCache = () => {
       lastFetch.value = null
       console.debug('🗑️ Cache invalidated')
     }
 
-    // Refresh projects - force refresh from Supabase
     const refreshProjects = () => {
       return fetchProjects(true)
     }
 
-    // Fetch completed projects count
     const fetchCompletedProjectsCount = async () => {
       try {
         const { data, error: supabaseError } = await getCountConcludedProjects()
@@ -257,7 +258,6 @@ export const useProjectsStore = defineStore(
       }
     }
 
-    // Cleanup subscriptions (for component unmount)
     const cleanup = () => {
       if (projectsSubscription.value) {
         projectsSubscription.value.unsubscribe()
@@ -269,7 +269,6 @@ export const useProjectsStore = defineStore(
       }
     }
 
-    // Getters
     const projectsCount = computed(() => projects.value?.length ?? 0)
     const hasProjects = computed(() => projectsCount.value > 0)
     const isLoading = computed(() => loading.value)
@@ -277,7 +276,6 @@ export const useProjectsStore = defineStore(
     const isCached = computed(() => projects.value && isCacheValid())
 
     return {
-      // State
       projects,
       currentProject,
       completedProjectsCount,
@@ -285,7 +283,6 @@ export const useProjectsStore = defineStore(
       loading,
       error,
 
-      // Actions
       fetchProjects,
       fetchProject,
       fetchCompletedProjectsCount,
@@ -298,7 +295,6 @@ export const useProjectsStore = defineStore(
       refreshProjects,
       cleanup,
 
-      // Getters
       projectsCount,
       hasProjects,
       isLoading,
@@ -314,7 +310,6 @@ export const useProjectsStore = defineStore(
   },
 )
 
-// HMR (Hot Module Replacement) support
 if (import.meta.hot) {
   import.meta.hot.accept(acceptHMRUpdate(useProjectsStore, import.meta.hot))
 }

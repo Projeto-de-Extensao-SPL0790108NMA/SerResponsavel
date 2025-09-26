@@ -72,7 +72,7 @@ const cardBorderSimpleClass = computed(() =>
 
 <template>
   <div :class="homeBackgroundClass" class="home-page-wrapper">
-    <v-container>
+    <v-container max-width="1080">
       <!-- welcome message-->
       <v-row>
         <v-col cols="12">

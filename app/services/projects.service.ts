@@ -47,6 +47,7 @@ export class ProjectsService {
       .select(
         `
         *,
+        organization:organizations (*),
         tasks (
           id,
           name,
