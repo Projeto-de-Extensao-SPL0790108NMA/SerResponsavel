@@ -5,11 +5,14 @@ type ProjectRow = Database['public']['Tables']['projects']['Row']
 type OrganizationRow = Database['public']['Tables']['organizations']['Row']
 type TaskRow = Database['public']['Tables']['tasks']['Row']
 
-type ProjectWithRelations = ProjectRow & {
+export type ProjectWithRelations = ProjectRow & {
   organization?: OrganizationRow | null
   tasks?: TaskRow[] | null
 }
-type Projects = ProjectWithRelations[]
+export type Projects = ProjectWithRelations[]
+export type ProjectStatusFilter = 'all' | 'in-progress' | 'completed'
+const statusFilters: ProjectStatusFilter[] = ['all', 'in-progress', 'completed']
+const statusFiltersWithoutAll: Exclude<ProjectStatusFilter, 'all'>[] = ['in-progress', 'completed']
 
 const mapToProjectWithRelations = (
   project: ProjectRow | ProjectWithRelations,
@@ -34,6 +37,17 @@ export const useProjectsStore = defineStore(
     const lastFetch = ref<number | null>(null)
     const cacheTime = 5 * 60 * 1000 // 5 minutes in milliseconds
 
+    const projectsByStatus = reactive<Record<Exclude<ProjectStatusFilter, 'all'>, Projects | null>>(
+      {
+        'in-progress': null,
+        completed: null,
+      },
+    )
+    const lastFetchByStatus = reactive<Record<Exclude<ProjectStatusFilter, 'all'>, number | null>>({
+      'in-progress': null,
+      completed: null,
+    })
+
     const projectsSubscription = ref<RealtimeChannel | null>(null)
     const currentProjectSubscription = ref<RealtimeChannel | null>(null)
 
@@ -46,9 +60,86 @@ export const useProjectsStore = defineStore(
       getCountConcludedProjects,
     } = useProjects()
 
-    const isCacheValid = () => {
-      if (!lastFetch.value) return false
-      return Date.now() - lastFetch.value < cacheTime
+    const getCachedProjects = (status: ProjectStatusFilter): Projects | null => {
+      if (status === 'all') {
+        return projects.value
+      }
+      return projectsByStatus[status]
+    }
+
+    const getLastFetchForStatus = (status: ProjectStatusFilter): number | null => {
+      if (status === 'all') {
+        return lastFetch.value
+      }
+      return lastFetchByStatus[status]
+    }
+
+    const setCacheForStatus = (status: ProjectStatusFilter, data: Projects) => {
+      if (status === 'all') {
+        projects.value = data
+        lastFetch.value = Date.now()
+        return
+      }
+
+      projectsByStatus[status] = data
+      lastFetchByStatus[status] = Date.now()
+    }
+
+    const syncProjectInCaches = (project: ProjectWithRelations) => {
+      statusFiltersWithoutAll.forEach((status) => {
+        const cache = projectsByStatus[status]
+        if (!cache) return
+
+        const index = cache.findIndex((item) => item.id === project.id)
+        const matchesStatus = project.status === status
+
+        if (index !== -1) {
+          if (matchesStatus) {
+            cache[index] = project
+          } else {
+            cache.splice(index, 1)
+          }
+        } else if (matchesStatus) {
+          cache.push(project)
+        }
+
+        if (matchesStatus || index !== -1) {
+          lastFetchByStatus[status] = Date.now()
+        }
+      })
+    }
+
+    const removeProjectFromCaches = (projectId: number) => {
+      statusFiltersWithoutAll.forEach((status) => {
+        const cache = projectsByStatus[status]
+        if (!cache) return
+        const index = cache.findIndex((item) => item.id === projectId)
+        if (index !== -1) {
+          cache.splice(index, 1)
+          lastFetchByStatus[status] = Date.now()
+        }
+      })
+    }
+
+    const invalidateCache = (status?: ProjectStatusFilter) => {
+      const statusesToInvalidate = status ? [status] : statusFilters
+
+      statusesToInvalidate.forEach((key) => {
+        if (key === 'all') {
+          projects.value = null
+          lastFetch.value = null
+        } else {
+          projectsByStatus[key] = null
+          lastFetchByStatus[key] = null
+        }
+      })
+
+      console.debug('🗑️ Cache invalidated for status:', status ?? 'all statuses')
+    }
+
+    const isCacheValid = (timestamp: number | null) => {
+      if (!timestamp) return false
+      return Date.now() - timestamp < cacheTime
     }
 
     const setupProjectsSubscription = () => {
@@ -59,39 +150,47 @@ export const useProjectsStore = defineStore(
         .channel('projects-changes')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'projects' }, (payload) => {
           console.debug('🔄 Projects changed:', payload)
-          lastFetch.value = null
-          void fetchProjects(true)
+          invalidateCache()
+          void fetchProjects(true, 'all')
         })
         .subscribe()
     }
 
     const fetchProjects = async (
       forceRefresh = false,
-      status?: 'in-progress' | 'completed' | 'all',
-    ) => {
-      if (!forceRefresh && projects.value && isCacheValid()) {
-        console.debug('📦 Using cached projects')
-        return
+      status: ProjectStatusFilter = 'all',
+    ): Promise<Projects | null> => {
+      const cachedProjects = getCachedProjects(status)
+      const lastFetchTimestamp = getLastFetchForStatus(status)
+
+      if (!forceRefresh && cachedProjects && isCacheValid(lastFetchTimestamp)) {
+        console.debug('📦 Using cached projects cache for status:', status)
+        return cachedProjects
       }
 
       loading.value = true
       error.value = null
 
       try {
-        console.debug('🌐 Fetching projects from Supabase', status ? `with status: ${status}` : '')
+        console.debug('🌐 Fetching projects from Supabase', `status: ${status}`)
         const { data, error: supabaseError } = await getProjects(status)
 
         if (supabaseError) {
           error.value = (supabaseError as Error)?.message || 'Erro desconhecido'
-          return
+          return cachedProjects ?? null
         }
 
-        projects.value = (data ?? []).map(mapToProjectWithRelations)
-        lastFetch.value = Date.now()
+        const mappedProjects = (data ?? []).map(mapToProjectWithRelations)
+        setCacheForStatus(status, mappedProjects)
 
-        setupProjectsSubscription()
+        if (status === 'all') {
+          setupProjectsSubscription()
+        }
+
+        return mappedProjects
       } catch (err) {
         error.value = err instanceof Error ? err.message : 'Unknown error occurred'
+        return cachedProjects ?? null
       } finally {
         loading.value = false
       }
@@ -135,13 +234,16 @@ export const useProjectsStore = defineStore(
           return null
         }
 
-        if (data) {
-          const mappedProject = mapToProjectWithRelations(data)
-          projects.value = [...(projects.value ?? []), mappedProject]
-          return mappedProject
+        if (!data) {
+          return null
         }
 
-        return null
+        const mappedProject = mapToProjectWithRelations(data)
+        projects.value = [...(projects.value ?? []), mappedProject]
+        lastFetch.value = Date.now()
+        syncProjectInCaches(mappedProject)
+
+        return mappedProject
       } catch (err) {
         error.value = err instanceof Error ? err.message : 'Unknown error occurred'
         return null
@@ -171,24 +273,31 @@ export const useProjectsStore = defineStore(
           return null
         }
 
-        if (data) {
-          const mappedProject = mapToProjectWithRelations(data)
-
-          if (projects.value) {
-            const index = projects.value.findIndex((p) => p.id === id)
-            if (index !== -1) {
-              projects.value[index] = mappedProject
-            }
-          }
-
-          if (currentProject.value?.id === id) {
-            currentProject.value = mappedProject
-          }
-
-          return mappedProject
+        if (!data) {
+          return null
         }
 
-        return null
+        const mappedProject = mapToProjectWithRelations(data)
+
+        if (projects.value) {
+          const index = projects.value.findIndex((p) => p.id === id)
+          if (index !== -1) {
+            projects.value[index] = mappedProject
+          }
+        }
+
+        if (!projects.value) {
+          projects.value = [mappedProject]
+        }
+
+        lastFetch.value = Date.now()
+        syncProjectInCaches(mappedProject)
+
+        if (currentProject.value?.id === id) {
+          currentProject.value = mappedProject
+        }
+
+        return mappedProject
       } catch (err) {
         error.value = err instanceof Error ? err.message : 'Unknown error occurred'
         return null
@@ -211,7 +320,10 @@ export const useProjectsStore = defineStore(
 
         if (projects.value) {
           projects.value = projects.value.filter((p) => p.id !== id)
+          lastFetch.value = Date.now()
         }
+
+        removeProjectFromCaches(id)
 
         if (currentProject.value?.id === id) {
           currentProject.value = null
@@ -234,13 +346,8 @@ export const useProjectsStore = defineStore(
       currentProject.value = null
     }
 
-    const invalidateCache = () => {
-      lastFetch.value = null
-      console.debug('🗑️ Cache invalidated')
-    }
-
-    const refreshProjects = () => {
-      return fetchProjects(true)
+    const refreshProjects = (status: ProjectStatusFilter = 'all') => {
+      return fetchProjects(true, status)
     }
 
     const fetchCompletedProjectsCount = async () => {
@@ -273,7 +380,7 @@ export const useProjectsStore = defineStore(
     const hasProjects = computed(() => projectsCount.value > 0)
     const isLoading = computed(() => loading.value)
     const hasError = computed(() => !!error.value)
-    const isCached = computed(() => projects.value && isCacheValid())
+    const isCached = computed(() => projects.value && isCacheValid(lastFetch.value))
 
     return {
       projects,
@@ -294,6 +401,7 @@ export const useProjectsStore = defineStore(
       invalidateCache,
       refreshProjects,
       cleanup,
+      getCachedProjects,
 
       projectsCount,
       hasProjects,
