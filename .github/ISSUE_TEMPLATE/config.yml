@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions or support
+    url: mailto:contato@stdout.dev.br
+    about: For general questions, reach out to the project maintainers by email.
