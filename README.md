@@ -1,4 +1,4 @@
-<p style="text-align: center;">
+<p align="center">
   <img src="./public/uninorte-logo.png" alt="Logo Uninorte" width="300">
 </p>
 
@@ -17,24 +17,27 @@
 
 ---
 
-## SerResponsável
+<h2 align="center">SerResponsável</h2>
 
-<p style="text-align: center;">
+<p align="center">
   <img src="./app/assets/img/logoserresp300_299.png" alt="Logo SerResponsável" width="150">
 </p>
 
-#### (disponível em https://ser-responsavel.vercel.app/)
+<p align="center"><em>Disponível em <a href="https://ser-responsavel.vercel.app/">ser-responsavel.vercel.app</a></em></p>
 
-#### [palestra 1 (Fábrica de Software)](https://prezi.com/view/GEiE76zpL3wO7vk5tnxQ]/)
+<p align="center">
+  <a href="https://prezi.com/view/GEiE76zpL3wO7vk5tnxQ]/">Palestra 1 (Fábrica de Software)</a><br>
+  <a href="https://prezi.com/view/Tt1WBl9ScPAwpJ1ac2dn/">Palestra 2 (TACC)</a>
+</p>
 
-#### [palestra 2 (TACC)](https://prezi.com/view/Tt1WBl9ScPAwpJ1ac2dn/)
-
-[![Status](https://img.shields.io/badge/Status-Em%20Desenvolvimento-orange)](https://github.com/tiagobrilhante/RespSoc)
-[![Nuxt](https://img.shields.io/badge/Nuxt-4.0.3-00DC82?logo=nuxt.js)](https://nuxt.com)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-3178C6?logo=typescript)](https://www.typescriptlang.org)
-[![Supabase](https://img.shields.io/badge/Supabase-Database-3ECF8E?logo=supabase)](https://supabase.com)
-[![Vercel](https://img.shields.io/badge/Vercel-Deploy-black?logo=vercel)](https://vercel.com)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+<p align="center">
+  <a href="https://github.com/tiagobrilhante/RespSoc"><img src="https://img.shields.io/badge/Status-Em%20Desenvolvimento-orange" alt="Status: Em Desenvolvimento"></a>
+  <a href="https://nuxt.com"><img src="https://img.shields.io/badge/Nuxt-4.1.2-00DC82?logo=nuxt.js" alt="Nuxt"></a>
+  <a href="https://www.typescriptlang.org"><img src="https://img.shields.io/badge/TypeScript-5.0+-3178C6?logo=typescript" alt="TypeScript"></a>
+  <a href="https://supabase.com"><img src="https://img.shields.io/badge/Supabase-Database-3ECF8E?logo=supabase" alt="Supabase"></a>
+  <a href="https://vercel.com"><img src="https://img.shields.io/badge/Vercel-Deploy-black?logo=vercel" alt="Vercel"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License: MIT"></a>
+</p>
 
 Uma plataforma de divulgação e promoção de ações voltadas à Responsabilidade Social de instituições públicas e privadas.
 
@@ -413,7 +416,7 @@ _Projeto em desenvolvimento - Mais informações serão adicionadas conforme o p
 
 # English Version
 
-<p style="text-align: center;">
+<p align="center">
   <img src="./public/uninorte-logo.png" alt="Uninorte Logo" width="300">
 </p>
 
@@ -430,24 +433,27 @@ _Projeto em desenvolvimento - Mais informações serão adicionadas conforme o p
 
 ---
 
-## SerResponsável
+<h2 align="center">SerResponsável</h2>
 
-<p style="text-align: center;">
-  <img src="./app/assets/img/logoserresp300_299.png" alt="Logo SerResponsável" width="150">
+<p align="center">
+  <img src="./app/assets/img/logoserresp300_299.png" alt="SerResponsável Logo" width="150">
 </p>
 
-#### (available at https://ser-responsavel.vercel.app/)
+<p align="center"><em>Available at <a href="https://ser-responsavel.vercel.app/">ser-responsavel.vercel.app</a></em></p>
 
-#### [lecture 1 (Software Factory)](https://prezi.com/view/GEiE76zpL3wO7vk5tnxQ]/)
+<p align="center">
+  <a href="https://prezi.com/view/GEiE76zpL3wO7vk5tnxQ]/">Lecture 1 (Software Factory)</a><br>
+  <a href="https://prezi.com/view/Tt1WBl9ScPAwpJ1ac2dn/">Lecture 2 (Advanced Topics in Computer Science)</a>
+</p>
 
-#### [lecture 2 (Advanced Topics in Computer Science)](https://prezi.com/view/Tt1WBl9ScPAwpJ1ac2dn/)
-
-[![Status](https://img.shields.io/badge/Status-In%20Development-orange)](https://github.com/tiagobrilhante/RespSoc)
-[![Nuxt](https://img.shields.io/badge/Nuxt-4.0.3-00DC82?logo=nuxt.js)](https://nuxt.com)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-3178C6?logo=typescript)](https://www.typescriptlang.org)
-[![Supabase](https://img.shields.io/badge/Supabase-Database-3ECF8E?logo=supabase)](https://supabase.com)
-[![Vercel](https://img.shields.io/badge/Vercel-Deploy-black?logo=vercel)](https://vercel.com)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+<p align="center">
+  <a href="https://github.com/tiagobrilhante/RespSoc"><img src="https://img.shields.io/badge/Status-In%20Development-orange" alt="Status: In Development"></a>
+  <a href="https://nuxt.com"><img src="https://img.shields.io/badge/Nuxt-4.1.2-00DC82?logo=nuxt.js" alt="Nuxt"></a>
+  <a href="https://www.typescriptlang.org"><img src="https://img.shields.io/badge/TypeScript-5.0+-3178C6?logo=typescript" alt="TypeScript"></a>
+  <a href="https://supabase.com"><img src="https://img.shields.io/badge/Supabase-Database-3ECF8E?logo=supabase" alt="Supabase"></a>
+  <a href="https://vercel.com"><img src="https://img.shields.io/badge/Vercel-Deploy-black?logo=vercel" alt="Vercel"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License: MIT"></a>
+</p>
 
 A platform for promoting and disseminating Social Responsibility actions by public and private institutions.
 
