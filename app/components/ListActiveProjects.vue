@@ -125,14 +125,25 @@ onMounted(async () => {
         <v-list v-else lines="three">
           <template v-for="(project, index) in activeProjects" :key="project?.id || index">
             <v-list-item class="pa-3">
-              <v-list-item-title>
-                {{ project?.name || 'Projeto sem nome' }}
+              <v-list-item-title
+                class="d-flex flex-column flex-md-row align-md-center justify-space-between gap-2"
+              >
+                <div class="d-flex flex-column flex-md-row align-md-center gap-2 flex-wrap">
+                  <span class="text-subtitle-1 text-md-body-1 font-weight-medium text-truncate">
+                    {{ project?.name || 'Projeto sem nome' }}
+                  </span>
+                  <ui-project-rating-summary
+                    v-if="project?.id"
+                    :project-id="project.id"
+                    class="ms-0 ms-md-2"
+                  />
+                </div>
 
                 <v-btn
                   elevation="15"
                   rounded="xl"
-                  variant="text"
-                  class="btn-selected-custom ml-5"
+                  variant="tonal"
+                  class="btn-selected-custom"
                   size="x-small"
                   prepend-icon="mdi-eye"
                 >
@@ -143,6 +154,8 @@ onMounted(async () => {
               <v-list-item-subtitle class="mt-1">
                 {{ project?.description || 'Sem descrição disponível' }}
               </v-list-item-subtitle>
+
+              <ui-project-rating-display v-if="project?.id" :project-id="project.id" />
 
               <template #prepend>
                 <v-avatar color="primary" class="me-3">
