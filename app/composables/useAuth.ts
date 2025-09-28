@@ -1,5 +1,5 @@
 import type { LoginForm, RegisterForm } from '@/types/AuthForm'
-import type { AuthError } from '@supabase/supabase-js'
+import type { AuthError, Provider } from '@supabase/supabase-js'
 import { AuthService } from '@/services/auth.service'
 import { MeService } from '@/services/me.service'
 import type { Database } from '~~/database/types'
@@ -42,6 +42,19 @@ export const useAuth = () => {
         }
       }
 
+      return { data, error: null }
+    } catch (error) {
+      return { data: null, error: error as AuthError }
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const loginWithProvider = async (provider: Provider) => {
+    loading.value = true
+    try {
+      const redirectTo = import.meta.client ? `${window.location.origin}/home` : undefined
+      const data = await authService.loginWithProvider(provider, redirectTo)
       return { data, error: null }
     } catch (error) {
       return { data: null, error: error as AuthError }
@@ -108,6 +121,7 @@ export const useAuth = () => {
     loading: readonly(loading),
     register,
     login,
+    loginWithProvider,
     logout,
     getProfile,
     getProfiles,

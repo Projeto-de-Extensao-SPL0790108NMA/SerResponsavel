@@ -5,7 +5,7 @@ const emit = defineEmits<{
 }>()
 
 const { serverError, realtimeErrors, handleServerError, handleLoginForm } = useFormErrors()
-const { login, loading } = useAuth()
+const { login, loginWithProvider, loading } = useAuth()
 
 const formData = ref({
   email: '',
@@ -29,6 +29,7 @@ const hasRealtimeErrors = () =>
 const signIn = async () => {
   if (loading.value) return
 
+  serverError.value = ''
   await handleLoginForm(formData.value)
 
   if (hasRealtimeErrors()) {
@@ -42,6 +43,17 @@ const signIn = async () => {
   }
 
   handleServerError(error)
+}
+
+const signInWithGithub = async () => {
+  if (loading.value) return
+
+  serverError.value = ''
+  const { error } = await loginWithProvider('github')
+
+  if (error) {
+    handleServerError(error)
+  }
 }
 
 // Função para cancelar e fechar o dialog
@@ -97,6 +109,24 @@ const handleCancel = () => {
         prepend-icon="mdi-login"
       >
         Entrar
+      </v-btn>
+
+      <v-divider class="my-4" />
+
+      <v-btn
+        elevation="15"
+        type="button"
+        rounded="xl"
+        color="white"
+        variant="outlined"
+        size="small"
+        block
+        class="mb-3 text-grey-lighten-1 btn-selected-custom"
+        prepend-icon="mdi-github"
+        :disabled="loading"
+        @click="signInWithGithub"
+      >
+        Entrar com GitHub
       </v-btn>
 
       <v-row class="text-center mt-5">

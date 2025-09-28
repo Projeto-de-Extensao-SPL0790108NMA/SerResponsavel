@@ -1,5 +1,5 @@
 import type { LoginForm, RegisterForm } from '@/types/AuthForm'
-import type { SupabaseClient } from '@supabase/supabase-js'
+import type { Provider, SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '~~/database/types'
 import { throwServiceError } from '@/utils/serviceLogger'
 
@@ -34,6 +34,18 @@ export class AuthService {
     })
 
     if (error) throwServiceError('AuthService.login', error)
+    return data
+  }
+
+  async loginWithProvider(provider: Provider, redirectTo?: string) {
+    const { data, error } = await this.supabase.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo,
+      },
+    })
+
+    if (error) throwServiceError('AuthService.loginWithProvider', error)
     return data
   }
 
