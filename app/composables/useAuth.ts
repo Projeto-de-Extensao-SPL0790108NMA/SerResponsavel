@@ -53,7 +53,7 @@ export const useAuth = () => {
   const loginWithProvider = async (provider: Provider) => {
     loading.value = true
     try {
-      const redirectTo = import.meta.client ? `${window.location.origin}/home` : undefined
+      const redirectTo = import.meta.client ? window.location.origin : undefined
       const data = await authService.loginWithProvider(provider, redirectTo)
       return { data, error: null }
     } catch (error) {
