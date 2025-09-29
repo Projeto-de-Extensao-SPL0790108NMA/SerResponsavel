@@ -1,9 +1,11 @@
 <script setup lang="ts">
+import { usePermissions } from '@/composables/usePermissions'
 import { createStatisticsCards } from '~/constants/login'
 
 const projectsStore = useProjectsStore()
 const { projects, loading, error, isCached, completedProjectsCount } = storeToRefs(projectsStore)
 const { fetchProjects, invalidateCache, fetchCompletedProjectsCount } = projectsStore
+const { canCreateProjects } = usePermissions()
 
 const statisticsCards = computed(() =>
   createStatisticsCards(projects.value, completedProjectsCount.value),
@@ -112,6 +114,7 @@ onMounted(async () => {
             Comece criando seu primeiro projeto de responsabilidade social
           </p>
           <v-btn
+            v-if="canCreateProjects"
             elevation="15"
             rounded="xl"
             color="primary"

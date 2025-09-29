@@ -1,7 +1,9 @@
+import { usePreferencesStore } from '@/stores/preferences'
+import type { UserRole } from '@/types/UserRole'
+import { DEFAULT_USER_ROLE } from '@/types/UserRole'
 import type { User } from '@supabase/supabase-js'
 import type { WatchStopHandle } from 'vue'
 import type { Database } from '~~/database/types'
-import { usePreferencesStore } from '@/stores/preferences'
 
 type ThemeMode = 'light' | 'dark'
 
@@ -15,6 +17,15 @@ export const useAuthStore = defineStore(
     const profile = ref<Profile | null>(null)
     const isLoading = ref(false)
     const isAuthenticated = computed(() => !!user.value)
+    const role = computed<UserRole>(() => profile.value?.role ?? DEFAULT_USER_ROLE)
+    const isSuperAdmin = computed(() => role.value === 'super_admin')
+    const isAdmin = computed(() => role.value === 'admin')
+    const isSupervisor = computed(() => role.value === 'supervisor')
+    const organizationId = computed(() => profile.value?.organization_id ?? null)
+    const hasRole = (allowedRoles: UserRole | UserRole[]) => {
+      const rolesToCheck = Array.isArray(allowedRoles) ? allowedRoles : [allowedRoles]
+      return rolesToCheck.includes(role.value)
+    }
 
     // Actions
     const setUser = (userData: User | null) => {
@@ -110,6 +121,12 @@ export const useAuthStore = defineStore(
       fullName,
       username,
       avatarUrl,
+      role,
+      isSuperAdmin,
+      isAdmin,
+      isSupervisor,
+      organizationId,
+      hasRole,
     }
   },
   {

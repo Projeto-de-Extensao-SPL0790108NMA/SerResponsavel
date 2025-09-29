@@ -18,6 +18,7 @@ interface MeResponse {
     bio?: string
     created_at: string
     updated_at: string
+    role: Database['public']['Enums']['user_role']
   }
 }
 

@@ -40,11 +40,14 @@ const primaryTestUserExists = async () => {
 
   const { data, error } = await supabase
     .from('profiles')
-    .select('id, username')
+    .select('id, username, role, organization_id')
     .eq('username', 'testaccount1')
     .single()
 
   if (error) {
+    if (error.code !== 'PGRST116') {
+      logErrorAndExit('Profiles', error)
+    }
     console.info('Primary test user not found. Will create one.')
     return null
   }
@@ -54,16 +57,27 @@ const primaryTestUserExists = async () => {
     return null
   }
 
+  if (data.role !== 'super_admin' || data.organization_id !== null) {
+    logStep('Ensuring primary test user has super_admin privileges...')
+    const { error: updateError } = await supabase
+      .from('profiles')
+      .update({ role: 'super_admin', organization_id: null })
+      .eq('id', data.id)
+
+    if (updateError) {
+      logErrorAndExit('Profiles', updateError)
+    }
+  }
+
   logStep('Primary test user is found.')
   return data.id
 }
 
-const createPrimaryTestUser = async (organizations) => {
+const createPrimaryTestUser = async () => {
   logStep('Creating primary test user...')
   const firstName = 'Test'
   const lastName = 'Account'
   const userName = 'testaccount1'
-  const organizationId = organizations[0].id
 
   const { data, error } = await supabase.auth.signUp({
     email: testingUserEmail,
@@ -74,7 +88,6 @@ const createPrimaryTestUser = async (organizations) => {
         last_name: lastName,
         full_name: firstName + ' ' + lastName,
         username: userName,
-        organization_id: organizationId,
       },
     },
   })
@@ -91,7 +104,8 @@ const createPrimaryTestUser = async (organizations) => {
       username: userName,
       bio: 'The main testing account',
       avatar_url: `https://i.pravatar.cc/150?u=${data.user.id}`,
-      organization_id: organizationId,
+      organization_id: null,
+      role: 'super_admin',
     })
 
     logStep('Primary test user created successfully.')
@@ -182,7 +196,7 @@ const seedDatabase = async (numEntriesPerTable) => {
   const testUserId = await primaryTestUserExists()
 
   if (!testUserId) {
-    userId = await createPrimaryTestUser(organizations)
+    userId = await createPrimaryTestUser()
   } else {
     userId = testUserId
   }

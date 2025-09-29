@@ -2,10 +2,11 @@
 import { computed, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { usePreferencesStore } from '@/stores/preferences'
+import type { UserRole } from '@/types/UserRole'
 import { useProfile } from '@/composables/useProfile'
 
 const authStore = useAuthStore()
-const { profile } = storeToRefs(authStore)
+const { profile, role } = storeToRefs(authStore)
 
 const supabaseUser = useSupabaseUser()
 const preferencesStore = usePreferencesStore()
@@ -43,6 +44,13 @@ const formatDateTime = (dateString?: string) => {
   })
 }
 
+const roleLabelMap: Record<UserRole, string> = {
+  super_admin: 'Super Administrador',
+  admin: 'Administrador',
+  member: 'Membro',
+  supervisor: 'Supervisor',
+}
+
 const personalInfo = computed(() => {
   const organization = organizationsStore.getOrganization(profile.value?.organization_id || null)
   const fullName =
@@ -54,6 +62,7 @@ const personalInfo = computed(() => {
     username: profile.value?.username || 'Não informado',
     bio: profile.value?.bio || 'Nenhuma bio cadastrada',
     organization: organization?.name || 'Não informado',
+    role: roleLabelMap[role.value],
     memberSince:
       formatDate(profile.value?.created_at || supabaseUser.value?.created_at) || 'Não informado',
     lastSignIn: formatDateTime(supabaseUser.value?.last_sign_in_at),
@@ -137,6 +146,13 @@ const handleProfileSaved = () => {
                 </template>
                 <v-list-item-title>Nome</v-list-item-title>
                 <v-list-item-subtitle>{{ personalInfo.fullName }}</v-list-item-subtitle>
+              </v-list-item>
+              <v-list-item>
+                <template #prepend>
+                  <v-icon icon="mdi-shield-account" />
+                </template>
+                <v-list-item-title>Perfil de acesso</v-list-item-title>
+                <v-list-item-subtitle>{{ personalInfo.role }}</v-list-item-subtitle>
               </v-list-item>
               <v-list-item>
                 <template #prepend>

@@ -23,7 +23,7 @@
   <img src="./app/assets/img/logoserresp300_299.png" alt="Logo SerResponsável" width="150">
 </p>
 
-<p align="center"><em>Disponível em <a href="https://ser.responsavel.app.br/">ser-responsavel.vercel.app</a></em></p>
+<p align="center"><em>Disponível em <a href="https://ser.responsavel.app.br/">ser.responsavel.app.br</a></em></p>
 
 <p align="center">
   <a href="https://prezi.com/view/GEiE76zpL3wO7vk5tnxQ]/">Palestra 1 (Fábrica de Software)</a><br>
@@ -212,6 +212,17 @@ TESTING_USER_PASSWORD=senha_para_seed_opcional
 ```
 
 > ⚠️ **Importante**: nunca exponha a `SUPABASE_SERVICE_ROLE_KEY` fora do ambiente local. Ela é utilizada apenas pelos scripts de seed (`pnpm db:seed`).
+
+### Controle de permissões por roles
+
+- A tabela `profiles` agora possui a coluna `role` (`super_admin`, `admin`, `member`, `supervisor`) com valor padrão `member`. Execute as migrações (`pnpm db:reset` ou `pnpm supabase db push`) para criar/atualizar o enum.
+- **Super Admin**: acesso completo à plataforma, independente de organização vinculada.
+- **Admin**: deve estar vinculado a uma organização (`organization_id`) e só pode gerenciar conteúdo associado a ela. O banco aplica a restrição via constraint (`admin_requires_organization`).
+- **Supervisor**: enxerga o mesmo conteúdo administrativo que um admin, porém em modo somente leitura.
+- **Member**: pode interagir com conteúdo público e colaborativo, mesmo sem organização vinculada.
+- No front-end, páginas podem exigir roles via `definePageMeta({ roles: ['admin'] })`; o middleware global redireciona usuários sem permissão para `/403`.
+- Em componentes, utilize `usePermissions()` para controlar ações (`const { canCreateProjects, canManageOrganization } = usePermissions()`).
+- A página `/403` informa ao usuário que ele não possui acesso; personalize-a conforme necessário.
 
 ### Comandos Úteis
 
@@ -439,7 +450,7 @@ _Projeto em desenvolvimento - Mais informações serão adicionadas conforme o p
   <img src="./app/assets/img/logoserresp300_299.png" alt="SerResponsável Logo" width="150">
 </p>
 
-<p align="center"><em>Available at <a href="https://ser.responsavel.app.br/">ser-responsavel.vercel.app</a></em></p>
+<p align="center"><em>Available at <a href="https://ser.responsavel.app.br/">ser.responsavel.app.br</a></em></p>
 
 <p align="center">
   <a href="https://prezi.com/view/GEiE76zpL3wO7vk5tnxQ]/">Lecture 1 (Software Factory)</a><br>

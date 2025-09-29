@@ -68,6 +68,7 @@ export const useProfile = () => {
           username: usernameCandidate,
           full_name: fullName,
           avatar_url: avatarUrl,
+          role: 'member',
         })
         .select('*')
         .single()

@@ -41,6 +41,7 @@ export type Database = {
           id: string
           mode: string
           organization_id: string | null
+          role: Database['public']['Enums']['user_role']
           username: string
         }
         Insert: {
@@ -51,6 +52,7 @@ export type Database = {
           id: string
           mode?: string
           organization_id?: string | null
+          role?: Database['public']['Enums']['user_role']
           username: string
         }
         Update: {
@@ -61,6 +63,7 @@ export type Database = {
           id?: string
           mode?: string
           organization_id?: string | null
+          role?: Database['public']['Enums']['user_role']
           username?: string
         }
         Relationships: [
@@ -212,6 +215,7 @@ export type Database = {
     }
     Enums: {
       current_status: 'in-progress' | 'completed'
+      user_role: 'admin' | 'member' | 'supervisor' | 'super_admin'
     }
     CompositeTypes: {
       [_ in never]: never
@@ -338,6 +342,7 @@ export const Constants = {
   public: {
     Enums: {
       current_status: ['in-progress', 'completed'],
+      user_role: ['admin', 'member', 'supervisor', 'super_admin'],
     },
   },
 } as const
