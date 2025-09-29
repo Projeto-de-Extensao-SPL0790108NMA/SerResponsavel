@@ -222,6 +222,9 @@ export const useProjectsStore = defineStore(
       description?: string
       status?: 'in-progress' | 'completed'
       collaborators?: string[]
+      organization_id?: string | null
+      cover_image_url?: string | null
+      cover_image_path?: string | null
     }) => {
       loading.value = true
       error.value = null
@@ -260,6 +263,9 @@ export const useProjectsStore = defineStore(
         description?: string
         status?: 'in-progress' | 'completed'
         collaborators?: string[]
+        organization_id?: string | null
+        cover_image_url?: string | null
+        cover_image_path?: string | null
       },
     ) => {
       loading.value = true

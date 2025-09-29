@@ -29,6 +29,9 @@ export const useProjects = () => {
     description?: string
     status?: 'in-progress' | 'completed'
     collaborators?: string[]
+    organization_id?: string | null
+    cover_image_url?: string | null
+    cover_image_path?: string | null
   }) => {
     try {
       const data = await projectsService.createProject(project)
@@ -46,6 +49,9 @@ export const useProjects = () => {
       description?: string
       status?: 'in-progress' | 'completed'
       collaborators?: string[]
+      organization_id?: string | null
+      cover_image_url?: string | null
+      cover_image_path?: string | null
     },
   ) => {
     try {

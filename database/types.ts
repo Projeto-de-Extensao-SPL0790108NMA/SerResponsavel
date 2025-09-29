@@ -117,6 +117,8 @@ export type Database = {
       projects: {
         Row: {
           collaborators: string[]
+          cover_image_path: string | null
+          cover_image_url: string | null
           created_at: string
           description: string
           id: number
@@ -127,6 +129,8 @@ export type Database = {
         }
         Insert: {
           collaborators?: string[]
+          cover_image_path?: string | null
+          cover_image_url?: string | null
           created_at?: string
           description?: string
           id?: never
@@ -137,6 +141,8 @@ export type Database = {
         }
         Update: {
           collaborators?: string[]
+          cover_image_path?: string | null
+          cover_image_url?: string | null
           created_at?: string
           description?: string
           id?: never

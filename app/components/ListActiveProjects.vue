@@ -161,8 +161,13 @@ onMounted(async () => {
               <ui-project-rating-display v-if="project?.id" :project-id="project.id" />
 
               <template #prepend>
-                <v-avatar color="primary" class="me-3">
-                  <v-icon icon="mdi-handshake" />
+                <v-avatar class="me-3" size="52" rounded="lg">
+                  <template v-if="project?.cover_image_url">
+                    <v-img :src="project.cover_image_url" cover alt="Capa do projeto" />
+                  </template>
+                  <template v-else>
+                    <v-img src="/logoserresp600_598.png" cover alt="Logo SerResponsável" />
+                  </template>
                 </v-avatar>
               </template>
 

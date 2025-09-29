@@ -69,8 +69,22 @@ export class ProjectsService {
     description?: string
     status?: 'in-progress' | 'completed'
     collaborators?: string[]
+    organization_id?: string | null
+    cover_image_url?: string | null
+    cover_image_path?: string | null
   }) {
-    const { data, error } = await this.supabase.from('projects').insert(project).select().single()
+    const payload = {
+      ...project,
+      organization_id: project.organization_id ?? null,
+      cover_image_url: project.cover_image_url ?? null,
+      cover_image_path: project.cover_image_path ?? null,
+    }
+
+    const { data, error } = await this.supabase
+      .from('projects')
+      .insert(payload)
+      .select('*, organization:organizations (*)')
+      .single()
 
     if (error) throwServiceError('ProjectsService.createProject', error)
     return data
@@ -84,13 +98,34 @@ export class ProjectsService {
       description?: string
       status?: 'in-progress' | 'completed'
       collaborators?: string[]
+      organization_id?: string | null
+      cover_image_url?: string | null
+      cover_image_path?: string | null
     },
   ) {
+    const payload: typeof updates & {
+      organization_id?: string | null
+      cover_image_url?: string | null
+      cover_image_path?: string | null
+    } = { ...updates }
+
+    if (Object.prototype.hasOwnProperty.call(updates, 'organization_id')) {
+      payload.organization_id = updates.organization_id ?? null
+    }
+
+    if (Object.prototype.hasOwnProperty.call(updates, 'cover_image_url')) {
+      payload.cover_image_url = updates.cover_image_url ?? null
+    }
+
+    if (Object.prototype.hasOwnProperty.call(updates, 'cover_image_path')) {
+      payload.cover_image_path = updates.cover_image_path ?? null
+    }
+
     const { data, error } = await this.supabase
       .from('projects')
-      .update(updates)
+      .update(payload)
       .eq('id', id)
-      .select()
+      .select('*, organization:organizations (*)')
       .single()
 
     if (error) throwServiceError('ProjectsService.updateProject', error)

@@ -224,6 +224,13 @@ TESTING_USER_PASSWORD=senha_para_seed_opcional
 - Em componentes, utilize `usePermissions()` para controlar ações (`const { canCreateProjects, canManageOrganization } = usePermissions()`).
 - A página `/403` informa ao usuário que ele não possui acesso; personalize-a conforme necessário.
 
+### Imagem de capa dos projetos
+
+- Crie um bucket público no Supabase Storage chamado `project-covers`; ele armazenará as imagens otimizadas de capa.
+- A aplicação otimiza automaticamente o arquivo enviado (conversão para WebP e redimensionamento máximo de 1280×720) antes de enviar ao Storage.
+- Exclusões e trocas de imagem limpam o arquivo antigo no Storage após sucesso da operação.
+- Caso importe dados manualmente, lembre-se de preencher `projects.cover_image_url` e `projects.cover_image_path` para manter o vínculo com o Storage.
+
 ### Comandos Úteis
 
 ```bash
