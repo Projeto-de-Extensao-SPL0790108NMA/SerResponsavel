@@ -35,7 +35,7 @@ const totalLabel = computed(() => {
       size="16"
       color="primary"
     />
-    <span class="text-caption text-grey-lighten-1">{{ totalLabel }}</span>
+    <span class="text-caption text-grey-lighten-1 ml-5">{{ totalLabel }}</span>
   </div>
 </template>
 

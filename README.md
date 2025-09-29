@@ -23,7 +23,7 @@
   <img src="./app/assets/img/logoserresp300_299.png" alt="Logo SerResponsável" width="150">
 </p>
 
-<p align="center"><em>Disponível em <a href="https://ser-responsavel.vercel.app/">ser-responsavel.vercel.app</a></em></p>
+<p align="center"><em>Disponível em <a href="https://ser.responsavel.app.br/">ser-responsavel.vercel.app</a></em></p>
 
 <p align="center">
   <a href="https://prezi.com/view/GEiE76zpL3wO7vk5tnxQ]/">Palestra 1 (Fábrica de Software)</a><br>
@@ -439,7 +439,7 @@ _Projeto em desenvolvimento - Mais informações serão adicionadas conforme o p
   <img src="./app/assets/img/logoserresp300_299.png" alt="SerResponsável Logo" width="150">
 </p>
 
-<p align="center"><em>Available at <a href="https://ser-responsavel.vercel.app/">ser-responsavel.vercel.app</a></em></p>
+<p align="center"><em>Available at <a href="https://ser.responsavel.app.br/">ser-responsavel.vercel.app</a></em></p>
 
 <p align="center">
   <a href="https://prezi.com/view/GEiE76zpL3wO7vk5tnxQ]/">Lecture 1 (Software Factory)</a><br>

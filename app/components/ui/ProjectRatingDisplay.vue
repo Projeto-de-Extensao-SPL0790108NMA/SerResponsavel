@@ -39,24 +39,21 @@ const activeReactionValue = computed(
   () => selectedReaction.value || userRating.value?.reaction || null,
 )
 
-const currentReactionEmoji = computed(
-  () => reactionOptions.find((option) => option.value === activeReactionValue.value)?.emoji ?? null,
-)
-
 const reactionCountsMap = computed(() => summary.value?.reactionCounts ?? {})
 const reactionsWithCount = computed(() =>
   reactionOptions.filter((option) => (reactionCountsMap.value[option.value] ?? 0) > 0),
 )
 
-const hasUserRating = computed(() => Boolean(userRating.value))
+const hasRatings = computed(() => (summary.value?.total ?? 0) > 0)
 
-const handleRatingUpdate = async (value: number | null) => {
-  if (!value) return
+const handleRatingUpdate = async (value: string | number) => {
+  const numericValue = typeof value === 'string' ? Number(value) : value
+  if (!Number.isFinite(numericValue) || numericValue === 0) return
   selectedReaction.value = selectedReaction.value || userRating.value?.reaction || null
-  localRating.value = value
-  if (value < 1 || value > 5) return
+  localRating.value = numericValue
+  if (numericValue < 1 || numericValue > 5) return
   try {
-    await submitRating(value, selectedReaction.value)
+    await submitRating(numericValue, selectedReaction.value)
   } catch (error) {
     console.error('Erro ao registrar avaliação', error)
   }
@@ -90,27 +87,17 @@ watch(
 
 <template>
   <section class="project-rating-display mt-3">
-    <div class="d-flex flex-wrap align-center justify-space-between gap-2">
-      <div class="d-flex align-center text-body-2">
-        <v-icon icon="mdi-star" :color="summary ? 'warning' : 'grey'" size="20" class="me-1" />
-        <span class="font-weight-medium">{{ averageLabel }}</span>
-        <span class="text-caption text-grey-lighten-1 ms-2">{{ totalLabel }}</span>
-      </div>
-      <div v-if="hasUserRating" class="text-caption text-grey-lighten-1 d-flex align-center">
-        <span v-if="currentReactionEmoji" class="me-1">{{ currentReactionEmoji }}</span>
-        <span>Você avaliou {{ userRating?.rating }}/5</span>
-      </div>
-    </div>
-
     <ClientOnly>
       <template #default>
-        <div class="mt-3 d-flex flex-column gap-2">
+        <div class="mt-0 d-flex flex-column gap-2">
           <div class="d-flex align-center flex-wrap gap-2">
+            <span class="text-caption"> <b>Avalie essa ação:</b></span>
             <v-rating
               :model-value="localRating"
               color="warning"
               active-color="warning"
               hover
+              class="ml-2"
               length="5"
               size="24"
               :disabled="projectLoading"
@@ -118,6 +105,13 @@ watch(
             />
             <v-progress-circular v-if="projectLoading" indeterminate size="20" color="primary" />
           </div>
+
+          <p class="text-caption text-grey-lighten-1 mb-0">
+            <template v-if="hasRatings"> {{ averageLabel }} • {{ totalLabel }} </template>
+            <template v-else>
+              {{ averageLabel }}
+            </template>
+          </p>
 
           <div class="d-flex align-center flex-wrap gap-1">
             <span class="text-caption text-grey-lighten-1 me-2">Reações:</span>
@@ -144,6 +138,7 @@ watch(
               size="x-small"
               variant="tonal"
               color="grey-darken-3"
+              class="my-2 mr-2"
             >
               {{ option.emoji }} {{ reactionCountsMap[option.value] }}
             </v-chip>
@@ -170,7 +165,7 @@ watch(
 <style scoped>
 .project-rating-display {
   border-top: 1px solid rgba(255, 255, 255, 0.05);
-  padding-top: 12px;
+  padding-top: 5px;
 }
 
 .emoji-btn {
@@ -186,6 +181,6 @@ watch(
 
 .emoji-btn--active {
   box-shadow: 0 0 0 1px rgba(255, 193, 7, 0.35);
-  border-radius: 8px;
+  border-radius: 3px;
 }
 </style>
