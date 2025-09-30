@@ -56,7 +56,37 @@ export const useProjectCoverStorage = () => {
   const removeCover = async (path?: string | null) => {
     if (!path) return
 
-    const { error } = await supabase.storage.from(PROJECT_COVER_BUCKET).remove([path])
+    if (/^https?:\/\//i.test(path)) {
+      console.info('Ignorando remoção de capa fora do bucket:', path)
+      return
+    }
+
+    const normalizedPath = path.replace(/^\/+/, '')
+    if (!normalizedPath) return
+
+    const segments = normalizedPath.split('/')
+    const fileName = segments.pop()
+    const folderPath = segments.join('/')
+
+    if (!fileName) return
+
+    const { data: existingObjects, error: listError } = await supabase.storage
+      .from(PROJECT_COVER_BUCKET)
+      .list(folderPath, { search: fileName })
+
+    if (listError) {
+      console.warn('Falha ao verificar existência da imagem de capa:', listError.message)
+      return
+    }
+
+    const fileExists = existingObjects?.some((item) => item.name === fileName)
+
+    if (!fileExists) {
+      console.info('Imagem de capa não encontrada no bucket. Nenhuma remoção necessária.')
+      return
+    }
+
+    const { error } = await supabase.storage.from(PROJECT_COVER_BUCKET).remove([normalizedPath])
 
     if (error) {
       console.warn('Falha ao remover imagem de capa do projeto:', error.message)

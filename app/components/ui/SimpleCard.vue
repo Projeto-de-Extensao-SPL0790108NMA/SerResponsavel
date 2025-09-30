@@ -1,5 +1,6 @@
 <!--suppress CssUnusedSymbol -->
 <script setup lang="ts">
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import type { CardProps } from '~/types/ui'
 
 type Props = CardProps
@@ -32,6 +33,169 @@ const backgroundAnimations = [
 // Sorteio estável por instância (evita trocar a cada re-render)
 const iconAnim = ref('')
 const bgAnim = ref('')
+const cardRef = ref<HTMLElement | { $el: HTMLElement } | null>(null)
+const resolvedColor = ref<string | null>(null)
+const isDarkBackground = ref(true)
+
+const HEX_SHORT_REGEX = /^#([\da-f])([\da-f])([\da-f])$/i
+const HEX_LONG_REGEX = /^#([\da-f]{2})([\da-f]{2})([\da-f]{2})$/i
+
+type ParsedColor = {
+  rgb: [number, number, number]
+  alpha: number
+}
+
+const parseHexToRgb = (value: string): ParsedColor | null => {
+  const normalized = value.trim()
+  if (HEX_SHORT_REGEX.test(normalized)) {
+    const [, r, g, b] = normalized.match(HEX_SHORT_REGEX) ?? []
+    return {
+      rgb: [parseInt(r + r, 16), parseInt(g + g, 16), parseInt(b + b, 16)],
+      alpha: 1,
+    }
+  }
+
+  if (HEX_LONG_REGEX.test(normalized)) {
+    const [, r, g, b] = normalized.match(HEX_LONG_REGEX) ?? []
+    return {
+      rgb: [parseInt(r ?? '00', 16), parseInt(g ?? '00', 16), parseInt(b ?? '00', 16)],
+      alpha: 1,
+    }
+  }
+  return null
+}
+
+const parseRgbString = (value: string): ParsedColor | null => {
+  const match = value.match(/rgba?\(([^)]+)\)/i)
+  if (!match) return null
+  const parts = match[1].split(',').map((component) => component.trim())
+  if (parts.length < 3) return null
+
+  const [r, g, b] = parts.slice(0, 3).map((component) => Number.parseFloat(component))
+  if ([r, g, b].some((component) => Number.isNaN(component))) {
+    return null
+  }
+
+  let alpha = 1
+  if (parts[3] !== undefined) {
+    const parsedAlpha = Number.parseFloat(parts[3])
+    if (!Number.isNaN(parsedAlpha)) {
+      alpha = Math.min(Math.max(parsedAlpha, 0), 1)
+    }
+  }
+
+  return {
+    rgb: [r, g, b],
+    alpha,
+  }
+}
+
+const getLuminance = ([r, g, b]: [number, number, number]) => {
+  const toLinear = (channel: number) => {
+    const normalized = channel / 255
+    return normalized <= 0.03928 ? normalized / 12.92 : Math.pow((normalized + 0.055) / 1.055, 2.4)
+  }
+
+  const [lr, lg, lb] = [r, g, b].map(toLinear) as [number, number, number]
+  return 0.2126 * lr + 0.7152 * lg + 0.0722 * lb
+}
+
+const getCardElement = (): HTMLElement | null => {
+  const target = cardRef.value
+  if (!target) return null
+  if (target instanceof HTMLElement) return target
+  if (typeof target === 'object' && '$el' in target && target.$el instanceof HTMLElement) {
+    return target.$el
+  }
+  return null
+}
+
+const resolveBackgroundColor = () => {
+  if (import.meta.server) return
+
+  const colorValue = props.cardData.color || 'primary'
+  let resolved = colorValue
+
+  const isDirectColor =
+    colorValue.startsWith('#') ||
+    colorValue.startsWith('rgb') ||
+    colorValue.startsWith('hsl') ||
+    colorValue.startsWith('var(')
+
+  if (!isDirectColor) {
+    const cssVar = getComputedStyle(document.documentElement).getPropertyValue(
+      `--v-theme-${colorValue}`,
+    )
+
+    if (cssVar?.trim()) {
+      resolved = cssVar.trim()
+    } else {
+      const temp = document.createElement('span')
+      temp.style.color = colorValue
+      document.body.appendChild(temp)
+      const computedColor = getComputedStyle(temp).color
+      document.body.removeChild(temp)
+      if (computedColor) {
+        resolved = computedColor
+      }
+    }
+  }
+
+  const cardElement = getCardElement()
+
+  if (cardElement) {
+    const computedBackground = getComputedStyle(cardElement).getPropertyValue('background-color')
+    if (computedBackground && computedBackground.trim() && computedBackground !== 'transparent') {
+      resolved = computedBackground.trim()
+    }
+  }
+
+  if (resolved.startsWith('var(')) {
+    const cssVarMatch = resolved.match(/var\((--[^)]+)\)/)
+    if (cssVarMatch?.[1]) {
+      const cssVarValue = getComputedStyle(document.documentElement).getPropertyValue(
+        cssVarMatch[1],
+      )
+      if (cssVarValue?.trim()) {
+        resolved = cssVarValue.trim()
+      }
+    }
+  }
+
+  resolvedColor.value = resolved
+
+  const DEFAULT_COLORS: Record<string, ParsedColor> = {
+    primary: { rgb: [25, 118, 210], alpha: 1 },
+    secondary: { rgb: [156, 39, 176], alpha: 1 },
+    accent: { rgb: [255, 193, 7], alpha: 1 },
+    info: { rgb: [0, 188, 212], alpha: 1 },
+    success: { rgb: [76, 175, 80], alpha: 1 },
+    warning: { rgb: [255, 152, 0], alpha: 1 },
+    error: { rgb: [244, 67, 54], alpha: 1 },
+  }
+
+  const fallbackColor = DEFAULT_COLORS[colorValue.toLowerCase()] ?? DEFAULT_COLORS.primary
+  const parsedColor = parseHexToRgb(resolved) ?? parseRgbString(resolved) ?? fallbackColor
+
+  if (!parsedColor) {
+    isDarkBackground.value = true
+    return
+  }
+
+  const luminance = getLuminance(parsedColor.rgb)
+
+  if (parsedColor.alpha < 0.45) {
+    isDarkBackground.value = false
+    return
+  }
+
+  if (luminance >= 0.55) {
+    isDarkBackground.value = false
+    return
+  }
+
+  isDarkBackground.value = luminance < 0.5
+}
 
 onMounted(() => {
   if (props.animated) {
@@ -39,7 +203,21 @@ onMounted(() => {
     bgAnim.value =
       backgroundAnimations[Math.floor(Math.random() * backgroundAnimations.length)] || ''
   }
+
+  void nextTick(resolveBackgroundColor)
 })
+
+watch(
+  () => props.cardData.color,
+  () => {
+    void nextTick(resolveBackgroundColor)
+  },
+  { immediate: true },
+)
+
+const contentVariantClass = computed(() =>
+  isDarkBackground.value ? 'simple-card__content--on-dark' : 'simple-card__content--on-light',
+)
 
 const handleClick = () => {
   if (props.clickable) {
@@ -50,6 +228,7 @@ const handleClick = () => {
 
 <template>
   <v-card
+    ref="cardRef"
     :color="props.cardData.color || 'primary'"
     variant="tonal"
     :class="['text-center pa-4', bgAnim, { 'card-clickable': props.clickable }]"
@@ -58,9 +237,17 @@ const handleClick = () => {
     :hover="props.clickable"
     @click="handleClick"
   >
-    <v-icon :icon="props.cardData.icon" :size="iconSize" :class="['mb-2', iconAnim]" />
-    <div :class="titleClass">{{ props.cardData.title }}</div>
-    <div :class="subtitleClass">{{ props.cardData.subtitle }}</div>
+    <div :class="['simple-card__content', contentVariantClass]">
+      <v-icon
+        :icon="props.cardData.icon"
+        :size="iconSize"
+        :class="['mb-2', iconAnim, 'simple-card__text']"
+      />
+      <div :class="[titleClass, 'simple-card__text']">{{ props.cardData.title }}</div>
+      <div :class="[subtitleClass, 'simple-card__text', 'simple-card__subtitle']">
+        {{ props.cardData.subtitle }}
+      </div>
+    </div>
   </v-card>
 </template>
 
@@ -212,92 +399,71 @@ const handleClick = () => {
   0%,
   100% {
     transform: scale(1);
+    filter: brightness(1);
   }
   50% {
     transform: scale(1.02);
+    filter: brightness(1.08);
   }
 }
 
-/* Background animation classes */
 .bg-glow {
-  animation: bg-glow 2.5s ease-in-out infinite;
+  animation: bg-glow 4s ease-in-out infinite;
 }
 
-/* Menos custoso: cor apenas */
 .bg-pulse {
-  animation: bg-pulse 2s ease-in-out infinite;
+  animation: bg-pulse 3s ease-in-out infinite;
 }
 
 .bg-gradient-shift {
-  background-color: rgba(25, 118, 210, 0.15);
-  background-image: linear-gradient(
-    45deg,
-    rgba(25, 118, 210, 0.1),
-    rgba(25, 118, 210, 0.3),
-    rgba(25, 118, 210, 0.1)
-  );
-  background-size: 300% 300%;
-  background-position: 0 50%;
-  animation: bg-gradient-shift 3s ease-in-out infinite;
+  background: linear-gradient(45deg, rgba(25, 118, 210, 0.2), rgba(25, 118, 210, 0.4));
+  background-size: 200%;
+  animation: bg-gradient-shift 6s ease infinite;
 }
 
 .bg-shimmer {
-  position: relative;
-  overflow: hidden;
-}
-
-.bg-shimmer::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent);
-  background-size: 200% 100%;
-  animation: bg-shimmer 2s infinite;
-  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.1),
+    rgba(255, 255, 255, 0.3),
+    rgba(255, 255, 255, 0.1)
+  );
+  animation: bg-shimmer 3s ease-in-out infinite;
 }
 
 .bg-breathe {
-  animation: bg-breathe 3s ease-in-out infinite;
-  transform-origin: center;
+  animation: bg-breathe 5s ease-in-out infinite;
 }
 
-/* Clickable card styles */
 .card-clickable {
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.3s ease;
 }
 
 .card-clickable:hover {
-  transform: translateY(-4px) scale(1.02);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3) !important;
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(25, 118, 210, 0.25);
 }
 
 .card-clickable:active {
-  transform: translateY(-2px) scale(1.01);
-  transition: all 0.1s ease;
+  transform: translateY(0);
+  box-shadow: 0 10px 20px rgba(25, 118, 210, 0.2);
 }
 
-/* Respeita usuários com redução de movimento */
-@media (prefers-reduced-motion: reduce) {
-  .icon-bounce,
-  .icon-pulse,
-  .icon-swing,
-  .icon-shake,
-  .icon-float,
-  .bg-glow,
-  .bg-pulse,
-  .bg-gradient-shift,
-  .bg-shimmer::before,
-  .bg-breathe {
-    animation: none !important;
-    transition: none !important;
-  }
-
-  .card-clickable:hover,
-  .card-clickable:active {
-    transform: none !important;
-    transition: none !important;
-  }
-}
+/* eslint-enable vue-scoped-css/no-unused-selector */
 </style>
+.simple-card__content { display: inline-flex; flex-direction: column; align-items: center;
+justify-content: center; gap: 4px; padding: 10px 18px; border-radius: 18px; max-width: 100%;
+transition: background-color 0.3s ease, color 0.3s ease; backdrop-filter: blur(8px); }
+.simple-card__content--on-dark { background: linear-gradient(135deg, rgba(255, 255, 255, 0.85),
+rgba(255, 255, 255, 0.6)); border: 1px solid rgba(15, 23, 42, 0.25); box-shadow: 0 14px 30px
+rgba(15, 23, 42, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.45); } .simple-card__content--on-dark
+.simple-card__text { color: rgba(15, 23, 42, 0.95) !important; text-shadow: 0 1px 2px rgba(255, 255,
+255, 0.65) !important, 0 0 10px rgba(0, 0, 0, 0.4) !important; } .simple-card__content--on-light {
+background: linear-gradient(135deg, rgba(15, 23, 42, 0.72), rgba(15, 23, 42, 0.55)); border: 1px
+solid rgba(255, 255, 255, 0.35); box-shadow: 0 16px 34px rgba(15, 23, 42, 0.45), inset 0 1px 0
+rgba(255, 255, 255, 0.35); } .simple-card__content--on-light .simple-card__text { color: rgba(255,
+255, 255, 0.97) !important; text-shadow: 0 2px 6px rgba(0, 0, 0, 0.85) !important, 0 0 14px rgba(0,
+0, 0, 0.65) !important; } .simple-card__subtitle { letter-spacing: 0.02em; opacity: 0.92; }

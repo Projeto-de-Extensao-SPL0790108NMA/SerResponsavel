@@ -90,7 +90,7 @@ useSeoMeta({
             <v-col>
               <v-chip
                 color="primary"
-                variant="tonal"
+                variant="elevated"
                 size="small"
                 prepend-icon="mdi-trophy"
                 class="hero-chip mx-3"
@@ -99,7 +99,7 @@ useSeoMeta({
               </v-chip>
               <v-chip
                 color="success"
-                variant="tonal"
+                variant="elevated"
                 size="small"
                 prepend-icon="mdi-check-circle"
                 class="hero-chip"
@@ -108,7 +108,7 @@ useSeoMeta({
               </v-chip>
               <v-chip
                 color="info"
-                variant="tonal"
+                variant="elevated"
                 size="small"
                 prepend-icon="mdi-rocket-launch"
                 class="hero-chip mx-3"
@@ -125,7 +125,7 @@ useSeoMeta({
         <!-- mission and info cards -->
         <v-col cols="12">
           <!-- mission -->
-          <v-card elevation="15" class="mission-card pa-6 mb-6" rounded="xl">
+          <v-card elevation="15" class="mission-card" rounded="xl">
             <v-card-text class="mission-text">
               <v-icon icon="mdi-target" color="primary" class="me-2" />
               <strong class="text-white">Missão:</strong>
@@ -140,7 +140,7 @@ useSeoMeta({
       </v-row>
 
       <!-- info cards -->
-      <v-row class="mb-6">
+      <v-row>
         <v-col v-for="(card, index) in informativeCards" :key="index" cols="12" md="4">
           <ui-simple-card :card-data="card" animated />
         </v-col>
@@ -163,11 +163,11 @@ useSeoMeta({
       </v-row>
 
       <!-- benefits, and target audience cards -->
-      <v-row dense class="mt-0">
+      <v-row class="mt-1">
         <v-col cols="12">
           <!-- Platform Benefits Section -->
           <v-card
-            class="mt-5 mb-4 simple-border"
+            class="mb-4 simple-border"
             elevation="15"
             rounded="xl"
             title="Diferenciais da Plataforma"

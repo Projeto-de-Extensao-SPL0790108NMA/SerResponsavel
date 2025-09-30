@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import type { ProjectWithRelations } from '@/stores/projects'
 
 const DEFAULT_COVER = '/logoserresp600_598.png'
@@ -101,6 +101,16 @@ const detailedMetadata = computed(() => [
     value: coverImagePathLabel.value,
   },
 ])
+
+const isImagePreviewOpen = ref(false)
+
+const openImagePreview = () => {
+  isImagePreviewOpen.value = true
+}
+
+const closeImagePreview = () => {
+  isImagePreviewOpen.value = false
+}
 </script>
 
 <template>
@@ -213,9 +223,39 @@ const detailedMetadata = computed(() => [
 
     <template v-else>
       <div class="project-details__default">
-        <v-responsive aspect-ratio="16/9" class="project-details__cover">
-          <v-img :src="coverImage" cover alt="Imagem de capa do projeto" />
-        </v-responsive>
+        <div class="project-details__cover-wrapper">
+          <v-hover v-slot="{ isHovering, props: hoverProps }">
+            <v-responsive aspect-ratio="16/9" class="project-details__cover" v-bind="hoverProps">
+              <v-img
+                :src="coverImage"
+                cover
+                alt="Imagem de capa do projeto"
+                class="project-details__cover-img project-details__cover-img--clickable"
+                @click="openImagePreview"
+              />
+
+              <transition name="project-details-fade">
+                <div v-if="isHovering" class="project-details__cover-overlay">
+                  <div class="project-details__cover-overlay-content">
+                    <v-icon icon="mdi-magnify-plus" size="28" class="mr-2" />
+                    <span>Clique para ampliar</span>
+                  </div>
+                </div>
+              </transition>
+
+              <v-btn
+                class="project-details__cover-action"
+                size="small"
+                variant="tonal"
+                color="primary"
+                prepend-icon="mdi-magnify-plus"
+                @click.stop="openImagePreview"
+              >
+                Ampliar
+              </v-btn>
+            </v-responsive>
+          </v-hover>
+        </div>
 
         <header class="project-details__header">
           <div class="d-flex flex-wrap align-center justify-space-between gap-3">
@@ -333,6 +373,20 @@ const detailedMetadata = computed(() => [
         </section>
       </div>
     </template>
+
+    <v-dialog v-model="isImagePreviewOpen" max-width="960">
+      <v-card class="project-details__preview-card" rounded="xl">
+        <v-img
+          :src="coverImage"
+          cover
+          alt="Pré-visualização da imagem do projeto"
+          class="project-details__preview-img"
+        />
+        <v-card-actions class="justify-end">
+          <v-btn variant="text" @click="closeImagePreview">Fechar</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -395,10 +449,63 @@ const detailedMetadata = computed(() => [
   background-color: transparent;
 }
 
+.project-details__cover-wrapper {
+  display: flex;
+  justify-content: center;
+}
+
 .project-details__cover {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+  cursor: default;
+}
+
+.project-details__cover-img {
+  width: 100%;
+  height: 100%;
+}
+
+.project-details__cover-img--clickable {
+  cursor: zoom-in;
+}
+
+.project-details__cover-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.6));
+  color: #ffffff;
+  pointer-events: none;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.8rem;
+}
+
+.project-details__cover-overlay-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.project-details__cover-action {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  box-shadow: 0 6px 16px rgba(25, 118, 210, 0.35);
+}
+
+.project-details__preview-card {
+  background: rgba(18, 18, 18, 0.95);
+}
+
+.project-details__preview-img {
+  max-height: 70vh;
 }
 
 .project-details__card {
@@ -424,5 +531,24 @@ const detailedMetadata = computed(() => [
     max-width: 100%;
     max-height: 200px;
   }
+
+  .project-details__cover {
+    max-width: 100%;
+  }
+
+  .project-details__cover-action {
+    right: 12px;
+    bottom: 12px;
+  }
+}
+
+.project-details-fade-enter-active,
+.project-details-fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.project-details-fade-enter-from,
+.project-details-fade-leave-to {
+  opacity: 0;
 }
 </style>
