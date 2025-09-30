@@ -9,6 +9,7 @@ export type CardData = {
   title: string | number
   subtitle: string
   to?: string
+  section?: string
 }
 
 export type CardSize = 'normal' | 'big'

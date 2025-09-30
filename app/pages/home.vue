@@ -20,40 +20,52 @@ await callOnce(async () => {
   ])
 })
 
-// noinspection NonAsciiCharacters
-const homeCards: CardData[] = [
+type HomeSection = 'profile' | 'projects' | 'reports' | 'organizations'
+
+const sectionLabels: Record<HomeSection, string> = {
+  profile: 'Perfil',
+  projects: 'Projetos',
+  reports: 'Relatórios',
+  organizations: 'Organizações',
+}
+
+const homeCards: Array<CardData & { section: HomeSection }> = [
   {
     icon: 'mdi-account-circle',
-    title: 'Perfil',
+    title: sectionLabels.profile,
     subtitle: 'Gerencie suas informações pessoais',
     color: 'primary',
+    section: 'profile',
   },
   {
     icon: 'mdi-handshake',
-    title: 'Projetos',
+    title: sectionLabels.projects,
     subtitle: 'Visualize e gerencie seus projetos',
     color: 'success',
+    section: 'projects',
   },
   {
     icon: 'mdi-chart-line',
-    title: 'Relatórios',
+    title: sectionLabels.reports,
     subtitle: 'Acompanhe métricas e resultados',
     color: 'info',
+    section: 'reports',
+  },
+  {
+    icon: 'mdi-domain',
+    title: sectionLabels.organizations,
+    subtitle: 'Consulte e ajuste organizações vinculadas',
+    color: 'secondary',
+    section: 'organizations',
   },
 ]
 
 const handleCardClick = (cardData: CardData) => {
-  // noinspection NonAsciiCharacters
-  const sectionMap: Record<string, 'profile' | 'projects' | 'reports'> = {
-    Perfil: 'profile',
-    Projetos: 'projects',
-    Relatórios: 'reports',
+  const section = (cardData.section ?? null) as HomeSection | null
+  if (!section) {
+    return
   }
-
-  const section = sectionMap[cardData.title as string]
-  if (section) {
-    toggleSection(section)
-  }
+  toggleSection(section)
 }
 
 useSeoMeta({
@@ -67,6 +79,10 @@ const homeBackgroundClass = computed(() =>
 
 const cardBorderSimpleClass = computed(() =>
   theme.value === 'dark' ? 'borda-radial-branco-simples' : 'borda-radial-clara-simples',
+)
+
+const activeSectionLabel = computed(() =>
+  activeSection.value ? sectionLabels[activeSection.value as HomeSection] : '',
 )
 </script>
 
@@ -90,7 +106,7 @@ const cardBorderSimpleClass = computed(() =>
 
       <!-- home cards-->
       <v-row>
-        <v-col v-for="(card, index) in homeCards" :key="index" cols="12" md="4">
+        <v-col v-for="(card, index) in homeCards" :key="index" cols="12" md="3">
           <ui-simple-card :card-data="card" clickable @click="handleCardClick" />
         </v-col>
       </v-row>
@@ -100,15 +116,7 @@ const cardBorderSimpleClass = computed(() =>
         <v-col cols="12">
           <v-card :class="[cardBorderSimpleClass]" rounded="xl" elevation="15">
             <v-card-title class="d-flex justify-space-between align-center">
-              <span class="text-h5">
-                {{
-                  activeSection === 'profile'
-                    ? 'Perfil'
-                    : activeSection === 'projects'
-                      ? 'Projetos'
-                      : 'Relatórios'
-                }}
-              </span>
+              <span class="text-h5">{{ activeSectionLabel }}</span>
               <v-btn
                 icon="mdi-close"
                 variant="text"
@@ -120,6 +128,7 @@ const cardBorderSimpleClass = computed(() =>
               <HomeProfileSection v-if="activeSection === 'profile'" />
               <HomeProjectsSection v-else-if="activeSection === 'projects'" />
               <HomeReportsSection v-else-if="activeSection === 'reports'" />
+              <HomeOrganizationsSection v-else-if="activeSection === 'organizations'" />
             </v-card-text>
           </v-card>
         </v-col>

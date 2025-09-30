@@ -209,8 +209,17 @@ onMounted(async () => {
                     </div>
                   </v-col>
                   <v-col cols="12" class="text-center">
-                    <v-avatar v-if="project?.organization?.logo_url" size="32">
-                      <v-img :src="project.organization.logo_url" />
+                    <v-avatar
+                      v-if="project?.organization?.logo_url"
+                      size="42"
+                      rounded="lg"
+                      :class="['organization-logo-avatar']"
+                    >
+                      <v-img
+                        :src="project.organization.logo_url"
+                        :alt="project.organization?.name"
+                        cover
+                      />
                     </v-avatar>
                     <v-avatar v-else color="grey-lighten-2" size="32">
                       <v-icon icon="mdi-domain" />
@@ -308,5 +317,12 @@ onMounted(async () => {
 
 .custom-alert strong {
   color: #ffffff !important;
+}
+
+.organization-logo-avatar {
+  box-shadow:
+    0 6px 16px rgba(15, 23, 42, 0.25),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+  background-color: rgba(255, 255, 255, 0.1);
 }
 </style>

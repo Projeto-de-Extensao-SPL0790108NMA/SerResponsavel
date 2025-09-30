@@ -1,5 +1,3 @@
-alter type user_role add value if not exists 'super_admin';
-
 alter table profiles
     drop constraint if exists admin_requires_organization;
 

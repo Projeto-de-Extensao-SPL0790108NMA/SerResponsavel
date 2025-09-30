@@ -215,9 +215,36 @@ watch(
   { immediate: true },
 )
 
-const contentVariantClass = computed(() =>
-  isDarkBackground.value ? 'simple-card__content--on-dark' : 'simple-card__content--on-light',
-)
+const paletteTextColor: Record<string, string> = {
+  primary: '#0d3c8a',
+  secondary: '#6a1b9a',
+  accent: '#ad1457',
+  success: '#1b5e20',
+  info: '#006064',
+  warning: '#e65100',
+  error: '#b71c1c',
+}
+
+const textStyle = computed(() => {
+  if (isDarkBackground.value) {
+    return {
+      color: 'rgba(249, 250, 255, 0.97)',
+      textShadow:
+        '0 0 2px rgba(0, 0, 0, 0.95), 0 0 4px rgba(0, 0, 0, 0.9), 0 0 8px rgba(0, 0, 0, 0.85)',
+      WebkitTextStroke: '1px rgba(0, 0, 0, 0.9)',
+    }
+  }
+
+  const colorKey = (props.cardData.color ?? '').toString().toLowerCase()
+  const paletteColor = paletteTextColor[colorKey] ?? '#0f172a'
+
+  return {
+    color: paletteColor,
+    textShadow:
+      '0 0 2px rgba(255, 255, 255, 0.9), 0 0 4px rgba(255, 255, 255, 0.8), 0 0 8px rgba(15, 23, 42, 0.55)',
+    WebkitTextStroke: '1px rgba(255, 255, 255, 0.8)',
+  }
+})
 
 const handleClick = () => {
   if (props.clickable) {
@@ -237,16 +264,15 @@ const handleClick = () => {
     :hover="props.clickable"
     @click="handleClick"
   >
-    <div :class="['simple-card__content', contentVariantClass]">
-      <v-icon
-        :icon="props.cardData.icon"
-        :size="iconSize"
-        :class="['mb-2', iconAnim, 'simple-card__text']"
-      />
-      <div :class="[titleClass, 'simple-card__text']">{{ props.cardData.title }}</div>
-      <div :class="[subtitleClass, 'simple-card__text', 'simple-card__subtitle']">
-        {{ props.cardData.subtitle }}
-      </div>
+    <v-icon
+      :icon="props.cardData.icon"
+      :size="iconSize"
+      :class="['mb-2', iconAnim]"
+      :style="textStyle"
+    />
+    <div :class="titleClass" :style="textStyle">{{ props.cardData.title }}</div>
+    <div :class="['simple-card__subtitle', subtitleClass]" :style="textStyle">
+      {{ props.cardData.subtitle }}
     </div>
   </v-card>
 </template>
@@ -452,18 +478,10 @@ const handleClick = () => {
   box-shadow: 0 10px 20px rgba(25, 118, 210, 0.2);
 }
 
+.simple-card__subtitle {
+  letter-spacing: 0.02em;
+  opacity: 0.92;
+}
+
 /* eslint-enable vue-scoped-css/no-unused-selector */
 </style>
-.simple-card__content { display: inline-flex; flex-direction: column; align-items: center;
-justify-content: center; gap: 4px; padding: 10px 18px; border-radius: 18px; max-width: 100%;
-transition: background-color 0.3s ease, color 0.3s ease; backdrop-filter: blur(8px); }
-.simple-card__content--on-dark { background: linear-gradient(135deg, rgba(255, 255, 255, 0.85),
-rgba(255, 255, 255, 0.6)); border: 1px solid rgba(15, 23, 42, 0.25); box-shadow: 0 14px 30px
-rgba(15, 23, 42, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.45); } .simple-card__content--on-dark
-.simple-card__text { color: rgba(15, 23, 42, 0.95) !important; text-shadow: 0 1px 2px rgba(255, 255,
-255, 0.65) !important, 0 0 10px rgba(0, 0, 0, 0.4) !important; } .simple-card__content--on-light {
-background: linear-gradient(135deg, rgba(15, 23, 42, 0.72), rgba(15, 23, 42, 0.55)); border: 1px
-solid rgba(255, 255, 255, 0.35); box-shadow: 0 16px 34px rgba(15, 23, 42, 0.45), inset 0 1px 0
-rgba(255, 255, 255, 0.35); } .simple-card__content--on-light .simple-card__text { color: rgba(255,
-255, 255, 0.97) !important; text-shadow: 0 2px 6px rgba(0, 0, 0, 0.85) !important, 0 0 14px rgba(0,
-0, 0, 0.65) !important; } .simple-card__subtitle { letter-spacing: 0.02em; opacity: 0.92; }

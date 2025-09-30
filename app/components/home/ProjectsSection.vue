@@ -579,6 +579,7 @@ watch(activeTab, (status) => {
 })
 
 onMounted(() => {
+  void projectsStore.fetchProjects(false, 'all')
   void loadProjects(activeTab.value)
 })
 </script>

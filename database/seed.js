@@ -385,12 +385,12 @@ const seedOrganizations = async () => {
 
   organizations.push(
     {
-      name: 'Organização A',
-      bio: 'Bia A',
+      name: 'Uninorte',
+      bio: 'Instituição de ensino superior em Manaus/AM, referência na Amazônia. Oferece cursos de graduação, pós-graduação e extensão, com foco em inovação, qualidade acadêmica e impacto social. Formamos profissionais preparados para transformar vidas e comunidades.',
     },
     {
-      name: 'Organização B',
-      bio: 'Bia B',
+      name: 'StdOut Dev',
+      bio: 'Fábrica de software especializada em soluções digitais sob medida. Atuamos no desenvolvimento de sistemas web, APIs e integrações, unindo inovação, qualidade e agilidade para transformar ideias em tecnologia de impacto.',
     },
   )
 
