@@ -177,7 +177,7 @@
       </v-card-text>
     </v-card>
 
-    <v-dialog v-model="isDialogOpen" max-width="720" persistent>
+    <v-dialog v-model="isDialogOpen" max-width="1024" persistent scrollable>
       <v-card>
         <v-card-title class="d-flex align-center justify-space-between">
           <span>{{ dialogTitle }}</span>

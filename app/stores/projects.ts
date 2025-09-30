@@ -348,6 +348,10 @@ export const useProjectsStore = defineStore(
       error.value = null
     }
 
+    const setCurrentProject = (project: ProjectWithRelations | null) => {
+      currentProject.value = project ? mapToProjectWithRelations(project) : null
+    }
+
     const clearCurrentProject = () => {
       currentProject.value = null
     }
@@ -403,6 +407,7 @@ export const useProjectsStore = defineStore(
       editProject,
       removeProject,
       clearError,
+      setCurrentProject,
       clearCurrentProject,
       invalidateCache,
       refreshProjects,

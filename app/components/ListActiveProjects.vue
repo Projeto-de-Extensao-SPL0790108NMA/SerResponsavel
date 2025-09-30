@@ -1,10 +1,19 @@
 <script setup lang="ts">
 import { usePermissions } from '@/composables/usePermissions'
+import ProjectsProjectDetails from '@/components/projects/ProjectDetails.vue'
+import type { ProjectWithRelations } from '@/stores/projects'
 import { createStatisticsCards } from '~/constants/login'
 
 const projectsStore = useProjectsStore()
-const { projects, loading, error, isCached, completedProjectsCount } = storeToRefs(projectsStore)
-const { fetchProjects, invalidateCache, fetchCompletedProjectsCount } = projectsStore
+const { projects, loading, error, isCached, completedProjectsCount, currentProject } =
+  storeToRefs(projectsStore)
+const {
+  fetchProjects,
+  invalidateCache,
+  fetchCompletedProjectsCount,
+  setCurrentProject,
+  clearCurrentProject,
+} = projectsStore
 const { canCreateProjects } = usePermissions()
 
 const statisticsCards = computed(() =>
@@ -14,6 +23,26 @@ const statisticsCards = computed(() =>
 const activeProjects = computed(() =>
   (projects.value ?? []).filter((project) => project?.status === 'in-progress'),
 )
+
+const isDetailsDialogOpen = ref(false)
+
+const selectedProject = computed(() => currentProject.value)
+
+const openProjectDetails = (project: ProjectWithRelations | null | undefined) => {
+  if (!project) return
+  setCurrentProject(project)
+  isDetailsDialogOpen.value = true
+}
+
+const closeProjectDetails = () => {
+  isDetailsDialogOpen.value = false
+}
+
+watch(isDetailsDialogOpen, (isOpen) => {
+  if (!isOpen) {
+    clearCurrentProject()
+  }
+})
 
 onMounted(async () => {
   if (!projects.value) {
@@ -149,6 +178,7 @@ onMounted(async () => {
                   class="btn-selected-custom"
                   size="x-small"
                   prepend-icon="mdi-eye"
+                  @click="openProjectDetails(project)"
                 >
                   Ver Detalhes
                 </v-btn>
@@ -222,6 +252,47 @@ onMounted(async () => {
       </v-row>
     </template>
   </ClientOnly>
+
+  <v-dialog
+    v-model="isDetailsDialogOpen"
+    max-width="900"
+    scrollable
+    transition="dialog-bottom-transition"
+  >
+    <v-card v-if="selectedProject" class="simple-border" elevation="18" rounded="xl">
+      <v-card-title class="d-flex align-center justify-space-between">
+        <span class="text-h6 text-truncate">{{
+          selectedProject?.name || 'Detalhes do Projeto'
+        }}</span>
+        <v-btn icon variant="text" density="comfortable" @click="closeProjectDetails">
+          <v-icon icon="mdi-close" />
+        </v-btn>
+      </v-card-title>
+
+      <v-divider />
+
+      <v-card-text class="pb-6">
+        <ProjectsProjectDetails :project="selectedProject" variant="compact" />
+      </v-card-text>
+
+      <v-card-actions class="justify-end">
+        <v-btn
+          color="primary"
+          variant="flat"
+          rounded="xl"
+          class="btn-selected-custom"
+          @click="closeProjectDetails"
+        >
+          Fechar
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+    <v-card v-else class="simple-border" elevation="12" rounded="xl">
+      <v-card-text>
+        <v-skeleton-loader type="image, list-item-three-line, list-item-three-line" />
+      </v-card-text>
+    </v-card>
+  </v-dialog>
 </template>
 
 <style scoped>
