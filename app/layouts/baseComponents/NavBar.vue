@@ -83,9 +83,6 @@ watch(
 
           <template v-if="isAuthenticated">
             <!-- Authenticated Navigation -->
-            <v-btn variant="text" class="text-white"> Projetos </v-btn>
-
-            <v-btn variant="text" class="text-white"> Tarefas </v-btn>
 
             <!-- User Menu -->
             <v-menu>
@@ -142,7 +139,12 @@ watch(
         </div>
 
         <!-- Mobile Menu -->
-        <v-app-bar-nav-icon class="d-md-none" @click="drawer = !drawer" />
+        <v-app-bar-nav-icon
+          class="d-md-none"
+          color="white"
+          density="comfortable"
+          @click="drawer = !drawer"
+        />
       </v-container>
     </v-app-bar>
 
@@ -225,13 +227,6 @@ watch(
 
         <template v-else>
           <!-- Unauthenticated Mobile Navigation -->
-          <v-list-item>
-            <template #prepend>
-              <v-icon>mdi-information</v-icon>
-            </template>
-            <v-list-item-title>Sobre</v-list-item-title>
-          </v-list-item>
-
           <v-list-item>
             <template #prepend>
               <v-icon>mdi-login</v-icon>
