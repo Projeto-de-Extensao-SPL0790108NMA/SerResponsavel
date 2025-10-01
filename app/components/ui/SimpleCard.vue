@@ -1,6 +1,8 @@
 <!--suppress CssUnusedSymbol -->
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import { storeToRefs } from 'pinia'
+import { usePreferencesStore } from '@/stores/preferences'
 import type { CardProps } from '~/types/ui'
 
 type Props = CardProps
@@ -36,6 +38,9 @@ const bgAnim = ref('')
 const cardRef = ref<HTMLElement | { $el: HTMLElement } | null>(null)
 const resolvedColor = ref<string | null>(null)
 const isDarkBackground = ref(true)
+const preferencesStore = usePreferencesStore()
+const { theme } = storeToRefs(preferencesStore)
+const isDarkTheme = computed(() => theme.value === 'dark')
 
 const HEX_SHORT_REGEX = /^#([\da-f])([\da-f])([\da-f])$/i
 const HEX_LONG_REGEX = /^#([\da-f]{2})([\da-f]{2})([\da-f]{2})$/i
@@ -226,12 +231,15 @@ const paletteTextColor: Record<string, string> = {
 }
 
 const textStyle = computed(() => {
+  const strokeColor = isDarkTheme.value ? 'rgba(255, 255, 255, 0.95)' : 'rgba(15, 23, 42, 0.9)'
+  const strokeWidth = isDarkTheme.value ? '1.2px' : '1.8px'
+
   if (isDarkBackground.value) {
     return {
       color: 'rgba(249, 250, 255, 0.97)',
       textShadow:
         '0 0 2px rgba(0, 0, 0, 0.95), 0 0 4px rgba(0, 0, 0, 0.9), 0 0 8px rgba(0, 0, 0, 0.85)',
-      WebkitTextStroke: '1px rgba(0, 0, 0, 0.9)',
+      WebkitTextStroke: `${strokeWidth} ${strokeColor}`,
     }
   }
 
@@ -242,7 +250,7 @@ const textStyle = computed(() => {
     color: paletteColor,
     textShadow:
       '0 0 2px rgba(255, 255, 255, 0.9), 0 0 4px rgba(255, 255, 255, 0.8), 0 0 8px rgba(15, 23, 42, 0.55)',
-    WebkitTextStroke: '1px rgba(255, 255, 255, 0.8)',
+    WebkitTextStroke: `${strokeWidth} ${strokeColor}`,
   }
 })
 
@@ -258,7 +266,13 @@ const handleClick = () => {
     ref="cardRef"
     :color="props.cardData.color || 'primary'"
     variant="tonal"
-    :class="['text-center pa-4', bgAnim, { 'card-clickable': props.clickable }]"
+    :class="[
+      'text-center',
+      'pa-4',
+      bgAnim,
+      { 'card-clickable': props.clickable },
+      isDarkTheme ? 'simple-card--dark' : 'simple-card--light',
+    ]"
     rounded="xl"
     elevation="15"
     :hover="props.clickable"
@@ -481,6 +495,15 @@ const handleClick = () => {
 .simple-card__subtitle {
   letter-spacing: 0.02em;
   opacity: 0.92;
+}
+
+.simple-card--light {
+  border: 1px solid rgba(15, 23, 42, 0.4) !important;
+  box-shadow: 0 14px 32px rgba(15, 23, 42, 0.12);
+}
+
+.simple-card--dark {
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
 }
 
 /* eslint-enable vue-scoped-css/no-unused-selector */

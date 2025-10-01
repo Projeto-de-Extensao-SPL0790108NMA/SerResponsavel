@@ -2,6 +2,7 @@
 import { usePermissions } from '@/composables/usePermissions'
 import ProjectsProjectDetails from '@/components/projects/ProjectDetails.vue'
 import type { ProjectWithRelations } from '@/stores/projects'
+import { usePreferencesStore } from '@/stores/preferences'
 import { createStatisticsCards } from '~/constants/login'
 
 const projectsStore = useProjectsStore()
@@ -27,6 +28,10 @@ const activeProjects = computed(() =>
 const isDetailsDialogOpen = ref(false)
 
 const selectedProject = computed(() => currentProject.value)
+
+const preferencesStore = usePreferencesStore()
+const { theme } = storeToRefs(preferencesStore)
+const isDarkTheme = computed(() => theme.value === 'dark')
 
 const openProjectDetails = (project: ProjectWithRelations | null | undefined) => {
   if (!project) return
@@ -82,8 +87,22 @@ onMounted(async () => {
 
   <!-- Projects Display -->
   <ClientOnly>
-    <v-card v-if="!loading && projects" elevation="15" rounded="xl" class="simple-border">
-      <v-card-title class="text-white">
+    <v-card
+      v-if="!loading && projects"
+      elevation="15"
+      rounded="xl"
+      :class="[
+        'simple-border',
+        'active-projects-card',
+        isDarkTheme ? 'active-projects-card--dark' : 'active-projects-card--light',
+      ]"
+    >
+      <v-card-title
+        :class="[
+          'projects-card-title',
+          isDarkTheme ? 'projects-card-title--dark' : 'projects-card-title--light',
+        ]"
+      >
         <v-row align="center">
           <v-col cols="12" md="8" class="d-flex align-center">
             <v-icon icon="mdi-view-list" class="me-2" color="primary" />
@@ -108,7 +127,11 @@ onMounted(async () => {
             <v-btn
               variant="outlined"
               size="x-small"
-              class="me-2 light-btn-outlined-variant btn-selected-custom"
+              :class="[
+                'me-2',
+                'btn-selected-custom',
+                isDarkTheme ? 'projects-btn--dark' : 'projects-btn--light',
+              ]"
               :loading="loading"
               rounded="xl"
               elevation="15"
@@ -123,7 +146,11 @@ onMounted(async () => {
               rounded="xl"
               size="x-small"
               elevation="15"
-              class="btn-selected-custom"
+              :class="[
+                'btn-selected-custom',
+                'projects-btn-outline-warning',
+                isDarkTheme ? 'projects-btn--dark' : 'projects-btn--light',
+              ]"
               prepend-icon="mdi-cached"
               @click="invalidateCache"
             >
@@ -324,5 +351,63 @@ onMounted(async () => {
     0 6px 16px rgba(15, 23, 42, 0.25),
     inset 0 0 0 1px rgba(255, 255, 255, 0.6);
   background-color: rgba(255, 255, 255, 0.1);
+}
+
+.active-projects-card {
+  transition:
+    background 0.3s ease,
+    color 0.3s ease,
+    border 0.3s ease;
+}
+
+.active-projects-card--dark {
+  background: rgba(24, 32, 45, 0.92) !important;
+  border: 1px solid rgba(25, 118, 210, 0.2) !important;
+  color: #e2e8f0;
+}
+
+.active-projects-card--light {
+  background: rgba(255, 255, 255, 0.94) !important;
+  border: 1px solid rgba(15, 23, 42, 0.08) !important;
+  color: #0f172a;
+}
+
+.projects-card-title {
+  display: flex;
+  align-items: center;
+  color: inherit;
+}
+
+.projects-card-title--dark {
+  color: #f8fafc !important;
+}
+
+.projects-card-title--light {
+  color: #1e293b !important;
+}
+
+.projects-btn--dark {
+  color: #e2e8f0 !important;
+  border-color: rgba(226, 232, 240, 0.4) !important;
+}
+
+.projects-btn--light {
+  color: #1e293b !important;
+  border-color: rgba(15, 23, 42, 0.16) !important;
+  background-color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.projects-btn--dark:hover,
+.projects-btn--light:hover {
+  box-shadow: 0 4px 12px rgba(15, 118, 210, 0.2);
+}
+
+.projects-btn-outline-warning.projects-btn--light {
+  background-color: rgba(253, 224, 71, 0.14) !important;
+  color: #1f2937 !important;
+}
+
+.projects-btn-outline-warning.projects-btn--dark {
+  border-color: rgba(255, 193, 7, 0.4) !important;
 }
 </style>
