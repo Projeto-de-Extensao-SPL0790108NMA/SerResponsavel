@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import { computed, watch } from 'vue'
+import { storeToRefs } from 'pinia'
+import { useTheme } from 'vuetify'
+import { usePreferencesStore } from '@/stores/preferences'
 // Structured data for better SEO - only keeping this here
 import NavBar from '~/layouts/baseComponents/NavBar.vue'
 import FooterComponent from '~/layouts/baseComponents/FooterComponent.vue'
@@ -34,9 +38,30 @@ useHead({
     },
   ],
 })
+
+const preferencesStore = usePreferencesStore()
+const { theme } = storeToRefs(preferencesStore)
+const vuetifyTheme = useTheme()
+
+if (import.meta.server) {
+  vuetifyTheme.change(theme.value)
+} else {
+  vuetifyTheme.change(theme.value)
+
+  watch(
+    theme,
+    (mode) => {
+      vuetifyTheme.change(mode)
+    },
+    { immediate: false },
+  )
+}
+
+const currentTheme = computed(() => theme.value)
+const layoutBackgroundClass = computed(() => 'app-background')
 </script>
 <template>
-  <v-app theme="dark" class="app-background">
+  <v-app :theme="currentTheme" :class="layoutBackgroundClass">
     <!-- Navigation Bar -->
     <nav-bar />
     <!-- Main Content -->
