@@ -59,10 +59,10 @@ export const useProfile = () => {
     function secureRandomBase36(length: number = 4) {
       // Generate enough random bytes to cover desired base36 length
       // Four bytes (for up to 7 base36 digits) is sufficient for 4 digits
-      const bytes = crypto.randomBytes(3);
-      const base36 = parseInt(bytes.toString('hex'), 16).toString(36);
+      const bytes = crypto.randomBytes(3)
+      const base36 = parseInt(bytes.toString('hex'), 16).toString(36)
       // Pad and slice to get the desired length
-      return base36.padStart(length, '0').slice(0, length);
+      return base36.padStart(length, '0').slice(0, length)
     }
 
     const generateUsername = (attempt: number) => {
