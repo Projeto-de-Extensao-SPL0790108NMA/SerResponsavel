@@ -249,7 +249,12 @@ watch(
       </v-list>
     </v-navigation-drawer>
 
-    <v-dialog v-model="dialog" max-width="50%">
+    <v-dialog
+      v-model="dialog"
+      max-width="50%"
+      :fullscreen="$vuetify.display.smAndDown"
+      transition="dialog-bottom-transition"
+    >
       <LoginComponent @close="dialog = false" />
     </v-dialog>
   </div>
