@@ -1,5 +1,8 @@
 <script lang="ts" setup>
 // Imports
+import { computed } from 'vue'
+import { storeToRefs } from 'pinia'
+import { usePreferencesStore } from '@/stores/preferences'
 import { informativeCards, targetAudienceCards } from '~/constants/login'
 
 // Layout
@@ -17,6 +20,11 @@ useSeoMeta({
     'Transforme sua gestão de responsabilidade social com ranqueamento de impacto real, certificação digital e dashboard ESG automatizado.',
   ogImage: '/logoserresp600_598.png',
 })
+
+const preferencesStore = usePreferencesStore()
+const { theme } = storeToRefs(preferencesStore)
+
+const isDarkTheme = computed(() => theme.value === 'dark')
 </script>
 
 <template>
@@ -76,11 +84,22 @@ useSeoMeta({
             :lazy-src="'/logoserresp600_598.png'"
             cover
           />
-          <h1 class="text-h3 font-weight-bold mb-4 text-gradient hero-title">SerResponsável</h1>
-          <h2 class="text-h5 mb-4 text-grey-lighten-1 hero-subtitle">
+          <h1
+            class="text-h3 font-weight-bold mb-4 text-gradient hero-title"
+            :class="!isDarkTheme ? 'hero-title--light' : ''"
+          >
+            SerResponsável
+          </h1>
+          <h2
+            class="text-h5 mb-4 hero-subtitle"
+            :class="isDarkTheme ? 'text-grey-lighten-1' : 'hero-subtitle--light'"
+          >
             Plataforma de Transparência e Gestão de Responsabilidade Social
           </h2>
-          <p class="text-h6 mb-6 text-grey-lighten-2 hero-description">
+          <p
+            class="text-h6 mb-6 hero-description"
+            :class="isDarkTheme ? 'text-grey-lighten-2' : 'hero-description--light'"
+          >
             <v-icon icon="mdi-school" color="primary" class="me-2" />
             Uninorte - Centro Universitário do Norte
           </p>
@@ -454,13 +473,26 @@ useSeoMeta({
   animation: fadeInUp 0.8s ease-out;
 }
 
+.hero-title--light {
+  color: #112147;
+  text-shadow: none;
+}
+
 .hero-subtitle {
   animation: fadeInUp 1s ease-out 0.2s both;
-  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.hero-subtitle--light {
+  color: #1e293b;
+  text-shadow: none;
 }
 
 .hero-description {
   animation: fadeInUp 1.2s ease-out 0.4s both;
+}
+
+.hero-description--light {
+  color: #314262;
 }
 
 .hero-chip {
