@@ -139,16 +139,29 @@ const isDarkTheme = computed(() => theme.value === 'dark')
         </v-col>
       </v-row>
 
-      <!-- mission/info cards -->
+      <!-- mission -->
       <v-row>
-        <!-- mission and info cards -->
         <v-col cols="12">
-          <!-- mission -->
-          <v-card elevation="15" class="mission-card" rounded="xl">
-            <v-card-text class="mission-text pa-4">
-              <v-icon icon="mdi-target" color="primary" class="me-2" />
-              <strong class="text-white">Missão:</strong>
-              <span class="text-grey-lighten-1">
+          <v-card
+            elevation="15"
+            class="mission-card"
+            rounded="xl"
+            :class="isDarkTheme ? 'mission-card--dark' : 'mission-card--light'"
+          >
+            <v-card-text
+              class="mission-text pa-4"
+              :class="isDarkTheme ? 'mission-text--dark' : 'mission-text--light'"
+            >
+              <v-icon
+                icon="mdi-target"
+                color="primary"
+                class="me-2"
+                :class="isDarkTheme ? '' : 'mission-icon--light'"
+              />
+              <strong :class="isDarkTheme ? 'mission-title--dark' : 'mission-title--light'">
+                Missão:
+              </strong>
+              <span :class="isDarkTheme ? 'mission-body--dark' : 'mission-body--light'">
                 Centralizar, gerenciar e mensurar ações de responsabilidade social de empresas,
                 ONGs, instituições de ensino e poder público, criando um ecossistema completo de
                 transparência social.
@@ -449,13 +462,55 @@ const isDarkTheme = computed(() => theme.value === 'dark')
 }
 
 .mission-card {
+  transition:
+    background 0.3s ease,
+    border 0.3s ease,
+    color 0.3s ease;
+}
+
+.mission-card--dark {
   background: rgba(33, 38, 45, 0.9) !important;
   border: 1px solid rgba(25, 118, 210, 0.2);
+  color: #f4f6fb;
+}
+
+.mission-card--light {
+  background: rgba(255, 255, 255, 0.92) !important;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  color: #14213d;
 }
 
 .mission-text {
   font-size: 1.1rem;
   line-height: 1.6;
+}
+
+.mission-text--dark {
+  color: #e2e8f0;
+}
+
+.mission-text--light {
+  color: #1f2a44;
+}
+
+.mission-title--dark {
+  color: #ffffff;
+}
+
+.mission-title--light {
+  color: #102a52;
+}
+
+.mission-body--dark {
+  color: #d2ddf5;
+}
+
+.mission-body--light {
+  color: #374766;
+}
+
+.mission-icon--light {
+  filter: drop-shadow(0 2px 5px rgba(15, 23, 42, 0.18));
 }
 
 .logo-hover {
