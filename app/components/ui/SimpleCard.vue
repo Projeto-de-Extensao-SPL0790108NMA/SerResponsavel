@@ -231,26 +231,25 @@ const paletteTextColor: Record<string, string> = {
 }
 
 const textStyle = computed(() => {
-  const strokeColor = isDarkTheme.value ? 'rgba(255, 255, 255, 0.95)' : 'rgba(15, 23, 42, 0.9)'
-  const strokeWidth = isDarkTheme.value ? '1.2px' : '1.8px'
-
+  // Ajuste baseado no tema + fundo do card para máxima legibilidade
   if (isDarkBackground.value) {
+    // Fundo escuro = texto branco com contorno para legibilidade
     return {
-      color: 'rgba(249, 250, 255, 0.97)',
+      color: '#ffffff',
       textShadow:
-        '0 0 2px rgba(0, 0, 0, 0.95), 0 0 4px rgba(0, 0, 0, 0.9), 0 0 8px rgba(0, 0, 0, 0.85)',
-      WebkitTextStroke: `${strokeWidth} ${strokeColor}`,
+        '1px 1px 2px rgba(0, 0, 0, 0.9), -1px -1px 2px rgba(0, 0, 0, 0.9), 1px -1px 2px rgba(0, 0, 0, 0.9), -1px 1px 2px rgba(0, 0, 0, 0.9)',
+      fontWeight: isDarkTheme.value ? '500' : '600',
     }
   }
 
+  // Fundo claro = texto escuro contrastante
   const colorKey = (props.cardData.color ?? '').toString().toLowerCase()
-  const paletteColor = paletteTextColor[colorKey] ?? '#0f172a'
+  const darkTextColor = isDarkTheme.value ? '#1a1a1a' : (paletteTextColor[colorKey] ?? '#0f172a')
 
   return {
-    color: paletteColor,
-    textShadow:
-      '0 0 2px rgba(255, 255, 255, 0.9), 0 0 4px rgba(255, 255, 255, 0.8), 0 0 8px rgba(15, 23, 42, 0.55)',
-    WebkitTextStroke: `${strokeWidth} ${strokeColor}`,
+    color: darkTextColor,
+    textShadow: '1px 1px 2px rgba(255, 255, 255, 0.8), -1px -1px 2px rgba(255, 255, 255, 0.8)',
+    fontWeight: isDarkTheme.value ? '600' : '500',
   }
 })
 
