@@ -1,4 +1,6 @@
 import { useAuthStore } from '@/stores/auth'
+// Import Node.js crypto for secure random suffix generation
+import crypto from 'crypto'
 import type { User } from '@supabase/supabase-js'
 import type { Database } from '~~/database/types'
 
@@ -53,9 +55,19 @@ export const useProfile = () => {
   const createProfileIfMissing = async (supabaseUser: User) => {
     const { baseUsername, fullName, avatarUrl } = buildProfilePayload(supabaseUser)
 
+    // Helper to generate a cryptographically secure base36 string of given length
+    function secureRandomBase36(length: number = 4) {
+      // Generate enough random bytes to cover desired base36 length
+      // Four bytes (for up to 7 base36 digits) is sufficient for 4 digits
+      const bytes = crypto.randomBytes(3);
+      const base36 = parseInt(bytes.toString('hex'), 16).toString(36);
+      // Pad and slice to get the desired length
+      return base36.padStart(length, '0').slice(0, length);
+    }
+
     const generateUsername = (attempt: number) => {
       if (attempt === 0) return baseUsername
-      const suffix = Math.random().toString(36).slice(2, 6)
+      const suffix = secureRandomBase36(4)
       return `${baseUsername}-${suffix}`
     }
 
