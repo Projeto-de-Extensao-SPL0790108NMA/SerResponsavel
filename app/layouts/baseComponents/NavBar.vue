@@ -29,6 +29,11 @@ const handleThemeSwitch = (value: boolean) => {
 const { isAuthenticated, fullName, username, avatarUrl } = storeToRefs(authStore)
 
 // Methods
+const openLoginDialog = () => {
+  dialog.value = true
+  drawer.value = false
+}
+
 const handleLogout = async () => {
   try {
     await logout()
@@ -120,7 +125,7 @@ watch(
               class="text-white ms-2 light-btn-outlined-variant"
               border="white"
               prepend-icon="mdi-login"
-              @click="dialog = true"
+              @click="openLoginDialog"
             >
               Entrar
             </v-btn>
@@ -227,7 +232,7 @@ watch(
 
         <template v-else>
           <!-- Unauthenticated Mobile Navigation -->
-          <v-list-item>
+          <v-list-item @click="openLoginDialog">
             <template #prepend>
               <v-icon>mdi-login</v-icon>
             </template>
