@@ -126,7 +126,7 @@ useSeoMeta({
         <v-col cols="12">
           <!-- mission -->
           <v-card elevation="15" class="mission-card" rounded="xl">
-            <v-card-text class="mission-text pa-10">
+            <v-card-text class="mission-text pa-4">
               <v-icon icon="mdi-target" color="primary" class="me-2" />
               <strong class="text-white">Missão:</strong>
               <span class="text-grey-lighten-1">

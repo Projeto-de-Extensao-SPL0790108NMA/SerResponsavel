@@ -1,10 +1,29 @@
 <script setup lang="ts">
 const authStore = useAuthStore()
+const preferencesStore = usePreferencesStore()
 const { logout } = useAuth()
 const dialog = ref(false)
 
 // Reactive state
 const drawer = ref(false)
+
+// Theme state
+const { theme } = storeToRefs(preferencesStore)
+const isDarkTheme = computed(() => theme.value === 'dark')
+const themeToggleIcon = computed(() =>
+  isDarkTheme.value ? 'mdi-white-balance-sunny' : 'mdi-weather-night',
+)
+const themeToggleTooltip = computed(() =>
+  isDarkTheme.value ? 'Ativar tema claro' : 'Ativar tema escuro',
+)
+
+const toggleTheme = () => {
+  preferencesStore.toggleTheme()
+}
+
+const handleThemeSwitch = (value: boolean) => {
+  preferencesStore.setTheme(value ? 'dark' : 'light')
+}
 
 // Reactive store refs
 const { isAuthenticated, fullName, username, avatarUrl } = storeToRefs(authStore)
@@ -48,6 +67,20 @@ watch(
 
         <!-- Navigation Items -->
         <div class="d-none d-md-flex align-center">
+          <v-tooltip :text="themeToggleTooltip" location="bottom">
+            <template #activator="{ props }">
+              <v-btn
+                v-bind="props"
+                icon
+                variant="text"
+                class="text-white me-2"
+                @click="toggleTheme"
+              >
+                <v-icon :icon="themeToggleIcon" />
+              </v-btn>
+            </template>
+          </v-tooltip>
+
           <template v-if="isAuthenticated">
             <!-- Authenticated Navigation -->
             <v-btn variant="text" class="text-white"> Projetos </v-btn>
@@ -116,6 +149,22 @@ watch(
     <!-- Mobile Navigation Drawer -->
     <v-navigation-drawer v-model="drawer" temporary location="right" width="280">
       <v-list>
+        <v-list-item>
+          <template #prepend>
+            <v-icon>mdi-theme-light-dark</v-icon>
+          </template>
+          <v-list-item-title>Tema escuro</v-list-item-title>
+          <template #append>
+            <v-switch
+              :model-value="isDarkTheme"
+              color="primary"
+              @update:model-value="handleThemeSwitch"
+            />
+          </template>
+        </v-list-item>
+
+        <v-divider class="my-2" />
+
         <!-- User Info (if authenticated) -->
         <template v-if="isAuthenticated">
           <v-list-item class="px-4 py-3">
