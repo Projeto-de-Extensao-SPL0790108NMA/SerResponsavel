@@ -308,7 +308,7 @@ onMounted(async () => {
       <v-divider />
 
       <v-card-text class="pb-6">
-        <ProjectsProjectDetails :project="selectedProject" variant="compact" />
+        <projects-project-details :project="selectedProject" variant="compact" />
       </v-card-text>
 
       <v-card-actions class="justify-end">

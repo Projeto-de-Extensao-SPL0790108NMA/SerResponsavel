@@ -158,30 +158,30 @@ const closeImagePreview = () => {
       </v-row>
       <v-row>
         <v-col>
-          <section class="project-details__section">
-            <h3 class="text-subtitle-1 text-medium-emphasis mb-3">Organização</h3>
-            <div class="d-flex align-center gap-3">
-              <v-avatar
-                v-if="project.organization?.logo_url"
-                size="56"
-                rounded="lg"
-                class="simple-border"
-              >
-                <v-img :src="project.organization.logo_url" alt="Logo da organização" />
-              </v-avatar>
-              <v-avatar v-else size="56" color="grey-darken-3">
-                <v-icon icon="mdi-domain" />
-              </v-avatar>
-              <div>
-                <div class="text-subtitle-1 font-weight-medium">
-                  {{ organizationName }}
+          <v-card :title="`Organização - ${organizationName}`" elevation="15" rounded="xl">
+            <v-card-text>
+              <section class="project-details__section">
+                <div class="d-flex align-center gap-3">
+                  <v-avatar
+                    v-if="project.organization?.logo_url"
+                    size="56"
+                    rounded="lg"
+                    class="simple-border"
+                  >
+                    <v-img :src="project.organization.logo_url" alt="Logo da organização" />
+                  </v-avatar>
+                  <v-avatar v-else size="56" color="grey-darken-3">
+                    <v-icon icon="mdi-domain" />
+                  </v-avatar>
+                  <v-row class="ml-3">
+                    <v-col cols="12" class="text-body-2 text-grey-lighten-1 text-justify">
+                      {{ organizationBio }}
+                    </v-col>
+                  </v-row>
                 </div>
-                <div class="text-body-2 text-grey-lighten-1">
-                  {{ organizationBio }}
-                </div>
-              </div>
-            </div>
-          </section>
+              </section>
+            </v-card-text>
+          </v-card>
         </v-col>
         <v-col>
           <section class="project-details__section">
