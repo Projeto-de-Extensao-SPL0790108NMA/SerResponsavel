@@ -1,324 +1,3 @@
-<template>
-  <div class="organizations-section">
-    <v-card class="organizations-card" elevation="12" rounded="xl">
-      <v-card-title class="d-flex justify-space-between align-center flex-wrap gap-3">
-        <div class="d-flex align-center gap-2">
-          <v-icon icon="mdi-domain" color="primary" />
-          <span class="text-subtitle-1 font-weight-medium">Organizações vinculadas</span>
-        </div>
-        <v-chip size="small" variant="tonal" color="primary">
-          {{ organizationSummaries.length }}
-          {{ organizationSummaries.length === 1 ? 'organização' : 'organizações' }}
-        </v-chip>
-      </v-card-title>
-
-      <v-card-text>
-        <v-row class="mb-4" align="center" no-gutters>
-          <v-col cols="12" md="6" class="pe-md-4 mb-3 mb-md-0">
-            <v-text-field
-              v-model="searchQuery"
-              label="Buscar organizações"
-              prepend-inner-icon="mdi-magnify"
-              variant="outlined"
-              density="comfortable"
-              rounded="xl"
-              clearable
-            />
-          </v-col>
-          <v-col cols="12" md="6" class="d-flex justify-end align-center gap-2">
-            <v-tooltip text="Atualizar lista" location="top">
-              <template #activator="{ props: tooltipProps }">
-                <v-btn
-                  v-bind="tooltipProps"
-                  variant="outlined"
-                  size="small"
-                  rounded="xl"
-                  class="text-none"
-                  prepend-icon="mdi-refresh"
-                  :loading="isTableLoading"
-                  @click="handleRefresh"
-                >
-                  Atualizar
-                </v-btn>
-              </template>
-            </v-tooltip>
-          </v-col>
-        </v-row>
-
-        <v-data-table
-          :headers="tableHeaders"
-          :items="filteredOrganizations"
-          :loading="isTableLoading"
-          item-value="id"
-          density="comfortable"
-          class="elevation-0 organizations-table"
-          :items-per-page="10"
-        >
-          <template #[`item.name`]="{ item }">
-            <div class="organizations-table__name">
-              <v-avatar size="36" rounded="lg" color="primary">
-                <template v-if="item.logoUrl">
-                  <v-img :src="item.logoUrl" :alt="item.name" cover />
-                </template>
-                <template v-else>
-                  <v-icon icon="mdi-domain" />
-                </template>
-              </v-avatar>
-              <span class="text-body-2 font-weight-medium">{{ item.name }}</span>
-            </div>
-          </template>
-
-          <template #[`item.bio`]="{ item }">
-            <span class="organizations-table__bio">
-              {{ item.bio ? truncate(item.bio) : '—' }}
-            </span>
-          </template>
-
-          <template #[`item.actions`]="{ item }">
-            <div class="d-flex align-center justify-end gap-1">
-              <v-tooltip text="Ver detalhes" location="top">
-                <template #activator="{ props: tooltipProps }">
-                  <v-btn
-                    v-bind="tooltipProps"
-                    icon
-                    variant="text"
-                    size="small"
-                    @click="openDetailsDialog(item)"
-                  >
-                    <v-icon icon="mdi-information-outline" />
-                  </v-btn>
-                </template>
-              </v-tooltip>
-
-              <v-tooltip text="Editar organização" location="top">
-                <template #activator="{ props: tooltipProps }">
-                  <v-btn
-                    v-bind="tooltipProps"
-                    icon
-                    variant="text"
-                    size="small"
-                    color="primary"
-                    @click="openEditDialog(item)"
-                  >
-                    <v-icon icon="mdi-pencil-outline" />
-                  </v-btn>
-                </template>
-              </v-tooltip>
-
-              <v-tooltip
-                :text="
-                  item.projectCount
-                    ? 'Remova os projetos vinculados antes de excluir.'
-                    : 'Excluir organização'
-                "
-                location="top"
-              >
-                <template #activator="{ props: tooltipProps }">
-                  <v-btn
-                    v-bind="tooltipProps"
-                    icon
-                    variant="text"
-                    size="small"
-                    color="error"
-                    :disabled="item.projectCount > 0"
-                    @click="openDeleteDialog(item)"
-                  >
-                    <v-icon icon="mdi-trash-can-outline" />
-                  </v-btn>
-                </template>
-              </v-tooltip>
-            </div>
-          </template>
-
-          <template #loading>
-            <div class="d-flex justify-center py-6">
-              <v-progress-circular indeterminate color="primary" />
-            </div>
-          </template>
-
-          <template #no-data>
-            <div class="text-center py-6">
-              <v-icon icon="mdi-domain-off" size="48" color="grey" class="mb-2" />
-              <p class="mb-0">{{ noDataMessage }}</p>
-            </div>
-          </template>
-        </v-data-table>
-      </v-card-text>
-    </v-card>
-
-    <v-dialog v-model="detailsDialogOpen" max-width="520">
-      <v-card v-if="selectedOrganization">
-        <v-card-title class="d-flex align-center justify-space-between">
-          <span>Detalhes da organização</span>
-          <v-btn icon variant="text" size="small" @click="closeDetailsDialog">
-            <v-icon icon="mdi-close" />
-          </v-btn>
-        </v-card-title>
-        <v-divider />
-        <v-card-text>
-          <div class="organizations-details__header">
-            <v-avatar size="72" rounded="lg" color="primary">
-              <template v-if="selectedOrganization.logoUrl">
-                <v-img :src="selectedOrganization.logoUrl" :alt="selectedOrganization.name" cover />
-              </template>
-              <template v-else>
-                <v-icon icon="mdi-domain" />
-              </template>
-            </v-avatar>
-            <div class="organizations-details__meta">
-              <span class="text-subtitle-1 font-weight-medium">{{
-                selectedOrganization.name
-              }}</span>
-              <span class="text-body-2 text-grey-lighten-1">
-                {{ selectedOrganization.projectCount }}
-                {{
-                  selectedOrganization.projectCount === 1
-                    ? 'projeto vinculado'
-                    : 'projetos vinculados'
-                }}
-              </span>
-            </div>
-          </div>
-
-          <p class="text-body-2 mb-4">
-            {{ selectedOrganization.bio ?? 'Nenhuma descrição disponível.' }}
-          </p>
-
-          <div class="organizations-details__projects">
-            <span class="text-subtitle-2">Projetos vinculados</span>
-            <v-list v-if="selectedOrganizationProjects.length" density="comfortable">
-              <v-list-item
-                v-for="project in selectedOrganizationProjects"
-                :key="project.id"
-                :title="project.name"
-                :subtitle="project.status === 'completed' ? 'Concluído' : 'Em progresso'"
-              >
-                <template #prepend>
-                  <v-icon
-                    :color="project.status === 'completed' ? 'success' : 'warning'"
-                    icon="mdi-clipboard-text"
-                  />
-                </template>
-              </v-list-item>
-            </v-list>
-            <p v-else class="text-body-2 mb-0">Nenhum projeto vinculado a esta organização.</p>
-          </div>
-        </v-card-text>
-        <v-card-actions class="justify-end">
-          <v-btn variant="text" @click="closeDetailsDialog">Fechar</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
-    <v-dialog v-model="editDialogOpen" max-width="540">
-      <v-card>
-        <v-card-title class="d-flex align-center justify-space-between">
-          <span>Editar organização</span>
-          <v-btn icon variant="text" size="small" @click="closeEditDialog">
-            <v-icon icon="mdi-close" />
-          </v-btn>
-        </v-card-title>
-        <v-divider />
-        <v-card-text>
-          <v-alert v-if="editError" type="error" variant="tonal" class="mb-3" density="comfortable">
-            {{ editError }}
-          </v-alert>
-
-          <v-text-field
-            v-model="organizationForm.name"
-            label="Nome da organização"
-            prepend-inner-icon="mdi-domain"
-            variant="outlined"
-            density="comfortable"
-            required
-            class="mb-3"
-            :disabled="isSubmitting"
-          />
-
-          <v-textarea
-            v-model="organizationForm.bio"
-            label="Descrição/Biografia"
-            prepend-inner-icon="mdi-text"
-            variant="outlined"
-            density="comfortable"
-            rows="3"
-            auto-grow
-            class="mb-3"
-            :disabled="isSubmitting"
-          />
-
-          <v-file-input
-            v-model="organizationForm.logoFile"
-            label="Enviar nova logo"
-            prepend-icon="mdi-upload"
-            variant="outlined"
-            density="comfortable"
-            accept="image/*"
-            class="mb-3"
-            :disabled="isSubmitting || organizationForm.removeLogo"
-          />
-
-          <v-switch
-            v-if="organizationForm.currentLogoUrl"
-            v-model="organizationForm.removeLogo"
-            label="Remover logo atual"
-            color="warning"
-            inset
-            :disabled="isSubmitting"
-          />
-
-          <div v-if="previewLogoUrl" class="organizations-edit__preview">
-            <span class="text-caption text-grey-lighten-1">Pré-visualização</span>
-            <v-avatar size="88" rounded="lg" color="primary">
-              <v-img :src="previewLogoUrl" alt="Logo da organização" cover />
-            </v-avatar>
-          </div>
-        </v-card-text>
-        <v-card-actions class="justify-end">
-          <v-btn variant="text" :disabled="isSubmitting" @click="closeEditDialog"> Cancelar </v-btn>
-          <v-btn
-            color="primary"
-            variant="tonal"
-            prepend-icon="mdi-content-save"
-            :loading="isSubmitting"
-            @click="handleEditSubmit"
-          >
-            Salvar ajustes
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
-    <v-dialog v-model="deleteDialogOpen" max-width="420">
-      <v-card>
-        <v-card-title class="text-h6">Confirmar exclusão</v-card-title>
-        <v-card-text>
-          Tem certeza de que deseja remover a organização
-          <strong>{{ organizationToDelete?.name }}</strong
-          >?
-          <template v-if="organizationToDelete?.projectCount">
-            <br />
-            Ela possui {{ organizationToDelete.projectCount }}
-            {{ organizationToDelete.projectCount === 1 ? 'projeto' : 'projetos' }} vinculados.
-          </template>
-        </v-card-text>
-        <v-card-actions class="justify-end">
-          <v-btn variant="text" :disabled="deleteLoading" @click="closeDeleteDialog">
-            Cancelar
-          </v-btn>
-          <v-btn color="error" :loading="deleteLoading" @click="handleDeleteOrganization">
-            Excluir
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
-    <v-snackbar v-model="snackbar" :color="snackbarColor" timeout="3000" location="bottom">
-      {{ snackbarMessage }}
-    </v-snackbar>
-  </div>
-</template>
-
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
@@ -371,8 +50,8 @@ const previewLogoUrl = ref<string | null>(null)
 const tableHeaders = [
   { key: 'name', title: 'Organização', sortable: true },
   { key: 'bio', title: 'Descrição', sortable: false },
-  { key: 'projectCount', title: 'Projetos', sortable: true },
-  { key: 'actions', title: 'Ações', sortable: false },
+  { key: 'projectCount', title: 'Projetos', sortable: true, align: 'center' },
+  { key: 'actions', title: 'Ações', sortable: false, align: 'center' },
 ]
 
 const allProjectsCache = computed<ProjectWithRelations[]>(
@@ -651,13 +330,313 @@ onMounted(() => {
 })
 </script>
 
-<style scoped>
-.organizations-section {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
+<template>
+  <div>
+    <v-row no-gutters>
+      <v-col cols="12" md="6">
+        <v-text-field
+          v-model="searchQuery"
+          label="Buscar organizações"
+          prepend-inner-icon="mdi-magnify"
+          variant="outlined"
+          density="compact"
+          rounded="xl"
+          clearable
+        />
+      </v-col>
+      <v-col cols="12" md="6" class="text-right">
+        <v-tooltip text="Atualizar lista" location="top">
+          <template #activator="{ props: tooltipProps }">
+            <v-btn
+              v-bind="tooltipProps"
+              variant="outlined"
+              size="small"
+              rounded="xl"
+              class="text-none"
+              prepend-icon="mdi-refresh"
+              :loading="isTableLoading"
+              @click="handleRefresh"
+            >
+              Atualizar
+            </v-btn>
+          </template>
+        </v-tooltip>
+      </v-col>
+    </v-row>
 
+    <v-data-table
+      :headers="tableHeaders"
+      :items="filteredOrganizations"
+      :loading="isTableLoading"
+      item-value="id"
+      density="comfortable"
+      class="elevation-15 organizations-table rounded-xl"
+      :items-per-page="10"
+    >
+      <template #[`item.name`]="{ item }">
+        <div class="organizations-table__name">
+          <v-avatar size="36" rounded="lg" color="primary">
+            <template v-if="item.logoUrl">
+              <v-img :src="item.logoUrl" :alt="item.name" cover />
+            </template>
+            <template v-else>
+              <v-icon icon="mdi-domain" />
+            </template>
+          </v-avatar>
+          <span class="text-body-2 font-weight-medium">{{ item.name }}</span>
+        </div>
+      </template>
+
+      <template #[`item.bio`]="{ item }">
+        <span class="organizations-table__bio">
+          {{ item.bio ? truncate(item.bio) : '—' }}
+        </span>
+      </template>
+
+      <template #[`item.actions`]="{ item }">
+        <div class="d-flex align-center justify-end gap-1">
+          <v-tooltip text="Ver detalhes" location="top">
+            <template #activator="{ props: tooltipProps }">
+              <v-btn
+                v-bind="tooltipProps"
+                icon
+                variant="text"
+                size="small"
+                @click="openDetailsDialog(item)"
+              >
+                <v-icon icon="mdi-information-outline" />
+              </v-btn>
+            </template>
+          </v-tooltip>
+
+          <v-tooltip text="Editar organização" location="top">
+            <template #activator="{ props: tooltipProps }">
+              <v-btn
+                v-bind="tooltipProps"
+                icon
+                variant="text"
+                size="small"
+                color="primary"
+                @click="openEditDialog(item)"
+              >
+                <v-icon icon="mdi-pencil-outline" />
+              </v-btn>
+            </template>
+          </v-tooltip>
+
+          <v-tooltip
+            :text="
+              item.projectCount
+                ? 'Remova os projetos vinculados antes de excluir.'
+                : 'Excluir organização'
+            "
+            location="top"
+          >
+            <template #activator="{ props: tooltipProps }">
+              <v-btn
+                v-bind="tooltipProps"
+                icon
+                variant="text"
+                size="small"
+                color="error"
+                :disabled="item.projectCount > 0"
+                @click="openDeleteDialog(item)"
+              >
+                <v-icon icon="mdi-trash-can-outline" />
+              </v-btn>
+            </template>
+          </v-tooltip>
+        </div>
+      </template>
+
+      <template #loading>
+        <div class="d-flex justify-center py-6">
+          <v-progress-circular indeterminate color="primary" />
+        </div>
+      </template>
+
+      <template #no-data>
+        <div class="text-center py-6">
+          <v-icon icon="mdi-domain-off" size="48" color="grey" class="mb-2" />
+          <p class="mb-0">{{ noDataMessage }}</p>
+        </div>
+      </template>
+    </v-data-table>
+
+    <v-dialog v-model="detailsDialogOpen" max-width="520">
+      <v-card v-if="selectedOrganization">
+        <v-card-title class="d-flex align-center justify-space-between">
+          <span>Detalhes da organização</span>
+          <v-btn icon variant="text" size="small" @click="closeDetailsDialog">
+            <v-icon icon="mdi-close" />
+          </v-btn>
+        </v-card-title>
+        <v-divider />
+        <v-card-text>
+          <div class="organizations-details__header">
+            <v-avatar size="72" rounded="lg" color="primary">
+              <template v-if="selectedOrganization.logoUrl">
+                <v-img :src="selectedOrganization.logoUrl" :alt="selectedOrganization.name" cover />
+              </template>
+              <template v-else>
+                <v-icon icon="mdi-domain" />
+              </template>
+            </v-avatar>
+            <div class="organizations-details__meta">
+              <span class="text-subtitle-1 font-weight-medium">{{
+                selectedOrganization.name
+              }}</span>
+              <span class="text-body-2 text-grey-lighten-1">
+                {{ selectedOrganization.projectCount }}
+                {{
+                  selectedOrganization.projectCount === 1
+                    ? 'projeto vinculado'
+                    : 'projetos vinculados'
+                }}
+              </span>
+            </div>
+          </div>
+
+          <p class="text-body-2 mb-4">
+            {{ selectedOrganization.bio ?? 'Nenhuma descrição disponível.' }}
+          </p>
+
+          <div class="organizations-details__projects">
+            <span class="text-subtitle-2">Projetos vinculados</span>
+            <v-list v-if="selectedOrganizationProjects.length" density="comfortable">
+              <v-list-item
+                v-for="project in selectedOrganizationProjects"
+                :key="project.id"
+                :title="project.name"
+                :subtitle="project.status === 'completed' ? 'Concluído' : 'Em progresso'"
+              >
+                <template #prepend>
+                  <v-icon
+                    :color="project.status === 'completed' ? 'success' : 'warning'"
+                    icon="mdi-clipboard-text"
+                  />
+                </template>
+              </v-list-item>
+            </v-list>
+            <p v-else class="text-body-2 mb-0">Nenhum projeto vinculado a esta organização.</p>
+          </div>
+        </v-card-text>
+        <v-card-actions class="justify-end">
+          <v-btn variant="text" @click="closeDetailsDialog">Fechar</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="editDialogOpen" max-width="540">
+      <v-card>
+        <v-card-title class="d-flex align-center justify-space-between">
+          <span>Editar organização</span>
+          <v-btn icon variant="text" size="small" @click="closeEditDialog">
+            <v-icon icon="mdi-close" />
+          </v-btn>
+        </v-card-title>
+        <v-divider />
+        <v-card-text>
+          <v-alert v-if="editError" type="error" variant="tonal" class="mb-3" density="comfortable">
+            {{ editError }}
+          </v-alert>
+
+          <v-text-field
+            v-model="organizationForm.name"
+            label="Nome da organização"
+            prepend-inner-icon="mdi-domain"
+            variant="outlined"
+            density="comfortable"
+            required
+            class="mb-3"
+            :disabled="isSubmitting"
+          />
+
+          <v-textarea
+            v-model="organizationForm.bio"
+            label="Descrição/Biografia"
+            prepend-inner-icon="mdi-text"
+            variant="outlined"
+            density="comfortable"
+            rows="3"
+            auto-grow
+            class="mb-3"
+            :disabled="isSubmitting"
+          />
+
+          <v-file-input
+            v-model="organizationForm.logoFile"
+            label="Enviar nova logo"
+            prepend-icon="mdi-upload"
+            variant="outlined"
+            density="comfortable"
+            accept="image/*"
+            class="mb-3"
+            :disabled="isSubmitting || organizationForm.removeLogo"
+          />
+
+          <v-switch
+            v-if="organizationForm.currentLogoUrl"
+            v-model="organizationForm.removeLogo"
+            label="Remover logo atual"
+            color="warning"
+            inset
+            :disabled="isSubmitting"
+          />
+
+          <div v-if="previewLogoUrl" class="organizations-edit__preview">
+            <span class="text-caption text-grey-lighten-1">Pré-visualização</span>
+            <v-avatar size="88" rounded="lg" color="primary">
+              <v-img :src="previewLogoUrl" alt="Logo da organização" cover />
+            </v-avatar>
+          </div>
+        </v-card-text>
+        <v-card-actions class="justify-end">
+          <v-btn variant="text" :disabled="isSubmitting" @click="closeEditDialog"> Cancelar </v-btn>
+          <v-btn
+            color="primary"
+            variant="tonal"
+            prepend-icon="mdi-content-save"
+            :loading="isSubmitting"
+            @click="handleEditSubmit"
+          >
+            Salvar ajustes
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="deleteDialogOpen" max-width="420">
+      <v-card>
+        <v-card-title class="text-h6">Confirmar exclusão</v-card-title>
+        <v-card-text>
+          Tem certeza de que deseja remover a organização
+          <strong>{{ organizationToDelete?.name }}</strong
+          >?
+          <template v-if="organizationToDelete?.projectCount">
+            <br />
+            Ela possui {{ organizationToDelete.projectCount }}
+            {{ organizationToDelete.projectCount === 1 ? 'projeto' : 'projetos' }} vinculados.
+          </template>
+        </v-card-text>
+        <v-card-actions class="justify-end">
+          <v-btn variant="text" :disabled="deleteLoading" @click="closeDeleteDialog">
+            Cancelar
+          </v-btn>
+          <v-btn color="error" :loading="deleteLoading" @click="handleDeleteOrganization">
+            Excluir
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <v-snackbar v-model="snackbar" :color="snackbarColor" timeout="3000" location="bottom">
+      {{ snackbarMessage }}
+    </v-snackbar>
+  </div>
+</template>
+
+<style scoped>
 .organizations-card {
   background: linear-gradient(135deg, rgba(25, 118, 210, 0.08), rgba(0, 0, 0, 0.25));
 }
