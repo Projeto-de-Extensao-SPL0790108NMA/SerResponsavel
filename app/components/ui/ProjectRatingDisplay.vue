@@ -28,20 +28,6 @@ const reactionOptions = [
 const selectedReaction = ref<string | null>(null)
 const localRating = ref<number>(0)
 
-const averageLabel = computed(() => {
-  if (!summary.value || summary.value.total === 0) {
-    return isReadOnly.value ? 'Sem avaliações registradas' : 'Seja o primeiro a avaliar'
-  }
-  return `${summary.value.average.toFixed(1)} / 5`
-})
-
-const totalLabel = computed(() => {
-  const total = summary.value?.total ?? 0
-  if (total === 0) return 'Nenhuma avaliação ainda'
-  if (total === 1) return '1 avaliação'
-  return `${total} avaliações`
-})
-
 const activeReactionValue = computed(
   () => selectedReaction.value || userRating.value?.reaction || null,
 )
@@ -50,8 +36,6 @@ const reactionCountsMap = computed(() => summary.value?.reactionCounts ?? {})
 const reactionsWithCount = computed(() =>
   reactionOptions.filter((option) => (reactionCountsMap.value[option.value] ?? 0) > 0),
 )
-
-const hasRatings = computed(() => (summary.value?.total ?? 0) > 0)
 
 const handleRatingUpdate = async (value: string | number) => {
   if (isReadOnly.value) return
@@ -100,68 +84,41 @@ watch(
     <ClientOnly>
       <template #default>
         <div class="mt-0 d-flex flex-column gap-3">
-          <template v-if="isReadOnly">
-            <div class="d-flex align-center flex-wrap gap-2">
-              <v-icon
-                icon="mdi-star"
-                :color="hasRatings ? 'warning' : 'grey-lighten-1'"
-                size="24"
-              />
-              <span class="text-body-2 font-weight-medium">{{ averageLabel }}</span>
-              <v-progress-circular
-                v-if="projectLoading && !summary"
-                indeterminate
-                size="18"
-                color="primary"
-              />
-            </div>
-            <p class="text-caption text-grey-lighten-1 mb-0">{{ totalLabel }}</p>
-          </template>
+          <div class="d-flex align-center flex-wrap gap-2">
+            <span class="text-caption">
+              <b>Avalie essa ação:</b>
+            </span>
+            <v-rating
+              :model-value="localRating"
+              color="warning"
+              active-color="warning"
+              hover
+              class="ml-2"
+              length="5"
+              size="24"
+              :disabled="projectLoading"
+              @update:model-value="handleRatingUpdate"
+            />
+            <v-progress-circular v-if="projectLoading" indeterminate size="20" color="primary" />
+          </div>
 
-          <template v-else>
-            <div class="d-flex align-center flex-wrap gap-2">
-              <span class="text-caption">
-                <b>Avalie essa ação:</b>
-              </span>
-              <v-rating
-                :model-value="localRating"
-                color="warning"
-                active-color="warning"
-                hover
-                class="ml-2"
-                length="5"
-                size="24"
-                :disabled="projectLoading"
-                @update:model-value="handleRatingUpdate"
-              />
-              <v-progress-circular v-if="projectLoading" indeterminate size="20" color="primary" />
-            </div>
-
-            <p class="text-caption text-grey-lighten-1 mb-0">
-              <template v-if="hasRatings"> {{ averageLabel }} • {{ totalLabel }} </template>
-              <template v-else>
-                {{ averageLabel }}
-              </template>
-            </p>
-
-            <div class="d-flex align-center flex-wrap gap-1">
-              <span class="text-caption text-grey-lighten-1 me-2">Reações:</span>
-              <v-btn
-                v-for="option in reactionOptions"
-                :key="option.value"
-                size="small"
-                density="compact"
-                :variant="option.value === activeReactionValue ? 'tonal' : 'text'"
-                class="emoji-btn"
-                :class="{ 'emoji-btn--active': option.value === activeReactionValue }"
-                :color="option.value === activeReactionValue ? 'warning' : undefined"
-                :disabled="projectLoading"
-                @click="handleReactionSelect(option.value)"
-              >
-                {{ option.emoji }}
-              </v-btn>
-            </div>
-          </template>
+          <div class="d-flex align-center flex-wrap gap-1">
+            <span class="text-caption text-grey-lighten-1 me-2">Reações:</span>
+            <v-btn
+              v-for="option in reactionOptions"
+              :key="option.value"
+              size="small"
+              density="compact"
+              :variant="option.value === activeReactionValue ? 'tonal' : 'text'"
+              class="emoji-btn"
+              :class="{ 'emoji-btn--active': option.value === activeReactionValue }"
+              :color="option.value === activeReactionValue ? 'warning' : undefined"
+              :disabled="projectLoading"
+              @click="handleReactionSelect(option.value)"
+            >
+              {{ option.emoji }}
+            </v-btn>
+          </div>
 
           <div v-if="reactionsWithCount.length" class="d-flex align-center flex-wrap gap-2">
             <span v-if="isReadOnly" class="text-caption text-grey-lighten-1 me-2">Reações:</span>
