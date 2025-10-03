@@ -7,6 +7,18 @@ export type Database = {
     PostgrestVersion: '13.0.4'
   }
   public: {
+    Views: {
+      project_rating_summaries: {
+        Row: {
+          average: number
+          project_id: number
+          rating_counts: Record<string, number>
+          reaction_counts: Record<string, number>
+          total: number
+        }
+        Relationships: []
+      }
+    }
     Tables: {
       organizations: {
         Row: {

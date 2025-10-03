@@ -1,6 +1,7 @@
 import type { RealtimeChannel } from '@supabase/supabase-js'
 import { ProjectRatingsService, type ProjectRatingSummary } from '@/services/projectRatings.service'
 import type { Database } from '~~/database/types'
+import type { ProjectWithRelations } from '@/stores/projects'
 
 type UserRating = {
   rating: number
@@ -13,6 +14,46 @@ type ErrorState = Record<number, string | null>
 
 type SummaryState = Record<number, ProjectRatingSummary>
 type UserRatingState = Record<number, UserRating>
+
+const createEmptySummary = (projectId: number): ProjectRatingSummary => ({
+  projectId,
+  average: 0,
+  total: 0,
+  ratingCounts: {
+    1: 0,
+    2: 0,
+    3: 0,
+    4: 0,
+    5: 0,
+  },
+  reactionCounts: {},
+})
+
+const convertViewRowToSummary = (
+  row: Database['public']['Views']['project_rating_summaries']['Row'],
+): ProjectRatingSummary => {
+  const countsSource = row.rating_counts || {}
+  const reactionSource = row.reaction_counts || {}
+
+  return {
+    projectId: row.project_id,
+    average: Number(row.average ?? 0),
+    total: Number(row.total ?? 0),
+    ratingCounts: {
+      1: Number((countsSource as Record<string, number>)['1'] ?? 0),
+      2: Number((countsSource as Record<string, number>)['2'] ?? 0),
+      3: Number((countsSource as Record<string, number>)['3'] ?? 0),
+      4: Number((countsSource as Record<string, number>)['4'] ?? 0),
+      5: Number((countsSource as Record<string, number>)['5'] ?? 0),
+    },
+    reactionCounts: Object.fromEntries(
+      Object.entries(reactionSource as Record<string, number>).map(([key, value]) => [
+        key,
+        Number(value ?? 0),
+      ]),
+    ),
+  }
+}
 
 export const useProjectRatingsStore = defineStore(
   'projectRatings',
@@ -28,6 +69,15 @@ export const useProjectRatingsStore = defineStore(
 
     const subscriptions = new Map<number, RealtimeChannel>()
     const subscriptionRefs = new Map<number, number>()
+    const pendingSummaryRequests = new Map<
+      number,
+      {
+        force: boolean
+        resolvers: Array<(summary: ProjectRatingSummary) => void>
+        rejecters: Array<(error: unknown) => void>
+      }
+    >()
+    let pendingSummaryTimeout: ReturnType<typeof setTimeout> | null = null
 
     const ensureFingerprint = () => {
       if (clientFingerprint.value) {
@@ -81,24 +131,94 @@ export const useProjectRatingsStore = defineStore(
       }
     }
 
+    const schedulePendingSummaryFetch = () => {
+      if (pendingSummaryTimeout) return
+      pendingSummaryTimeout = setTimeout(async () => {
+        pendingSummaryTimeout = null
+
+        const entries = Array.from(pendingSummaryRequests.entries())
+        if (!entries.length) {
+          return
+        }
+
+        pendingSummaryRequests.clear()
+
+        const idsToFetchSet = new Set<number>()
+        entries.forEach(([projectId, request]) => {
+          if (request.force || !summaries.value[projectId]) {
+            idsToFetchSet.add(projectId)
+          }
+        })
+
+        const idsToFetch = Array.from(idsToFetchSet)
+
+        try {
+          let fetchedSummaries: ProjectRatingSummary[] = []
+
+          if (idsToFetch.length > 0) {
+            fetchedSummaries = await service.fetchSummaries(idsToFetch)
+          }
+
+          const fetchedMap = new Map<number, ProjectRatingSummary>()
+          fetchedSummaries.forEach((summary) => {
+            fetchedMap.set(summary.projectId, summary)
+          })
+
+          idsToFetch.forEach((projectId) => {
+            if (!fetchedMap.has(projectId)) {
+              fetchedMap.set(projectId, createEmptySummary(projectId))
+            }
+          })
+
+          entries.forEach(([projectId, request]) => {
+            const summary =
+              fetchedMap.get(projectId) ??
+              summaries.value[projectId] ??
+              createEmptySummary(projectId)
+
+            setSummary(summary)
+            setError(projectId, null)
+            setLoading(projectId, false)
+            request.resolvers.forEach((resolve) => resolve(summary))
+          })
+        } catch (error) {
+          const message = error instanceof Error ? error.message : 'Erro ao carregar avaliações'
+          entries.forEach(([projectId, request]) => {
+            setError(projectId, message)
+            setLoading(projectId, false)
+            request.rejecters.forEach((reject) => reject(error))
+          })
+        }
+      }, 0)
+    }
+
     const fetchSummary = async (projectId: number, options: { force?: boolean } = {}) => {
       if (!options.force && summaries.value[projectId]) {
         return summaries.value[projectId]
       }
 
-      setLoading(projectId, true)
-      setError(projectId, null)
-      try {
-        const summary = await service.fetchSummary(projectId)
-        setSummary(summary)
-        return summary
-      } catch (error) {
-        const message = error instanceof Error ? error.message : 'Erro ao carregar avaliações'
-        setError(projectId, message)
-        throw error
-      } finally {
-        setLoading(projectId, false)
-      }
+      return new Promise<ProjectRatingSummary>((resolve, reject) => {
+        const existingRequest = pendingSummaryRequests.get(projectId)
+
+        if (existingRequest) {
+          existingRequest.force = existingRequest.force || Boolean(options.force)
+          existingRequest.resolvers.push(resolve)
+          existingRequest.rejecters.push(reject)
+        } else {
+          pendingSummaryRequests.set(projectId, {
+            force: Boolean(options.force),
+            resolvers: [resolve],
+            rejecters: [reject],
+          })
+        }
+
+        if (options.force || !summaries.value[projectId]) {
+          setLoading(projectId, true)
+          setError(projectId, null)
+        }
+
+        schedulePendingSummaryFetch()
+      })
     }
 
     const loadUserRating = async (projectId: number) => {
@@ -208,6 +328,50 @@ export const useProjectRatingsStore = defineStore(
       })
       subscriptions.clear()
       subscriptionRefs.clear()
+      pendingSummaryRequests.clear()
+      if (pendingSummaryTimeout) {
+        clearTimeout(pendingSummaryTimeout)
+        pendingSummaryTimeout = null
+      }
+    }
+
+    const fetchSummariesForProjects = async (
+      projectIds: number[],
+      options: { force?: boolean } = {},
+    ) => {
+      if (!projectIds.length) {
+        return []
+      }
+
+      const uniqueIds = Array.from(new Set(projectIds))
+
+      return await Promise.all(uniqueIds.map((id) => fetchSummary(id, options)))
+    }
+
+    const ingestSummariesFromProjects = (projects: ProjectWithRelations[]) => {
+      if (!projects.length) return
+
+      const summariesToIngest: ProjectRatingSummary[] = []
+
+      projects.forEach((project) => {
+        if (project.rating_summary) {
+          const summary = convertViewRowToSummary(project.rating_summary)
+          summariesToIngest.push(summary)
+        } else if (project.id) {
+          summariesToIngest.push(createEmptySummary(project.id))
+        }
+      })
+
+      summariesToIngest.forEach((summary) => {
+        setSummary(summary)
+        setError(summary.projectId, null)
+        setLoading(summary.projectId, false)
+      })
+    }
+
+    const removeSummary = (projectId: number) => {
+      const { [projectId]: _removed, ...rest } = summaries.value
+      summaries.value = rest
     }
 
     return {
@@ -218,11 +382,14 @@ export const useProjectRatingsStore = defineStore(
       errors,
       ensureFingerprint,
       fetchSummary,
+      fetchSummariesForProjects,
+      ingestSummariesFromProjects,
       loadUserRating,
       submitRating,
       subscribeToProject,
       unsubscribeFromProject,
       resetState,
+      removeSummary,
     }
   },
   {

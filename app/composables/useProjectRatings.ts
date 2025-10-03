@@ -94,6 +94,7 @@ export const useProjectRatings = () => {
     loading,
     errors,
     fetchSummary: store.fetchSummary,
+    fetchSummariesForProjects: store.fetchSummariesForProjects,
     loadUserRating: store.loadUserRating,
     submitRating: store.submitRating,
     subscribeToProject: store.subscribeToProject,

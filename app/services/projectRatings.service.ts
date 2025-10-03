@@ -31,6 +31,54 @@ export class ProjectRatingsService {
     }
   }
 
+  async fetchSummaries(projectIds: number[]): Promise<ProjectRatingSummary[]> {
+    if (projectIds.length === 0) {
+      return []
+    }
+
+    const uniqueIds = Array.from(new Set(projectIds))
+
+    const { data, error } = await this.supabase
+      .from('project_rating_summaries')
+      .select('project_id, average, total, rating_counts, reaction_counts')
+      .in('project_id', uniqueIds)
+
+    if (error) {
+      throwServiceError('ProjectRatingsService.fetchSummaries', error)
+    }
+
+    const summaryMap = new Map<number, ProjectRatingSummary>()
+
+    uniqueIds.forEach((id) => {
+      summaryMap.set(id, this.buildEmptySummary(id))
+    })
+    ;(data ?? []).forEach((row) => {
+      const counts = row.rating_counts ?? {}
+      const reactionCounts = row.reaction_counts ?? {}
+
+      summaryMap.set(row.project_id, {
+        projectId: row.project_id,
+        average: typeof row.average === 'number' ? row.average : Number(row.average ?? 0),
+        total: typeof row.total === 'number' ? row.total : Number(row.total ?? 0),
+        ratingCounts: {
+          1: Number((counts as Record<string, number>)['1'] ?? 0),
+          2: Number((counts as Record<string, number>)['2'] ?? 0),
+          3: Number((counts as Record<string, number>)['3'] ?? 0),
+          4: Number((counts as Record<string, number>)['4'] ?? 0),
+          5: Number((counts as Record<string, number>)['5'] ?? 0),
+        },
+        reactionCounts: Object.fromEntries(
+          Object.entries(reactionCounts as Record<string, number>).map(([key, value]) => [
+            key,
+            Number(value ?? 0),
+          ]),
+        ),
+      })
+    })
+
+    return Array.from(summaryMap.values())
+  }
+
   async upsertRating(input: {
     projectId: number
     clientFingerprint: string
@@ -58,38 +106,8 @@ export class ProjectRatingsService {
   }
 
   async fetchSummary(projectId: number): Promise<ProjectRatingSummary> {
-    const { data, error } = await this.supabase
-      .from('project_ratings')
-      .select('rating, reaction')
-      .eq('project_id', projectId)
-
-    if (error) {
-      throwServiceError('ProjectRatingsService.fetchSummary', error)
-    }
-
-    if (!data || data.length === 0) {
-      return this.buildEmptySummary(projectId)
-    }
-
-    const summary = this.buildEmptySummary(projectId)
-    let ratingSum = 0
-
-    data.forEach((row) => {
-      const rating = row.rating
-      if (rating >= 1 && rating <= 5) {
-        ratingSum += rating
-        summary.ratingCounts[rating] = (summary.ratingCounts[rating] ?? 0) + 1
-      }
-
-      if (row.reaction) {
-        summary.reactionCounts[row.reaction] = (summary.reactionCounts[row.reaction] ?? 0) + 1
-      }
-    })
-
-    summary.total = data.length
-    summary.average = summary.total > 0 ? Number((ratingSum / summary.total).toFixed(2)) : 0
-
-    return summary
+    const [summary] = await this.fetchSummaries([projectId])
+    return summary ?? this.buildEmptySummary(projectId)
   }
 
   async fetchUserRating(

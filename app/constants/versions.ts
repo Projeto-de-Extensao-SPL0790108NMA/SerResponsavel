@@ -7,6 +7,16 @@ export interface VersionInfo {
 
 export const versions: VersionInfo[] = [
   {
+    version: '1.0.0-alpha.128',
+    date: '2025-10-03',
+    highlights: 'Ratings consolidados em lote e policies ajustadas para buckets de imagens.',
+    changes: [
+      'Listagem de projetos ativos consome summaries de avaliações em carregamento único.',
+      'Stores de projetos e ratings sincronizam caches e eliminam requisições duplicadas.',
+      'View `project_rating_summaries` e policies dos buckets `project-covers` e `organizations-logo` atualizadas.',
+    ],
+  },
+  {
     version: '1.0.0-alpha.126',
     date: '2025-10-03',
     highlights: 'Diálogo de histórico de versões e catálogo centralizado no footer.',
