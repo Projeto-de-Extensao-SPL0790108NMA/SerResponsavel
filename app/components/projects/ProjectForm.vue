@@ -140,6 +140,11 @@ const loadOrganizations = async () => {
       }
 
       organizations.value = data ?? []
+
+      if (!form.organizationId && organizations.value.length > 0) {
+        form.organizationId = organizations.value[0].id
+      }
+
       return
     }
 
@@ -149,10 +154,16 @@ const loadOrganizations = async () => {
         cached ?? (await organizationsStore.fetchOrganization(organizationId.value))
 
       organizations.value = organization ? [{ id: organization.id, name: organization.name }] : []
+
+      if (organization && !form.organizationId) {
+        form.organizationId = organization.id
+      }
+
       return
     }
 
     organizations.value = []
+    form.organizationId = null
   } finally {
     organizationsLoading.value = false
   }
@@ -274,15 +285,18 @@ const validate = () => {
     isValid = false
   }
 
-  if (!isSuperAdmin.value) {
-    if (!organizationId.value) {
-      errors.organizationId =
-        'Você precisa estar vinculado a uma organização para gerenciar projetos'
-      isValid = false
-    } else if (!canManageOrganization(organizationId.value)) {
-      errors.organizationId = 'Você não possui permissão para essa organização'
-      isValid = false
-    }
+  const resolvedOrganizationId = form.organizationId ?? organizationId.value ?? null
+
+  if (!resolvedOrganizationId) {
+    errors.organizationId = isSuperAdmin.value
+      ? 'Selecione uma organização para vincular o projeto'
+      : 'Você precisa estar vinculado a uma organização para gerenciar projetos'
+    isValid = false
+  } else if (!canManageOrganization(resolvedOrganizationId)) {
+    errors.organizationId = 'Você não possui permissão para essa organização'
+    isValid = false
+  } else if (form.organizationId !== resolvedOrganizationId) {
+    form.organizationId = resolvedOrganizationId
   }
 
   return isValid

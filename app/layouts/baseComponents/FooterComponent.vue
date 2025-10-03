@@ -131,7 +131,7 @@ const footerLinks = [
         </v-col>
       </v-row>
 
-      <v-dialog v-model="releaseNotesDialog" max-width="720">
+      <v-dialog v-model="releaseNotesDialog" max-width="1000">
         <v-card>
           <v-card-title class="d-flex align-center justify-space-between">
             <span class="text-subtitle-1 font-weight-medium">Histórico de versões</span>

@@ -53,6 +53,18 @@ const statusTabs: Array<{ label: string; value: ProjectStatusFilter }> = [
   { label: 'Todos', value: 'all' },
 ]
 
+const mapProjectMutationError = (message?: string | null) => {
+  if (!message) {
+    return 'Não foi possível cadastrar o projeto no momento.'
+  }
+
+  if (/row-level security/i.test(message) || /statusCode"\s*:\s*"403"/.test(message)) {
+    return 'Você não possui permissão para criar ou atualizar projetos nesta organização. Verifique se está vinculado à organização correta ou fale com um administrador.'
+  }
+
+  return message
+}
+
 const baseTableHeaders = [
   { key: 'cover', title: 'Capa', sortable: false },
   { key: 'name', title: 'Projeto', sortable: true },
@@ -215,7 +227,9 @@ const handleProjectSubmit = async (payload: ProjectFormPayload) => {
         if (uploadedCover) {
           await removeCoverFromStorage(uploadedCover.path)
         }
-        formError.value = storeError.value ?? 'Não foi possível cadastrar o projeto no momento.'
+        const friendlyMessage = mapProjectMutationError(storeError.value)
+        formError.value = friendlyMessage
+        showSnackbar(friendlyMessage, 'error')
         return
       }
 
@@ -229,7 +243,11 @@ const handleProjectSubmit = async (payload: ProjectFormPayload) => {
         if (uploadedCover) {
           await removeCoverFromStorage(uploadedCover.path)
         }
-        formError.value = storeError.value ?? 'Não foi possível atualizar o projeto.'
+        const friendlyMessage = mapProjectMutationError(
+          storeError.value ?? 'Não foi possível atualizar o projeto.',
+        )
+        formError.value = friendlyMessage
+        showSnackbar(friendlyMessage, 'error')
         return
       }
 
@@ -246,8 +264,12 @@ const handleProjectSubmit = async (payload: ProjectFormPayload) => {
     if (uploadedCover) {
       await removeCoverFromStorage(uploadedCover.path)
     }
-    formError.value =
-      error instanceof Error ? error.message : 'Não foi possível processar a imagem.'
+    const friendlyMessage =
+      error instanceof Error
+        ? mapProjectMutationError(error.message)
+        : 'Não foi possível processar a imagem.'
+    formError.value = friendlyMessage
+    showSnackbar(friendlyMessage, 'error')
   }
 }
 
