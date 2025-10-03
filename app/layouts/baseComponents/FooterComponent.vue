@@ -1,5 +1,17 @@
 <script lang="ts" setup>
+import { versions } from '~/constants/versions'
+
 const currentYear = computed(() => new Date().getFullYear())
+const releaseNotesDialog = ref(false)
+const latestVersion = computed(() => versions[0])
+const previousVersions = computed(() => versions.slice(1))
+
+const formatVersionDate = (value: string) =>
+  new Date(value).toLocaleDateString('pt-BR', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+  })
 
 const socialLinks = [
   { icon: 'mdi-github', url: '#', label: 'GitHub' },
@@ -77,7 +89,11 @@ const footerLinks = [
       <v-row>
         <v-col cols="12" class="text-center">
           <p class="text-caption text-grey-lighten-1 mb-0">
-            © {{ currentYear }} SerResponsável (1.0.0-alpha.70). Todos os direitos reservados.<br />
+            © {{ currentYear }} SerResponsável
+            <button class="version-button" type="button" @click="releaseNotesDialog = true">
+              ({{ latestVersion?.version }})
+            </button>
+            . Todos os direitos reservados.<br />
             <span class="text-grey-darken-1">
               Desenvolvido com
               <v-icon size="12" color="red">mdi-heart</v-icon>
@@ -114,6 +130,83 @@ const footerLinks = [
           </div>
         </v-col>
       </v-row>
+
+      <v-dialog v-model="releaseNotesDialog" max-width="720">
+        <v-card>
+          <v-card-title class="d-flex align-center justify-space-between">
+            <span class="text-subtitle-1 font-weight-medium">Histórico de versões</span>
+            <v-btn icon variant="text" @click="releaseNotesDialog = false">
+              <v-icon>mdi-close</v-icon>
+            </v-btn>
+          </v-card-title>
+          <v-divider />
+          <v-card-text>
+            <div v-if="latestVersion" class="latest-version pa-4 mb-6">
+              <div class="d-flex flex-wrap align-center justify-space-between mb-2">
+                <span class="text-body-1 font-weight-medium">
+                  {{ latestVersion.version }}
+                </span>
+                <span class="text-caption text-grey-darken-1">
+                  {{ formatVersionDate(latestVersion.date) }}
+                </span>
+              </div>
+              <p v-if="latestVersion.highlights" class="text-body-2 text-grey-darken-2 mb-2">
+                {{ latestVersion.highlights }}
+              </p>
+              <v-list density="compact" lines="two" class="version-changes">
+                <v-list-item
+                  v-for="(change, index) in latestVersion.changes"
+                  :key="`latest-${index}`"
+                  :title="change"
+                  prepend-icon="mdi-star-circle-outline"
+                />
+              </v-list>
+            </div>
+
+            <v-expansion-panels
+              v-if="previousVersions.length"
+              variant="accordion"
+              class="version-panels"
+            >
+              <v-expansion-panel
+                v-for="version in previousVersions"
+                :key="version.version"
+                elevation="0"
+              >
+                <v-expansion-panel-title class="text-body-2 font-weight-medium">
+                  <div
+                    class="d-flex flex-column flex-sm-row w-100 align-start align-sm-center justify-space-between"
+                  >
+                    <span>{{ version.version }}</span>
+                    <span class="text-caption text-grey-darken-1">
+                      {{ formatVersionDate(version.date) }}
+                    </span>
+                  </div>
+                </v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  <p v-if="version.highlights" class="text-body-2 text-grey-darken-2 mb-2">
+                    {{ version.highlights }}
+                  </p>
+                  <v-list density="compact" lines="two" class="version-changes">
+                    <v-list-item
+                      v-for="(change, index) in version.changes"
+                      :key="`${version.version}-${index}`"
+                      :title="change"
+                      prepend-icon="mdi-checkbox-marked-circle-outline"
+                    />
+                  </v-list>
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+            </v-expansion-panels>
+          </v-card-text>
+          <v-divider />
+          <v-card-actions class="justify-end">
+            <v-btn color="primary" variant="flat" @click="releaseNotesDialog = false">
+              Fechar
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
     </v-container>
   </v-footer>
 </template>
@@ -214,5 +307,39 @@ const footerLinks = [
     opacity: 1;
     transform: translateY(0) scale(1);
   }
+}
+
+.version-button {
+  background: transparent;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  font-weight: inherit;
+  padding: 0 4px;
+  transition: opacity 0.2s ease;
+}
+
+.version-button:hover,
+.version-button:focus-visible {
+  opacity: 0.7;
+}
+
+:deep(.version-changes .v-list-item) {
+  border-radius: 8px;
+}
+
+:deep(.version-changes .v-list-item:hover) {
+  background-color: rgba(25, 118, 210, 0.1);
+}
+
+.latest-version {
+  background: rgba(25, 118, 210, 0.08);
+  border: 1px solid rgba(25, 118, 210, 0.2);
+  border-radius: 12px;
+}
+
+.version-panels {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
 }
 </style>
