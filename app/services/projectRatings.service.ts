@@ -3,6 +3,7 @@ import type { Database } from '~~/database/types'
 import { throwServiceError } from '@/utils/serviceLogger'
 
 export type ProjectRatingRow = Database['public']['Tables']['project_ratings']['Row']
+export type ProjectReactionRow = Database['public']['Tables']['project_reactions']['Row']
 
 export type ProjectRatingSummary = {
   projectId: number
@@ -83,13 +84,13 @@ export class ProjectRatingsService {
     projectId: number
     clientFingerprint: string
     rating: number
-    reaction?: string | null
+    committed: boolean
   }): Promise<ProjectRatingRow> {
     const payload = {
       project_id: input.projectId,
       client_fingerprint: input.clientFingerprint,
       rating: input.rating,
-      reaction: input.reaction ?? null,
+      committed: input.committed,
     }
 
     const { data, error } = await this.supabase
@@ -126,5 +127,87 @@ export class ProjectRatingsService {
     }
 
     return (data as ProjectRatingRow | null) ?? null
+  }
+
+  async fetchUserRatings(
+    projectIds: number[],
+    clientFingerprint: string,
+  ): Promise<ProjectRatingRow[]> {
+    if (!projectIds.length) return []
+
+    const { data, error } = await this.supabase
+      .from('project_ratings')
+      .select('*')
+      .eq('client_fingerprint', clientFingerprint)
+      .in('project_id', projectIds)
+
+    if (error) {
+      throwServiceError('ProjectRatingsService.fetchUserRatings', error)
+    }
+
+    return (data as ProjectRatingRow[]) ?? []
+  }
+
+  async upsertReaction(input: {
+    projectId: number
+    clientFingerprint: string
+    reaction: string
+    committed: boolean
+  }): Promise<ProjectReactionRow> {
+    const payload = {
+      project_id: input.projectId,
+      client_fingerprint: input.clientFingerprint,
+      reaction: input.reaction,
+      committed: input.committed,
+    }
+
+    const { data, error } = await this.supabase
+      .from('project_reactions')
+      .upsert(payload, { onConflict: 'project_id,client_fingerprint' })
+      .select()
+      .single()
+
+    if (error) {
+      throwServiceError('ProjectRatingsService.upsertReaction', error)
+    }
+
+    return data as ProjectReactionRow
+  }
+
+  async fetchUserReaction(
+    projectId: number,
+    clientFingerprint: string,
+  ): Promise<ProjectReactionRow | null> {
+    const { data, error } = await this.supabase
+      .from('project_reactions')
+      .select('*')
+      .eq('project_id', projectId)
+      .eq('client_fingerprint', clientFingerprint)
+      .maybeSingle()
+
+    if (error) {
+      throwServiceError('ProjectRatingsService.fetchUserReaction', error)
+    }
+
+    return (data as ProjectReactionRow | null) ?? null
+  }
+
+  async fetchUserReactions(
+    projectIds: number[],
+    clientFingerprint: string,
+  ): Promise<ProjectReactionRow[]> {
+    if (!projectIds.length) return []
+
+    const { data, error } = await this.supabase
+      .from('project_reactions')
+      .select('*')
+      .eq('client_fingerprint', clientFingerprint)
+      .in('project_id', projectIds)
+
+    if (error) {
+      throwServiceError('ProjectRatingsService.fetchUserReactions', error)
+    }
+
+    return (data as ProjectReactionRow[]) ?? []
   }
 }

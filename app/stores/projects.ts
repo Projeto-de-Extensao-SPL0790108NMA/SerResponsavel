@@ -1,9 +1,7 @@
-import { computed, reactive, ref, watch } from 'vue'
-import { storeToRefs } from 'pinia'
+import { computed, reactive, ref } from 'vue'
+import { useProjectRatingsStore } from '@/stores/projectRatings'
 import type { Database } from '~~/database/types'
 import type { RealtimeChannel } from '@supabase/supabase-js'
-import { useProjectRatingsStore } from '@/stores/projectRatings'
-import type { ProjectRatingSummary } from '@/services/projectRatings.service'
 
 type ProjectRow = Database['public']['Tables']['projects']['Row']
 type OrganizationRow = Database['public']['Tables']['organizations']['Row']
@@ -12,48 +10,21 @@ type TaskRow = Database['public']['Tables']['tasks']['Row']
 export type ProjectWithRelations = ProjectRow & {
   organization?: OrganizationRow | null
   tasks?: TaskRow[] | null
-  rating_summary?: Database['public']['Views']['project_rating_summaries']['Row'] | null
 }
 export type Projects = ProjectWithRelations[]
 export type ProjectStatusFilter = 'all' | 'in-progress' | 'completed'
 const statusFilters: ProjectStatusFilter[] = ['all', 'in-progress', 'completed']
 const statusFiltersWithoutAll: Exclude<ProjectStatusFilter, 'all'>[] = ['in-progress', 'completed']
 
-const convertSummaryToViewRow = (
-  summary: ProjectRatingSummary | null,
-): Database['public']['Views']['project_rating_summaries']['Row'] | null => {
-  if (!summary) return null
-
-  return {
-    project_id: summary.projectId,
-    average: summary.average,
-    total: summary.total,
-    rating_counts: {
-      1: summary.ratingCounts?.[1] ?? 0,
-      2: summary.ratingCounts?.[2] ?? 0,
-      3: summary.ratingCounts?.[3] ?? 0,
-      4: summary.ratingCounts?.[4] ?? 0,
-      5: summary.ratingCounts?.[5] ?? 0,
-    },
-    reaction_counts: summary.reactionCounts ?? {},
-  }
-}
-
 const mapToProjectWithRelations = (
   project: ProjectRow | ProjectWithRelations,
 ): ProjectWithRelations => {
-  const {
-    organization = null,
-    tasks = null,
-    rating_summary = null,
-    ...base
-  } = project as ProjectWithRelations
+  const { organization = null, tasks = null, ...base } = project as ProjectWithRelations
 
   return {
     ...base,
     organization,
     tasks,
-    rating_summary,
   }
 }
 
@@ -82,7 +53,6 @@ export const useProjectsStore = defineStore(
     const projectsSubscription = ref<RealtimeChannel | null>(null)
     const currentProjectSubscription = ref<RealtimeChannel | null>(null)
     const projectRatingsStore = useProjectRatingsStore()
-    const { summaries: ratingSummaries } = storeToRefs(projectRatingsStore)
 
     const {
       getProjects,
@@ -141,65 +111,6 @@ export const useProjectsStore = defineStore(
         }
       })
     }
-
-    const syncProjectRatingSummary = (
-      projectId: number,
-      ratingSummary: Database['public']['Views']['project_rating_summaries']['Row'] | null,
-    ) => {
-      const applyToList = (list: Projects | null) => {
-        if (!list) return
-        const target = list.find((item) => item.id === projectId)
-        if (target) {
-          target.rating_summary = ratingSummary
-        }
-      }
-
-      applyToList(projects.value)
-      statusFiltersWithoutAll.forEach((status) => {
-        applyToList(projectsByStatus[status])
-      })
-
-      if (currentProject.value?.id === projectId) {
-        currentProject.value = {
-          ...currentProject.value,
-          rating_summary: ratingSummary,
-        }
-      }
-    }
-
-    watch(
-      ratingSummaries,
-      (summaryMap) => {
-        const entries = Object.values(summaryMap ?? {})
-        const summaryIds = new Set(entries.map((summary) => summary.projectId))
-        entries.forEach((summary) => {
-          const viewRow = convertSummaryToViewRow(summary)
-          syncProjectRatingSummary(summary.projectId, viewRow)
-        })
-
-        const clearMissing = (list: Projects | null) => {
-          if (!list) return
-          list.forEach((item) => {
-            if (!summaryIds.has(item.id)) {
-              item.rating_summary = null
-            }
-          })
-        }
-
-        clearMissing(projects.value)
-        statusFiltersWithoutAll.forEach((status) => {
-          clearMissing(projectsByStatus[status])
-        })
-
-        if (currentProject.value && !summaryIds.has(currentProject.value.id)) {
-          currentProject.value = {
-            ...currentProject.value,
-            rating_summary: null,
-          }
-        }
-      },
-      { deep: true },
-    )
 
     const removeProjectFromCaches = (projectId: number) => {
       statusFiltersWithoutAll.forEach((status) => {
@@ -278,6 +189,8 @@ export const useProjectsStore = defineStore(
         void projectRatingsStore.fetchSummariesForProjects(projectIds, {
           force: forceRefresh,
         })
+        void projectRatingsStore.loadUserRatingsForProjects(projectIds)
+        void projectRatingsStore.loadUserReactionsForProjects(projectIds)
         setCacheForStatus(status, mappedProjects)
 
         if (status === 'all') {
@@ -310,6 +223,8 @@ export const useProjectsStore = defineStore(
         if (mapped) {
           projectRatingsStore.ingestSummariesFromProjects([mapped])
           void projectRatingsStore.fetchSummariesForProjects([mapped.id], { force: true })
+          void projectRatingsStore.loadUserRatingsForProjects([mapped.id])
+          void projectRatingsStore.loadUserReactionsForProjects([mapped.id])
         }
       } catch (err) {
         error.value = err instanceof Error ? err.message : 'Unknown error occurred'
@@ -349,6 +264,8 @@ export const useProjectsStore = defineStore(
         syncProjectInCaches(mappedProject)
         projectRatingsStore.ingestSummariesFromProjects([mappedProject])
         void projectRatingsStore.fetchSummariesForProjects([mappedProject.id], { force: true })
+        void projectRatingsStore.loadUserRatingsForProjects([mappedProject.id])
+        void projectRatingsStore.loadUserReactionsForProjects([mappedProject.id])
 
         return mappedProject
       } catch (err) {
@@ -404,6 +321,8 @@ export const useProjectsStore = defineStore(
         syncProjectInCaches(mappedProject)
         projectRatingsStore.ingestSummariesFromProjects([mappedProject])
         void projectRatingsStore.fetchSummariesForProjects([mappedProject.id], { force: true })
+        void projectRatingsStore.loadUserRatingsForProjects([mappedProject.id])
+        void projectRatingsStore.loadUserReactionsForProjects([mappedProject.id])
 
         if (currentProject.value?.id === id) {
           currentProject.value = mappedProject

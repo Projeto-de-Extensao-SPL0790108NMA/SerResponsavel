@@ -8,6 +8,7 @@ const { useProjectRating } = useProjectRatings()
 
 const { summary, projectLoading } = useProjectRating(projectIdRef, {
   loadUserRating: false,
+  loadUserReaction: false,
 })
 
 const averageLabel = computed(() => {

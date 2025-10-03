@@ -1,19 +1,9 @@
+import { computed, ref, watch } from 'vue'
 import type { RealtimeChannel } from '@supabase/supabase-js'
 import { ProjectRatingsService, type ProjectRatingSummary } from '@/services/projectRatings.service'
 import type { Database } from '~~/database/types'
 import type { ProjectWithRelations } from '@/stores/projects'
-
-type UserRating = {
-  rating: number
-  reaction: string | null
-  updatedAt: string
-}
-
-type LoadingState = Record<number, boolean>
-type ErrorState = Record<number, string | null>
-
-type SummaryState = Record<number, ProjectRatingSummary>
-type UserRatingState = Record<number, UserRating>
+import { useAuthStore } from '@/stores/auth'
 
 const createEmptySummary = (projectId: number): ProjectRatingSummary => ({
   projectId,
@@ -29,78 +19,114 @@ const createEmptySummary = (projectId: number): ProjectRatingSummary => ({
   reactionCounts: {},
 })
 
-const convertViewRowToSummary = (
-  row: Database['public']['Views']['project_rating_summaries']['Row'],
-): ProjectRatingSummary => {
-  const countsSource = row.rating_counts || {}
-  const reactionSource = row.reaction_counts || {}
-
-  return {
-    projectId: row.project_id,
-    average: Number(row.average ?? 0),
-    total: Number(row.total ?? 0),
-    ratingCounts: {
-      1: Number((countsSource as Record<string, number>)['1'] ?? 0),
-      2: Number((countsSource as Record<string, number>)['2'] ?? 0),
-      3: Number((countsSource as Record<string, number>)['3'] ?? 0),
-      4: Number((countsSource as Record<string, number>)['4'] ?? 0),
-      5: Number((countsSource as Record<string, number>)['5'] ?? 0),
-    },
-    reactionCounts: Object.fromEntries(
-      Object.entries(reactionSource as Record<string, number>).map(([key, value]) => [
-        key,
-        Number(value ?? 0),
-      ]),
-    ),
+type LoadingState = Record<number, boolean>
+type ErrorState = Record<number, string | null>
+type SummaryState = Record<number, ProjectRatingSummary>
+type UserRatingState = Record<
+  number,
+  {
+    rating: number
+    committed: boolean
+    updatedAt: string
   }
+>
+type UserReactionState = Record<
+  number,
+  {
+    reaction: string
+    committed: boolean
+    updatedAt: string
+  }
+>
+
+type SummaryRequest = {
+  force: boolean
+  resolvers: Array<(summary: ProjectRatingSummary) => void>
+  rejecters: Array<(error: unknown) => void>
+}
+
+const createFingerprint = () => {
+  try {
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+      return crypto.randomUUID()
+    }
+  } catch (error) {
+    console.warn('Fallback fingerprint generation due to error:', error)
+  }
+  return `${Date.now()}-${Math.random().toString(16).slice(2)}`
 }
 
 export const useProjectRatingsStore = defineStore(
   'projectRatings',
   () => {
+    const authStore = useAuthStore()
     const supabase = useSupabaseClient<Database>()
     const service = new ProjectRatingsService(supabase)
 
+    const anonymousFingerprint = ref<string | null>(null)
     const clientFingerprint = ref<string | null>(null)
+
     const summaries = ref<SummaryState>({})
     const userRatings = ref<UserRatingState>({})
+    const userReactions = ref<UserReactionState>({})
     const loading = ref<LoadingState>({})
     const errors = ref<ErrorState>({})
 
     const subscriptions = new Map<number, RealtimeChannel>()
     const subscriptionRefs = new Map<number, number>()
-    const pendingSummaryRequests = new Map<
-      number,
-      {
-        force: boolean
-        resolvers: Array<(summary: ProjectRatingSummary) => void>
-        rejecters: Array<(error: unknown) => void>
-      }
-    >()
+
+    const pendingSummaryRequests = new Map<number, SummaryRequest>()
     let pendingSummaryTimeout: ReturnType<typeof setTimeout> | null = null
+    const pendingRatingRequests = new Set<number>()
+    const pendingReactionRequests = new Set<number>()
+
+    const isCommittedIdentity = computed(() => Boolean(authStore.user?.id))
+
+    const applyFingerprint = (fingerprint: string) => {
+      if (clientFingerprint.value !== fingerprint) {
+        clientFingerprint.value = fingerprint
+        userRatings.value = {}
+        userReactions.value = {}
+        pendingRatingRequests.clear()
+        pendingReactionRequests.clear()
+      }
+    }
+
+    const syncFingerprint = () => {
+      const authId = authStore.user?.id ?? null
+
+      if (authId) {
+        applyFingerprint(authId)
+        return
+      }
+
+      if (!anonymousFingerprint.value || clientFingerprint.value === authId) {
+        anonymousFingerprint.value = anonymousFingerprint.value ?? createFingerprint()
+      }
+
+      applyFingerprint(anonymousFingerprint.value)
+    }
+
+    if (!anonymousFingerprint.value && clientFingerprint.value && !authStore.user?.id) {
+      anonymousFingerprint.value = clientFingerprint.value
+    }
+
+    syncFingerprint()
 
     const ensureFingerprint = () => {
-      if (clientFingerprint.value) {
-        return clientFingerprint.value
-      }
+      syncFingerprint()
+      return clientFingerprint.value
+    }
 
-      if (!import.meta.client) {
-        return null
+    const getIdentity = () => {
+      const fingerprint = ensureFingerprint()
+      if (!fingerprint) {
+        throw new Error('Fingerprint indisponível para registrar avaliação.')
       }
-
-      let fingerprint: string
-      try {
-        fingerprint =
-          typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
-            ? crypto.randomUUID()
-            : `${Date.now()}-${Math.random().toString(16).slice(2)}`
-      } catch (error) {
-        console.warn('Fallback fingerprint generation due to error:', error)
-        fingerprint = `${Date.now()}-${Math.random().toString(16).slice(2)}`
+      return {
+        fingerprint,
+        committed: isCommittedIdentity.value,
       }
-
-      clientFingerprint.value = fingerprint
-      return fingerprint
     }
 
     const setSummary = (summary: ProjectRatingSummary) => {
@@ -110,11 +136,34 @@ export const useProjectRatingsStore = defineStore(
       }
     }
 
-    const setUserRating = (projectId: number, rating: UserRating) => {
+    const setUserRating = (
+      projectId: number,
+      payload: { rating: number; committed: boolean; updatedAt: string },
+    ) => {
       userRatings.value = {
         ...userRatings.value,
-        [projectId]: rating,
+        [projectId]: payload,
       }
+    }
+
+    const removeUserRating = (projectId: number) => {
+      const { [projectId]: _removed, ...rest } = userRatings.value
+      userRatings.value = rest
+    }
+
+    const setUserReaction = (
+      projectId: number,
+      payload: { reaction: string; committed: boolean; updatedAt: string },
+    ) => {
+      userReactions.value = {
+        ...userReactions.value,
+        [projectId]: payload,
+      }
+    }
+
+    const removeUserReaction = (projectId: number) => {
+      const { [projectId]: _removed, ...rest } = userReactions.value
+      userReactions.value = rest
     }
 
     const setLoading = (projectId: number, value: boolean) => {
@@ -133,6 +182,7 @@ export const useProjectRatingsStore = defineStore(
 
     const schedulePendingSummaryFetch = () => {
       if (pendingSummaryTimeout) return
+
       pendingSummaryTimeout = setTimeout(async () => {
         pendingSummaryTimeout = null
 
@@ -143,20 +193,18 @@ export const useProjectRatingsStore = defineStore(
 
         pendingSummaryRequests.clear()
 
-        const idsToFetchSet = new Set<number>()
+        const idsNeedingFetch = new Set<number>()
         entries.forEach(([projectId, request]) => {
           if (request.force || !summaries.value[projectId]) {
-            idsToFetchSet.add(projectId)
+            idsNeedingFetch.add(projectId)
           }
         })
 
-        const idsToFetch = Array.from(idsToFetchSet)
+        let fetchedSummaries: ProjectRatingSummary[] = []
 
         try {
-          let fetchedSummaries: ProjectRatingSummary[] = []
-
-          if (idsToFetch.length > 0) {
-            fetchedSummaries = await service.fetchSummaries(idsToFetch)
+          if (idsNeedingFetch.size > 0) {
+            fetchedSummaries = await service.fetchSummaries(Array.from(idsNeedingFetch))
           }
 
           const fetchedMap = new Map<number, ProjectRatingSummary>()
@@ -164,7 +212,7 @@ export const useProjectRatingsStore = defineStore(
             fetchedMap.set(summary.projectId, summary)
           })
 
-          idsToFetch.forEach((projectId) => {
+          idsNeedingFetch.forEach((projectId) => {
             if (!fetchedMap.has(projectId)) {
               fetchedMap.set(projectId, createEmptySummary(projectId))
             }
@@ -222,30 +270,113 @@ export const useProjectRatingsStore = defineStore(
     }
 
     const loadUserRating = async (projectId: number) => {
-      const fingerprint = ensureFingerprint()
-      if (!fingerprint) return null
+      if (pendingRatingRequests.has(projectId)) return null
+
+      const identity = getIdentity()
+      pendingRatingRequests.add(projectId)
 
       try {
-        const existing = await service.fetchUserRating(projectId, fingerprint)
-        if (existing) {
+        const record = await service.fetchUserRating(projectId, identity.fingerprint)
+        if (record) {
           setUserRating(projectId, {
-            rating: existing.rating,
-            reaction: existing.reaction,
-            updatedAt: existing.updated_at,
+            rating: record.rating,
+            committed: record.committed,
+            updatedAt: record.updated_at,
           })
+        } else {
+          removeUserRating(projectId)
         }
-        return existing
+        return record
       } catch (error) {
-        console.warn('Não foi possível carregar avaliação do usuário anônimo:', error)
+        console.warn('Não foi possível carregar avaliação do usuário:', error)
         return null
+      } finally {
+        pendingRatingRequests.delete(projectId)
       }
     }
 
-    const submitRating = async (projectId: number, rating: number, reaction?: string | null) => {
-      const fingerprint = ensureFingerprint()
-      if (!fingerprint) {
-        throw new Error('Fingerprint indisponível para registrar avaliação.')
+    const loadUserRatingsForProjects = async (projectIds: number[]) => {
+      const identity = getIdentity()
+      const idsToLoad = projectIds.filter((id) => !pendingRatingRequests.has(id))
+      idsToLoad.forEach((id) => pendingRatingRequests.add(id))
+
+      if (!idsToLoad.length) return []
+
+      try {
+        const records = await service.fetchUserRatings(idsToLoad, identity.fingerprint)
+
+        records.forEach((record) => {
+          setUserRating(record.project_id, {
+            rating: record.rating,
+            committed: record.committed,
+            updatedAt: record.updated_at,
+          })
+        })
+
+        return records
+      } catch (error) {
+        console.warn('Não foi possível carregar avaliações do usuário:', error)
+        return []
+      } finally {
+        idsToLoad.forEach((id) => pendingRatingRequests.delete(id))
       }
+    }
+
+    const loadUserReaction = async (projectId: number) => {
+      if (pendingReactionRequests.has(projectId)) return null
+
+      const identity = getIdentity()
+      pendingReactionRequests.add(projectId)
+
+      try {
+        const record = await service.fetchUserReaction(projectId, identity.fingerprint)
+        if (record) {
+          setUserReaction(projectId, {
+            reaction: record.reaction,
+            committed: record.committed,
+            updatedAt: record.updated_at,
+          })
+        } else {
+          removeUserReaction(projectId)
+        }
+        return record
+      } catch (error) {
+        console.warn('Não foi possível carregar reação do usuário:', error)
+        return null
+      } finally {
+        pendingReactionRequests.delete(projectId)
+      }
+    }
+
+    const loadUserReactionsForProjects = async (projectIds: number[]) => {
+      const identity = getIdentity()
+      const idsToLoad = projectIds.filter((id) => !pendingReactionRequests.has(id))
+      idsToLoad.forEach((id) => pendingReactionRequests.add(id))
+
+      if (!idsToLoad.length) return []
+
+      try {
+        const records = await service.fetchUserReactions(idsToLoad, identity.fingerprint)
+
+        records.forEach((record) => {
+          setUserReaction(record.project_id, {
+            reaction: record.reaction,
+            committed: record.committed,
+            updatedAt: record.updated_at,
+          })
+        })
+
+        return records
+      } catch (error) {
+        console.warn('Não foi possível carregar reações do usuário:', error)
+        return []
+      } finally {
+        idsToLoad.forEach((id) => pendingReactionRequests.delete(id))
+      }
+    }
+
+    const submitRating = async (projectId: number, rating: number) => {
+      const { fingerprint, committed } = getIdentity()
 
       setLoading(projectId, true)
       setError(projectId, null)
@@ -255,18 +386,48 @@ export const useProjectRatingsStore = defineStore(
           projectId,
           clientFingerprint: fingerprint,
           rating,
-          reaction: reaction ?? null,
+          committed,
         })
 
         setUserRating(projectId, {
           rating: record.rating,
-          reaction: record.reaction,
+          committed: record.committed,
           updatedAt: record.updated_at,
         })
 
         await fetchSummary(projectId, { force: true })
       } catch (error) {
         const message = error instanceof Error ? error.message : 'Erro ao registrar avaliação'
+        setError(projectId, message)
+        throw error
+      } finally {
+        setLoading(projectId, false)
+      }
+    }
+
+    const submitReaction = async (projectId: number, reaction: string) => {
+      const { fingerprint, committed } = getIdentity()
+
+      setLoading(projectId, true)
+      setError(projectId, null)
+
+      try {
+        const record = await service.upsertReaction({
+          projectId,
+          clientFingerprint: fingerprint,
+          reaction,
+          committed,
+        })
+
+        setUserReaction(projectId, {
+          reaction: record.reaction,
+          committed: record.committed,
+          updatedAt: record.updated_at,
+        })
+
+        await fetchSummary(projectId, { force: true })
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Erro ao registrar reação'
         setError(projectId, message)
         throw error
       } finally {
@@ -283,13 +444,25 @@ export const useProjectRatingsStore = defineStore(
       if (subscriptions.has(projectId)) return
 
       const channel = supabase
-        .channel(`project-ratings-${projectId}`)
+        .channel(`project-feedback-${projectId}`)
         .on(
           'postgres_changes',
           {
             event: '*',
             schema: 'public',
             table: 'project_ratings',
+            filter: `project_id=eq.${projectId}`,
+          },
+          () => {
+            void fetchSummary(projectId, { force: true })
+          },
+        )
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'project_reactions',
             filter: `project_id=eq.${projectId}`,
           },
           () => {
@@ -319,83 +492,108 @@ export const useProjectRatingsStore = defineStore(
       subscriptionRefs.set(projectId, nextCount)
     }
 
+    const fetchSummariesForProjects = async (
+      projectIds: number[],
+      options: { force?: boolean } = {},
+    ) => {
+      if (!projectIds.length) return []
+      const uniqueIds = Array.from(new Set(projectIds))
+      return Promise.all(uniqueIds.map((id) => fetchSummary(id, options)))
+    }
+
+    const ingestSummariesFromProjects = (projects: ProjectWithRelations[]) => {
+      if (!projects.length) return
+
+      projects
+        .map((project) => project.id)
+        .filter((id): id is number => typeof id === 'number')
+        .forEach((projectId) => {
+          if (!summaries.value[projectId]) {
+            const summary = createEmptySummary(projectId)
+            setSummary(summary)
+            setError(projectId, null)
+            setLoading(projectId, false)
+          }
+        })
+    }
+
+    const removeSummary = (projectId: number) => {
+      const { [projectId]: _removed, ...rest } = summaries.value
+      summaries.value = rest
+      removeUserRating(projectId)
+      removeUserReaction(projectId)
+    }
+
     const resetState = () => {
       summaries.value = {}
       loading.value = {}
       errors.value = {}
+      userRatings.value = {}
+      userReactions.value = {}
       subscriptions.forEach((channel) => {
         void channel.unsubscribe()
       })
       subscriptions.clear()
       subscriptionRefs.clear()
       pendingSummaryRequests.clear()
+      pendingRatingRequests.clear()
+      pendingReactionRequests.clear()
       if (pendingSummaryTimeout) {
         clearTimeout(pendingSummaryTimeout)
         pendingSummaryTimeout = null
       }
+      syncFingerprint()
     }
 
-    const fetchSummariesForProjects = async (
-      projectIds: number[],
-      options: { force?: boolean } = {},
-    ) => {
-      if (!projectIds.length) {
-        return []
-      }
+    const isUserRatingPending = (projectId: number) => pendingRatingRequests.has(projectId)
+    const isUserReactionPending = (projectId: number) => pendingReactionRequests.has(projectId)
 
-      const uniqueIds = Array.from(new Set(projectIds))
+    watch(
+      () => authStore.user?.id,
+      () => {
+        syncFingerprint()
+        const ids = Object.keys(summaries.value)
+          .map((id) => Number(id))
+          .filter((id) => Number.isFinite(id))
 
-      return await Promise.all(uniqueIds.map((id) => fetchSummary(id, options)))
-    }
-
-    const ingestSummariesFromProjects = (projects: ProjectWithRelations[]) => {
-      if (!projects.length) return
-
-      const summariesToIngest: ProjectRatingSummary[] = []
-
-      projects.forEach((project) => {
-        if (project.rating_summary) {
-          const summary = convertViewRowToSummary(project.rating_summary)
-          summariesToIngest.push(summary)
-        } else if (project.id) {
-          summariesToIngest.push(createEmptySummary(project.id))
+        if (ids.length) {
+          void loadUserRatingsForProjects(ids)
+          void loadUserReactionsForProjects(ids)
         }
-      })
-
-      summariesToIngest.forEach((summary) => {
-        setSummary(summary)
-        setError(summary.projectId, null)
-        setLoading(summary.projectId, false)
-      })
-    }
-
-    const removeSummary = (projectId: number) => {
-      const { [projectId]: _removed, ...rest } = summaries.value
-      summaries.value = rest
-    }
+      },
+    )
 
     return {
       clientFingerprint,
+      anonymousFingerprint,
       summaries,
       userRatings,
+      userReactions,
       loading,
       errors,
+      isCommittedIdentity,
       ensureFingerprint,
       fetchSummary,
       fetchSummariesForProjects,
       ingestSummariesFromProjects,
       loadUserRating,
+      loadUserRatingsForProjects,
+      loadUserReaction,
+      loadUserReactionsForProjects,
       submitRating,
+      submitReaction,
       subscribeToProject,
       unsubscribeFromProject,
       resetState,
       removeSummary,
+      isUserRatingPending,
+      isUserReactionPending,
     }
   },
   {
     persist: {
       storage: piniaPluginPersistedstate.localStorage(),
-      pick: ['clientFingerprint', 'userRatings'],
+      pick: ['anonymousFingerprint', 'clientFingerprint', 'userRatings', 'userReactions'],
     },
   },
 )

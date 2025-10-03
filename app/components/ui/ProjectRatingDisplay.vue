@@ -9,12 +9,18 @@ const { useProjectRating } = useProjectRatings()
 
 const isReadOnly = computed(() => props.readonly ?? false)
 
-const { summary, userRating, projectLoading, projectError, submitRating } = useProjectRating(
-  projectIdRef,
-  {
-    loadUserRating: !isReadOnly.value,
-  },
-)
+const {
+  summary,
+  userRating,
+  userReaction,
+  projectLoading,
+  projectError,
+  submitRating,
+  submitReaction,
+} = useProjectRating(projectIdRef, {
+  loadUserRating: !isReadOnly.value,
+  loadUserReaction: !isReadOnly.value,
+})
 
 const reactionOptions = [
   { value: 'like', emoji: '👍', label: 'Curtir' },
@@ -29,7 +35,7 @@ const selectedReaction = ref<string | null>(null)
 const localRating = ref<number>(0)
 
 const activeReactionValue = computed(
-  () => selectedReaction.value || userRating.value?.reaction || null,
+  () => selectedReaction.value || userReaction.value?.reaction || null,
 )
 
 const reactionCountsMap = computed(() => summary.value?.reactionCounts ?? {})
@@ -41,11 +47,10 @@ const handleRatingUpdate = async (value: string | number) => {
   if (isReadOnly.value) return
   const numericValue = typeof value === 'string' ? Number(value) : value
   if (!Number.isFinite(numericValue) || numericValue === 0) return
-  selectedReaction.value = selectedReaction.value || userRating.value?.reaction || null
   localRating.value = numericValue
   if (numericValue < 1 || numericValue > 5) return
   try {
-    await submitRating(numericValue, selectedReaction.value)
+    await submitRating(numericValue)
   } catch (error) {
     console.error('Erro ao registrar avaliação', error)
   }
@@ -53,11 +58,9 @@ const handleRatingUpdate = async (value: string | number) => {
 
 const handleReactionSelect = async (reactionValue: string) => {
   if (isReadOnly.value) return
-  const ratingToSend = localRating.value || userRating.value?.rating || 5
-  localRating.value = ratingToSend
   selectedReaction.value = reactionValue
   try {
-    await submitRating(ratingToSend, reactionValue)
+    await submitReaction(reactionValue)
   } catch (error) {
     console.error('Erro ao registrar avaliação', error)
   }
@@ -66,13 +69,22 @@ const handleReactionSelect = async (reactionValue: string) => {
 watch(
   () => userRating.value,
   (value) => {
-    if (isReadOnly.value) return
     if (!value) {
       localRating.value = 0
-      selectedReaction.value = null
       return
     }
     localRating.value = value.rating
+  },
+  { immediate: true },
+)
+
+watch(
+  () => userReaction.value,
+  (value) => {
+    if (!value) {
+      selectedReaction.value = null
+      return
+    }
     selectedReaction.value = value.reaction
   },
   { immediate: true },
@@ -96,7 +108,7 @@ watch(
               class="ml-2"
               length="5"
               size="24"
-              :disabled="projectLoading"
+              :disabled="projectLoading || isReadOnly"
               @update:model-value="handleRatingUpdate"
             />
             <v-progress-circular v-if="projectLoading" indeterminate size="20" color="primary" />
@@ -113,7 +125,7 @@ watch(
               class="emoji-btn"
               :class="{ 'emoji-btn--active': option.value === activeReactionValue }"
               :color="option.value === activeReactionValue ? 'warning' : undefined"
-              :disabled="projectLoading"
+              :disabled="projectLoading || isReadOnly"
               @click="handleReactionSelect(option.value)"
             >
               {{ option.emoji }}
