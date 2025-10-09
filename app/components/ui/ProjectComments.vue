@@ -31,7 +31,7 @@ const canSubmit = computed(() => newComment.value.trim().length > 0 && !isSubmit
 
 const commentCountLabel = computed(() => {
   const total = summary.value?.total ?? 0
-  if (total === 0) return 'Ainda sem comentários'
+  if (total === 0) return 'Ainda sem comentários!'
   if (total === 1) return '1 comentário'
   return `${total} comentários`
 })
