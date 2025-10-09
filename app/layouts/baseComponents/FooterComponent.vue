@@ -6,6 +6,39 @@ const releaseNotesDialog = ref(false)
 const latestVersion = computed(() => versions[0])
 const previousVersions = computed(() => versions.slice(1))
 
+const MAX_CHANGE_PREVIEW = 160
+const expandedChanges = reactive<Record<string, Set<number>>>({})
+
+const ensureSet = (versionId: string) => {
+  if (!expandedChanges[versionId]) {
+    expandedChanges[versionId] = new Set<number>()
+  }
+}
+
+const isChangeExpanded = (versionId: string, index: number) => {
+  ensureSet(versionId)
+  return expandedChanges[versionId].has(index)
+}
+
+const toggleChangeExpansion = (versionId: string, index: number) => {
+  ensureSet(versionId)
+  const versionSet = expandedChanges[versionId]
+  if (versionSet.has(index)) {
+    versionSet.delete(index)
+  } else {
+    versionSet.add(index)
+  }
+}
+
+const shouldShowToggle = (text: string) => text.length > MAX_CHANGE_PREVIEW
+
+const getChangeText = (versionId: string, index: number, text: string) => {
+  if (!shouldShowToggle(text) || isChangeExpanded(versionId, index)) {
+    return text
+  }
+  return `${text.slice(0, MAX_CHANGE_PREVIEW)}…`
+}
+
 const formatVersionDate = (value: string) =>
   new Date(value).toLocaleDateString('pt-BR', {
     day: '2-digit',
@@ -153,14 +186,38 @@ const footerLinks = [
               <p v-if="latestVersion.highlights" class="text-body-2 text-grey-darken-2 mb-2">
                 {{ latestVersion.highlights }}
               </p>
-              <v-list density="compact" lines="two" class="version-changes">
-                <v-list-item
+              <div class="version-changes">
+                <div
                   v-for="(change, index) in latestVersion.changes"
                   :key="`latest-${index}`"
-                  :title="change"
-                  prepend-icon="mdi-star-circle-outline"
-                />
-              </v-list>
+                  class="version-change"
+                >
+                  <v-icon icon="mdi-star-circle-outline" size="18" class="version-change__icon" />
+                  <div class="version-change__content">
+                    <p
+                      class="version-change__text"
+                      :class="{
+                        'version-change__text--clamped':
+                          shouldShowToggle(change) &&
+                          !isChangeExpanded(latestVersion.version, index),
+                      }"
+                    >
+                      {{ getChangeText(latestVersion.version, index, change) }}
+                    </p>
+                    <v-btn
+                      v-if="shouldShowToggle(change)"
+                      variant="text"
+                      size="x-small"
+                      class="version-change__toggle"
+                      @click="toggleChangeExpansion(latestVersion.version, index)"
+                    >
+                      {{
+                        isChangeExpanded(latestVersion.version, index) ? 'Ver menos' : 'Ver mais'
+                      }}
+                    </v-btn>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <v-expansion-panels
@@ -187,14 +244,39 @@ const footerLinks = [
                   <p v-if="version.highlights" class="text-body-2 text-grey-darken-2 mb-2">
                     {{ version.highlights }}
                   </p>
-                  <v-list density="compact" lines="two" class="version-changes">
-                    <v-list-item
+                  <div class="version-changes">
+                    <div
                       v-for="(change, index) in version.changes"
                       :key="`${version.version}-${index}`"
-                      :title="change"
-                      prepend-icon="mdi-checkbox-marked-circle-outline"
-                    />
-                  </v-list>
+                      class="version-change"
+                    >
+                      <v-icon
+                        icon="mdi-checkbox-marked-circle-outline"
+                        size="18"
+                        class="version-change__icon"
+                      />
+                      <div class="version-change__content">
+                        <p
+                          class="version-change__text"
+                          :class="{
+                            'version-change__text--clamped':
+                              shouldShowToggle(change) && !isChangeExpanded(version.version, index),
+                          }"
+                        >
+                          {{ getChangeText(version.version, index, change) }}
+                        </p>
+                        <v-btn
+                          v-if="shouldShowToggle(change)"
+                          variant="text"
+                          size="x-small"
+                          class="version-change__toggle"
+                          @click="toggleChangeExpansion(version.version, index)"
+                        >
+                          {{ isChangeExpanded(version.version, index) ? 'Ver menos' : 'Ver mais' }}
+                        </v-btn>
+                      </div>
+                    </div>
+                  </div>
                 </v-expansion-panel-text>
               </v-expansion-panel>
             </v-expansion-panels>
@@ -280,6 +362,59 @@ const footerLinks = [
   font-size: 12px;
   color: rgba(255, 255, 255, 0.8);
   font-weight: 400;
+}
+
+.version-changes {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.version-change {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.version-change__icon {
+  margin-top: 2px;
+  color: rgb(var(--v-theme-primary));
+}
+
+.version-change__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.version-change__text {
+  margin: 0;
+  font-size: 14px;
+  color: rgba(33, 37, 41, 0.85);
+  white-space: pre-line;
+}
+
+:deep(.v-theme--dark) .version-change__text {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.version-change__text--clamped {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.version-change__toggle {
+  align-self: flex-start;
+  margin-top: 2px;
+  padding: 0;
+  min-height: auto;
+  text-transform: none;
+}
+
+.version-change__toggle :deep(.v-btn__content) {
+  font-size: 12px;
+  font-weight: 500;
 }
 
 /* Custom tooltip background */

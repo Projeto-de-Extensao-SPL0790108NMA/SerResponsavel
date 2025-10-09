@@ -7,6 +7,18 @@ export interface VersionInfo {
 
 export const versions: VersionInfo[] = [
   {
+    version: '1.0.0-alpha.132',
+    date: '2025-01-04',
+    highlights:
+      'Comentários integrados aos projetos, autocadastro completo e reforço de segurança em organizações.',
+    changes: [
+      'Criação da tabela de comentários de projetos, summaries agregados e atualização do RPC `get_projects_with_feedback` para devolver ratings e comentários em uma única requisição.',
+      'Formulário de comentários com modo compacto, toggles de exibição e reaproveitamento do fingerprint de avaliações, eliminando fetchs redundantes.',
+      'Fluxo de autocadastro com validações em tempo real, campos para bio e avatar, e reutilização do modal de autenticação para alternar entre login e cadastro.',
+      'Policies de RLS nas organizações para impedir edição/remoção por membros e UI condicionada ao papel do usuário.',
+    ],
+  },
+  {
     version: '1.0.0-alpha.129',
     date: '2025-10-03',
     highlights:

@@ -1,4 +1,5 @@
-import type { LoginForm } from '@/types/AuthForm'
+import { computed, ref } from 'vue'
+import type { LoginForm, RegisterForm } from '@/types/AuthForm'
 import type { AuthError } from '@supabase/supabase-js'
 
 type UseFormErrors<T> = {
@@ -8,6 +9,17 @@ type UseFormErrors<T> = {
 const createEmptyLoginErrors = (): UseFormErrors<LoginForm> => ({
   email: [],
   password: [],
+})
+
+const createEmptyRegisterErrors = (): UseFormErrors<RegisterForm> => ({
+  email: [],
+  password: [],
+  confirmPassword: [],
+  username: [],
+  firstName: [],
+  lastName: [],
+  bio: [],
+  avatarUrl: [],
 })
 
 export const useFormErrors = () => {
@@ -42,5 +54,66 @@ export const useFormErrors = () => {
     handleServerError,
     realtimeErrors,
     handleLoginForm,
+  }
+}
+
+export const useRegisterFormErrors = () => {
+  const serverError = ref('')
+  const realtimeErrors = ref<UseFormErrors<RegisterForm>>(createEmptyRegisterErrors())
+
+  const handleServerError = (error: AuthError) => {
+    switch (error.message) {
+      case 'User already registered':
+        serverError.value = 'Este email já está cadastrado.'
+        break
+      case 'Password should be at least 6 characters':
+        serverError.value = 'A senha deve ter pelo menos 6 caracteres.'
+        break
+      default:
+        serverError.value = error.message
+        break
+    }
+  }
+
+  const handleRegisterForm = async (formData: RegisterForm) => {
+    realtimeErrors.value = createEmptyRegisterErrors()
+
+    const {
+      validateEmail,
+      validatePassword,
+      validateRequiredField,
+      validateUsername,
+      validateConfirmPassword,
+    } = await import('@/utils/formValidations')
+
+    const firstNameErrors = validateRequiredField(formData.firstName, 'Nome')
+    if (firstNameErrors.length) realtimeErrors.value.firstName = firstNameErrors
+
+    const lastNameErrors = validateRequiredField(formData.lastName, 'Sobrenome')
+    if (lastNameErrors.length) realtimeErrors.value.lastName = lastNameErrors
+
+    const usernameErrors = validateUsername(formData.username)
+    if (usernameErrors.length) realtimeErrors.value.username = usernameErrors
+
+    const emailErrors = validateEmail(formData.email)
+    if (emailErrors.length) realtimeErrors.value.email = emailErrors
+
+    const passwordErrors = validatePassword(formData.password)
+    if (passwordErrors.length) realtimeErrors.value.password = passwordErrors
+
+    const confirmErrors = validateConfirmPassword(formData.password, formData.confirmPassword)
+    if (confirmErrors.length) realtimeErrors.value.confirmPassword = confirmErrors
+  }
+
+  const hasRealtimeErrors = computed(() =>
+    Object.values(realtimeErrors.value).some((errors) => errors.length > 0),
+  )
+
+  return {
+    serverError,
+    realtimeErrors,
+    handleServerError,
+    handleRegisterForm,
+    hasRealtimeErrors,
   }
 }

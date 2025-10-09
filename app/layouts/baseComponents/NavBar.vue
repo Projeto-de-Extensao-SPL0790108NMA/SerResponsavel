@@ -3,6 +3,7 @@ const authStore = useAuthStore()
 const preferencesStore = usePreferencesStore()
 const { logout } = useAuth()
 const dialog = ref(false)
+const authDialogMode = ref<'login' | 'register'>('login')
 
 // Reactive state
 const drawer = ref(false)
@@ -30,6 +31,13 @@ const { isAuthenticated, fullName, username, avatarUrl } = storeToRefs(authStore
 
 // Methods
 const openLoginDialog = () => {
+  authDialogMode.value = 'login'
+  dialog.value = true
+  drawer.value = false
+}
+
+const openRegisterDialog = () => {
+  authDialogMode.value = 'register'
   dialog.value = true
   drawer.value = false
 }
@@ -50,6 +58,12 @@ watch(
     drawer.value = false
   },
 )
+
+watch(dialog, (value) => {
+  if (!value) {
+    authDialogMode.value = 'login'
+  }
+})
 </script>
 
 <template>
@@ -137,6 +151,7 @@ watch(
               color="secondary"
               size="small"
               rounded="xl"
+              @click="openRegisterDialog"
             >
               Cadastrar
             </v-btn>
@@ -239,7 +254,7 @@ watch(
             <v-list-item-title>Entrar</v-list-item-title>
           </v-list-item>
 
-          <v-list-item>
+          <v-list-item @click="openRegisterDialog">
             <template #prepend>
               <v-icon>mdi-account-plus</v-icon>
             </template>
@@ -255,7 +270,16 @@ watch(
       :fullscreen="$vuetify.display.smAndDown"
       transition="dialog-bottom-transition"
     >
-      <LoginComponent @close="dialog = false" />
+      <LoginComponent
+        v-if="authDialogMode === 'login'"
+        @close="dialog = false"
+        @switch-to-register="authDialogMode = 'register'"
+      />
+      <RegisterComponent
+        v-else
+        @close="dialog = false"
+        @switch-to-login="authDialogMode = 'login'"
+      />
     </v-dialog>
   </div>
 </template>

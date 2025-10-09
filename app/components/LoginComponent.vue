@@ -2,6 +2,7 @@
 // Emits
 const emit = defineEmits<{
   close: []
+  switchToRegister: []
 }>()
 
 const { serverError, realtimeErrors, handleServerError, handleLoginForm } = useFormErrors()
@@ -63,6 +64,10 @@ const signInWithGithub = async () => {
 // Função para cancelar e fechar o dialog
 const handleCancel = () => {
   emit('close')
+}
+
+const goToRegister = () => {
+  emit('switchToRegister')
 }
 </script>
 <template>
@@ -170,6 +175,24 @@ const handleCancel = () => {
             ]"
           >
             Esqueci minha senha
+          </v-btn>
+
+          <v-btn
+            elevation="15"
+            rounded="xl"
+            :disabled="loading"
+            variant="tonal"
+            color="secondary"
+            size="small"
+            prepend-icon="mdi-account-plus"
+            :class="[
+              'btn-selected-custom',
+              'ma-2',
+              isDarkTheme ? 'login-card__link--dark' : 'login-card__link--light',
+            ]"
+            @click="goToRegister"
+          >
+            Criar conta
           </v-btn>
 
           <v-btn

@@ -20,6 +20,8 @@ export class AuthService {
         username: formData.username,
         full_name: formData.firstName.concat(' ', formData.lastName),
         role: 'member',
+        bio: formData.bio?.trim() || null,
+        avatar_url: formData.avatarUrl?.trim() || null,
       })
 
       if (profileError) throwServiceError('AuthService.register.profile', profileError)

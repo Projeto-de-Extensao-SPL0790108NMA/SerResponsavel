@@ -4,6 +4,7 @@ import { storeToRefs } from 'pinia'
 import type { Database } from '~~/database/types'
 import { useOrganizationLogoStorage } from '@/composables/useOrganizationLogoStorage'
 import type { ProjectWithRelations } from '@/stores/projects'
+import { useAuthStore } from '@/stores/auth'
 
 type OrganizationSummary = {
   id: string
@@ -24,7 +25,9 @@ type OrganizationFormState = {
 }
 
 const projectsStore = useProjectsStore()
+const authStore = useAuthStore()
 const { loading: projectsLoading, error: projectsError } = storeToRefs(projectsStore)
+const { role } = storeToRefs(authStore)
 const supabase = useSupabaseClient<Database>()
 const {
   uploadLogo,
@@ -53,6 +56,13 @@ const tableHeaders = [
   { key: 'projectCount', title: 'Projetos', sortable: true, align: 'center' },
   { key: 'actions', title: 'Ações', sortable: false, align: 'center' },
 ]
+
+const canManageOrganizations = computed(() => role.value !== 'member')
+
+const displayedTableHeaders = computed(() => {
+  if (canManageOrganizations.value) return tableHeaders
+  return tableHeaders.filter((header) => header.key !== 'actions')
+})
 
 const allProjectsCache = computed<ProjectWithRelations[]>(
   () => projectsStore.getCachedProjects('all') ?? [],
@@ -158,6 +168,7 @@ const closeDetailsDialog = () => {
 }
 
 const openEditDialog = (organization: OrganizationSummary) => {
+  if (!canManageOrganizations.value) return
   Object.assign(organizationForm, {
     id: organization.id,
     name: organization.name,
@@ -179,6 +190,7 @@ const closeEditDialog = () => {
 }
 
 const openDeleteDialog = (organization: OrganizationSummary) => {
+  if (!canManageOrganizations.value) return
   organizationToDelete.value = organization
   deleteDialogOpen.value = true
 }
@@ -209,6 +221,10 @@ const handleRefresh = async () => {
 }
 
 const handleEditSubmit = async () => {
+  if (!canManageOrganizations.value) {
+    editError.value = 'Você não possui permissão para editar organizações.'
+    return
+  }
   if (!organizationForm.id) {
     return
   }
@@ -272,6 +288,10 @@ const handleEditSubmit = async () => {
 }
 
 const handleDeleteOrganization = async () => {
+  if (!canManageOrganizations.value) {
+    showSnackbar('Você não possui permissão para excluir organizações.', 'error')
+    return
+  }
   if (!organizationToDelete.value) {
     return
   }
@@ -365,7 +385,7 @@ onMounted(() => {
     </v-row>
 
     <v-data-table
-      :headers="tableHeaders"
+      :headers="displayedTableHeaders"
       :items="filteredOrganizations"
       :loading="isTableLoading"
       item-value="id"
@@ -408,44 +428,45 @@ onMounted(() => {
               </v-btn>
             </template>
           </v-tooltip>
+          <template v-if="canManageOrganizations">
+            <v-tooltip text="Editar organização" location="top">
+              <template #activator="{ props: tooltipProps }">
+                <v-btn
+                  v-bind="tooltipProps"
+                  icon
+                  variant="text"
+                  size="small"
+                  color="primary"
+                  @click="openEditDialog(item)"
+                >
+                  <v-icon icon="mdi-pencil-outline" />
+                </v-btn>
+              </template>
+            </v-tooltip>
 
-          <v-tooltip text="Editar organização" location="top">
-            <template #activator="{ props: tooltipProps }">
-              <v-btn
-                v-bind="tooltipProps"
-                icon
-                variant="text"
-                size="small"
-                color="primary"
-                @click="openEditDialog(item)"
-              >
-                <v-icon icon="mdi-pencil-outline" />
-              </v-btn>
-            </template>
-          </v-tooltip>
-
-          <v-tooltip
-            :text="
-              item.projectCount
-                ? 'Remova os projetos vinculados antes de excluir.'
-                : 'Excluir organização'
-            "
-            location="top"
-          >
-            <template #activator="{ props: tooltipProps }">
-              <v-btn
-                v-bind="tooltipProps"
-                icon
-                variant="text"
-                size="small"
-                color="error"
-                :disabled="item.projectCount > 0"
-                @click="openDeleteDialog(item)"
-              >
-                <v-icon icon="mdi-trash-can-outline" />
-              </v-btn>
-            </template>
-          </v-tooltip>
+            <v-tooltip
+              :text="
+                item.projectCount
+                  ? 'Remova os projetos vinculados antes de excluir.'
+                  : 'Excluir organização'
+              "
+              location="top"
+            >
+              <template #activator="{ props: tooltipProps }">
+                <v-btn
+                  v-bind="tooltipProps"
+                  icon
+                  variant="text"
+                  size="small"
+                  color="error"
+                  :disabled="item.projectCount > 0"
+                  @click="openDeleteDialog(item)"
+                >
+                  <v-icon icon="mdi-trash-can-outline" />
+                </v-btn>
+              </template>
+            </v-tooltip>
+          </template>
         </div>
       </template>
 
