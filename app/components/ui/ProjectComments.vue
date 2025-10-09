@@ -117,9 +117,9 @@ watch(
     <header class="project-comments__header">
       <div class="project-comments__header-row">
         <div class="d-flex align-center gap-2">
-          <v-icon icon="mdi-forum" size="20" color="primary" />
+          <v-icon icon="mdi-forum" size="20" color="primary" class="mr-2" />
           <h3 class="text-subtitle-1 mb-0">Comentários</h3>
-          <v-chip size="x-small" color="primary" variant="tonal">
+          <v-chip size="x-small" color="primary" variant="tonal" class="ml-4">
             {{ commentCountLabel }}
           </v-chip>
         </div>
@@ -234,7 +234,7 @@ watch(
             <template #title>
               <div class="d-flex align-center gap-2">
                 <span class="text-subtitle-2 font-weight-medium">{{ displayName(comment) }}</span>
-                <span class="text-caption text-grey-lighten-1">{{
+                <span class="text-caption text-grey-lighten-1 ml-4">{{
                   formatDateTime(comment.createdAt)
                 }}</span>
               </div>
