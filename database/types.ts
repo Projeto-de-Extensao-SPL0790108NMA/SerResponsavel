@@ -33,6 +33,13 @@ export type Database = {
           bio: string | null
           created_at: string
           id: string
+          cep: string | null
+          address_street: string | null
+          address_number: string | null
+          address_complement: string | null
+          address_neighborhood: string | null
+          address_city: string | null
+          address_state: string | null
           logo_url: string | null
           name: string
         }
@@ -40,6 +47,13 @@ export type Database = {
           bio?: string | null
           created_at?: string
           id?: string
+          cep?: string | null
+          address_street?: string | null
+          address_number?: string | null
+          address_complement?: string | null
+          address_neighborhood?: string | null
+          address_city?: string | null
+          address_state?: string | null
           logo_url?: string | null
           name: string
         }
@@ -47,6 +61,13 @@ export type Database = {
           bio?: string | null
           created_at?: string
           id?: string
+          cep?: string | null
+          address_street?: string | null
+          address_number?: string | null
+          address_complement?: string | null
+          address_neighborhood?: string | null
+          address_city?: string | null
+          address_state?: string | null
           logo_url?: string | null
           name?: string
         }

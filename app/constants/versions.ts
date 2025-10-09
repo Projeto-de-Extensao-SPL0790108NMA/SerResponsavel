@@ -7,6 +7,18 @@ export interface VersionInfo {
 
 export const versions: VersionInfo[] = [
   {
+    version: '1.0.0-alpha.133',
+    date: '2025-01-04',
+    highlights:
+      'Organizações agora registram endereço completo via CEP e leitura do changelog ficou mais acessível.',
+    changes: [
+      'Migration adiciona campos de endereço à tabela de organizações e atualiza os tipos TypeScript.',
+      'Formulário de edição consulta a BrasilAPI pelo CEP, preenche logradouro/bairro/cidade/UF e salva no banco.',
+      'Listagem e detalhes exibem o endereço formatado e permitem busca por esses campos.',
+      'Histórico de versões ganhou ação “Ver mais/Ver menos”, com cores ajustadas para ambos os temas.',
+    ],
+  },
+  {
     version: '1.0.0-alpha.132',
     date: '2025-01-04',
     highlights:

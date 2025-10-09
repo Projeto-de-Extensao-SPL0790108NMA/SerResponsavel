@@ -12,6 +12,13 @@ type OrganizationSummary = {
   logoUrl: string | null
   bio: string | null
   projectCount: number
+  cep: string | null
+  addressStreet: string | null
+  addressNumber: string | null
+  addressComplement: string | null
+  addressNeighborhood: string | null
+  addressCity: string | null
+  addressState: string | null
 }
 
 type OrganizationFormState = {
@@ -22,6 +29,13 @@ type OrganizationFormState = {
   currentLogoUrl: string
   logoFile: File | null
   removeLogo: boolean
+  cep: string
+  addressStreet: string
+  addressNumber: string
+  addressComplement: string
+  addressNeighborhood: string
+  addressCity: string
+  addressState: string
 }
 
 const projectsStore = useProjectsStore()
@@ -49,6 +63,8 @@ const snackbar = ref(false)
 const snackbarMessage = ref('')
 const snackbarColor = ref<'success' | 'error'>('success')
 const previewLogoUrl = ref<string | null>(null)
+const cepLookupLoading = ref(false)
+const cepLookupError = ref<string | null>(null)
 
 const tableHeaders = [
   { key: 'name', title: 'Organização', sortable: true },
@@ -58,11 +74,14 @@ const tableHeaders = [
 ]
 
 const canManageOrganizations = computed(() => role.value !== 'member')
+const canCreateOrganizations = computed(() => role.value === 'super_admin')
 
 const displayedTableHeaders = computed(() => {
   if (canManageOrganizations.value) return tableHeaders
   return tableHeaders.filter((header) => header.key !== 'actions')
 })
+
+const cepErrorMessages = computed(() => (cepLookupError.value ? [cepLookupError.value] : []))
 
 const allProjectsCache = computed<ProjectWithRelations[]>(
   () => projectsStore.getCachedProjects('all') ?? [],
@@ -87,6 +106,13 @@ const organizationSummaries = computed<OrganizationSummary[]>(() => {
       logoUrl: organization.logo_url,
       bio: organization.bio,
       projectCount: 1,
+      cep: organization.cep ?? null,
+      addressStreet: organization.address_street ?? null,
+      addressNumber: organization.address_number ?? null,
+      addressComplement: organization.address_complement ?? null,
+      addressNeighborhood: organization.address_neighborhood ?? null,
+      addressCity: organization.address_city ?? null,
+      addressState: organization.address_state ?? null,
     })
   })
 
@@ -105,6 +131,8 @@ const selectedOrganizationProjects = computed<ProjectWithRelations[]>(() => {
   )
 })
 
+const selectedOrganizationAddress = computed(() => composeAddress(selectedOrganization.value))
+
 const filteredOrganizations = computed(() => {
   const query = searchQuery.value.trim().toLowerCase()
   if (!query) {
@@ -114,7 +142,8 @@ const filteredOrganizations = computed(() => {
   return organizationSummaries.value.filter((organization) => {
     const nameMatch = organization.name.toLowerCase().includes(query)
     const bioMatch = organization.bio?.toLowerCase().includes(query) ?? false
-    return nameMatch || bioMatch
+    const addressMatch = composeAddress(organization).toLowerCase().includes(query)
+    return nameMatch || bioMatch || addressMatch
   })
 })
 
@@ -134,10 +163,94 @@ const isSubmitting = computed(() => editSaving.value || logoStorageLoading.value
 const truncate = (text: string, length = 80) =>
   text.length > length ? `${text.slice(0, length)}…` : text
 
+const composeAddress = (organization?: {
+  cep?: string | null
+  addressStreet?: string | null
+  addressNumber?: string | null
+  addressComplement?: string | null
+  addressNeighborhood?: string | null
+  addressCity?: string | null
+  addressState?: string | null
+}) => {
+  if (!organization) return ''
+  const parts: string[] = []
+
+  if (organization.addressStreet) {
+    let streetLine = organization.addressStreet
+    if (organization.addressNumber) {
+      streetLine += `, ${organization.addressNumber}`
+    }
+    if (organization.addressComplement) {
+      streetLine += ` - ${organization.addressComplement}`
+    }
+    parts.push(streetLine)
+  }
+
+  const localityParts: string[] = []
+  if (organization.addressNeighborhood) {
+    localityParts.push(organization.addressNeighborhood)
+  }
+  const cityState = [organization.addressCity, organization.addressState]
+    .filter(Boolean)
+    .join(' / ')
+  if (cityState) {
+    localityParts.push(cityState)
+  }
+  if (localityParts.length) {
+    parts.push(localityParts.join(' · '))
+  }
+
+  if (organization.cep) {
+    parts.push(formatCep(organization.cep))
+  }
+
+  return parts.filter(Boolean).join(' · ')
+}
+
 const showSnackbar = (message: string, color: 'success' | 'error' = 'success') => {
   snackbarMessage.value = message
   snackbarColor.value = color
   snackbar.value = true
+}
+
+const sanitizeCep = (value: string) => value.replace(/\D/g, '').slice(0, 8)
+
+const formatCep = (value: string) => {
+  const digits = sanitizeCep(value)
+  if (digits.length <= 5) return digits
+  return `${digits.slice(0, 5)}-${digits.slice(5)}`
+}
+
+const handleCepLookup = async () => {
+  const cepDigits = sanitizeCep(organizationForm.cep)
+  if (cepDigits.length !== 8) {
+    cepLookupError.value = 'Informe um CEP válido com 8 dígitos.'
+    return
+  }
+
+  cepLookupLoading.value = true
+  cepLookupError.value = null
+
+  try {
+    const result = await $fetch<{
+      cep: string
+      state: string
+      city: string
+      neighborhood: string
+      street: string
+    }>(`https://brasilapi.com.br/api/cep/v1/${cepDigits}`)
+
+    organizationForm.addressStreet = result.street ?? ''
+    organizationForm.addressNeighborhood = result.neighborhood ?? ''
+    organizationForm.addressCity = result.city ?? ''
+    organizationForm.addressState = result.state ?? ''
+    organizationForm.cep = formatCep(result.cep ?? cepDigits)
+  } catch (error) {
+    cepLookupError.value =
+      error instanceof Error ? error.message : 'Não foi possível localizar o CEP informado.'
+  } finally {
+    cepLookupLoading.value = false
+  }
 }
 
 const defaultOrganizationForm = (): OrganizationFormState => ({
@@ -148,6 +261,13 @@ const defaultOrganizationForm = (): OrganizationFormState => ({
   currentLogoUrl: '',
   logoFile: null,
   removeLogo: false,
+  cep: '',
+  addressStreet: '',
+  addressNumber: '',
+  addressComplement: '',
+  addressNeighborhood: '',
+  addressCity: '',
+  addressState: '',
 })
 
 const organizationForm = reactive<OrganizationFormState>(defaultOrganizationForm())
@@ -155,6 +275,8 @@ const organizationForm = reactive<OrganizationFormState>(defaultOrganizationForm
 const resetOrganizationForm = () => {
   Object.assign(organizationForm, defaultOrganizationForm())
   previewLogoUrl.value = null
+  cepLookupError.value = null
+  cepLookupLoading.value = false
 }
 
 const openDetailsDialog = (organization: OrganizationSummary) => {
@@ -177,8 +299,16 @@ const openEditDialog = (organization: OrganizationSummary) => {
     currentLogoUrl: organization.logoUrl ?? '',
     logoFile: null,
     removeLogo: false,
+    cep: organization.cep ?? '',
+    addressStreet: organization.addressStreet ?? '',
+    addressNumber: organization.addressNumber ?? '',
+    addressComplement: organization.addressComplement ?? '',
+    addressNeighborhood: organization.addressNeighborhood ?? '',
+    addressCity: organization.addressCity ?? '',
+    addressState: organization.addressState ?? '',
   })
   editError.value = null
+  cepLookupError.value = null
   previewLogoUrl.value = organization.logoUrl ?? null
   editDialogOpen.value = true
 }
@@ -187,6 +317,13 @@ const closeEditDialog = () => {
   editDialogOpen.value = false
   resetOrganizationForm()
   editError.value = null
+}
+
+const openCreateDialog = () => {
+  if (!canCreateOrganizations.value) return
+  resetOrganizationForm()
+  editError.value = null
+  editDialogOpen.value = true
 }
 
 const openDeleteDialog = (organization: OrganizationSummary) => {
@@ -242,26 +379,58 @@ const handleEditSubmit = async () => {
   const previousLogoUrl = organizationForm.currentLogoUrl
   const trimmedManualUrl = organizationForm.logoUrl.trim()
   const shouldRemove = organizationForm.removeLogo && !organizationForm.logoFile
+  const cepDigits = sanitizeCep(organizationForm.cep)
+
+  const payloadAddress = {
+    cep: cepDigits || null,
+    address_street: organizationForm.addressStreet.trim() || null,
+    address_number: organizationForm.addressNumber.trim() || null,
+    address_complement: organizationForm.addressComplement.trim() || null,
+    address_neighborhood: organizationForm.addressNeighborhood.trim() || null,
+    address_city: organizationForm.addressCity.trim() || null,
+    address_state: organizationForm.addressState.trim().toUpperCase() || null,
+  }
 
   try {
     if (organizationForm.logoFile) {
-      uploadedLogo = await uploadLogo(organizationForm.logoFile, organizationForm.id)
+      const identifier = organizationForm.id || organizationForm.name
+      uploadedLogo = await uploadLogo(organizationForm.logoFile, identifier)
     }
 
     const logoUrlToPersist =
       uploadedLogo?.url ?? (shouldRemove ? null : trimmedManualUrl || previousLogoUrl || null)
 
-    const { error } = await supabase
-      .from('organizations')
-      .update({
-        name,
-        bio: organizationForm.bio.trim() || null,
-        logo_url: logoUrlToPersist,
-      })
-      .eq('id', organizationForm.id)
+    if (organizationForm.id) {
+      const { error } = await supabase
+        .from('organizations')
+        .update({
+          name,
+          bio: organizationForm.bio.trim() || null,
+          logo_url: logoUrlToPersist,
+          ...payloadAddress,
+        })
+        .eq('id', organizationForm.id)
 
-    if (error) {
-      throw new Error(error.message)
+      if (error) {
+        throw new Error(error.message)
+      }
+    } else {
+      const { data: inserted, error } = await supabase
+        .from('organizations')
+        .insert({
+          name,
+          bio: organizationForm.bio.trim() || null,
+          logo_url: logoUrlToPersist,
+          ...payloadAddress,
+        })
+        .select('id')
+        .single()
+
+      if (error) {
+        throw new Error(error.message)
+      }
+
+      organizationForm.id = inserted?.id ?? ''
     }
 
     if (uploadedLogo && previousLogoUrl) {
@@ -270,7 +439,11 @@ const handleEditSubmit = async () => {
       await removeLogoFromStorage(previousLogoUrl)
     }
 
-    showSnackbar('Organização atualizada com sucesso!')
+    showSnackbar(
+      organizationForm.id
+        ? 'Organização atualizada com sucesso!'
+        : 'Organização criada com sucesso!',
+    )
     closeEditDialog()
     await refreshProjectsCache()
   } catch (error) {
@@ -343,6 +516,32 @@ watch(
   },
 )
 
+watch(
+  () => organizationForm.cep,
+  (value) => {
+    const formatted = formatCep(value)
+    if (formatted !== value) {
+      organizationForm.cep = formatted
+    }
+    if (cepLookupError.value) {
+      cepLookupError.value = null
+    }
+  },
+)
+
+watch(
+  () => organizationForm.addressState,
+  (value) => {
+    const upper = value
+      .replace(/[^a-zA-Z]/g, '')
+      .slice(0, 2)
+      .toUpperCase()
+    if (upper !== value) {
+      organizationForm.addressState = upper
+    }
+  },
+)
+
 onMounted(() => {
   if (!projectsStore.getCachedProjects('all')) {
     void projectsStore.fetchProjects(false, 'all')
@@ -365,22 +564,41 @@ onMounted(() => {
         />
       </v-col>
       <v-col cols="12" md="6" class="text-right">
-        <v-tooltip text="Atualizar lista" location="top">
-          <template #activator="{ props: tooltipProps }">
-            <v-btn
-              v-bind="tooltipProps"
-              variant="outlined"
-              size="small"
-              rounded="xl"
-              class="text-none"
-              prepend-icon="mdi-refresh"
-              :loading="isTableLoading"
-              @click="handleRefresh"
-            >
-              Atualizar
-            </v-btn>
-          </template>
-        </v-tooltip>
+        <div class="d-flex flex-wrap justify-end align-center gap-3">
+          <v-tooltip text="Atualizar lista" location="top">
+            <template #activator="{ props: tooltipProps }">
+              <v-btn
+                v-bind="tooltipProps"
+                variant="outlined"
+                size="small"
+                rounded="xl"
+                class="text-none mx-1"
+                prepend-icon="mdi-refresh"
+                :loading="isTableLoading"
+                @click="handleRefresh"
+              >
+                Atualizar
+              </v-btn>
+            </template>
+          </v-tooltip>
+
+          <v-tooltip v-if="canCreateOrganizations" text="Cadastrar nova organização" location="top">
+            <template #activator="{ props: tooltipProps }">
+              <v-btn
+                v-bind="tooltipProps"
+                color="secondary"
+                variant="flat"
+                size="small"
+                rounded="xl"
+                class="text-none mx-1"
+                prepend-icon="mdi-domain-plus"
+                @click="openCreateDialog"
+              >
+                Nova organização
+              </v-btn>
+            </template>
+          </v-tooltip>
+        </div>
       </v-col>
     </v-row>
 
@@ -522,6 +740,14 @@ onMounted(() => {
             {{ selectedOrganization.bio ?? 'Nenhuma descrição disponível.' }}
           </p>
 
+          <div
+            v-if="selectedOrganizationAddress"
+            class="organizations-details__address text-body-2 mb-4"
+          >
+            <span class="text-subtitle-2 d-block mb-1">Endereço</span>
+            {{ selectedOrganizationAddress }}
+          </div>
+
           <div class="organizations-details__projects">
             <span class="text-subtitle-2">Projetos vinculados</span>
             <v-list v-if="selectedOrganizationProjects.length" density="comfortable">
@@ -551,7 +777,7 @@ onMounted(() => {
     <v-dialog v-model="editDialogOpen" max-width="540">
       <v-card>
         <v-card-title class="d-flex align-center justify-space-between">
-          <span>Editar organização</span>
+          <span>{{ organizationForm.id ? 'Editar organização' : 'Nova organização' }}</span>
           <v-btn icon variant="text" size="small" @click="closeEditDialog">
             <v-icon icon="mdi-close" />
           </v-btn>
@@ -584,6 +810,104 @@ onMounted(() => {
             class="mb-3"
             :disabled="isSubmitting"
           />
+
+          <v-row dense class="mb-1">
+            <v-col cols="12" md="6">
+              <v-text-field
+                v-model="organizationForm.cep"
+                label="CEP"
+                prepend-inner-icon="mdi-mailbox"
+                variant="outlined"
+                density="comfortable"
+                :loading="cepLookupLoading"
+                :disabled="isSubmitting"
+                :error-messages="cepErrorMessages"
+                maxlength="9"
+                autocomplete="postal-code"
+                @keyup.enter.prevent="handleCepLookup"
+              >
+                <template #append>
+                  <v-btn
+                    variant="text"
+                    size="small"
+                    :loading="cepLookupLoading"
+                    :disabled="isSubmitting"
+                    @click="handleCepLookup"
+                  >
+                    Buscar
+                  </v-btn>
+                </template>
+              </v-text-field>
+            </v-col>
+            <v-col cols="12" md="6">
+              <v-text-field
+                v-model="organizationForm.addressStreet"
+                label="Logradouro"
+                prepend-inner-icon="mdi-map-marker"
+                variant="outlined"
+                density="comfortable"
+                :disabled="isSubmitting"
+              />
+            </v-col>
+          </v-row>
+
+          <v-row dense class="mb-1">
+            <v-col cols="12" md="4">
+              <v-text-field
+                v-model="organizationForm.addressNumber"
+                label="Número"
+                prepend-inner-icon="mdi-numeric"
+                variant="outlined"
+                density="comfortable"
+                :disabled="isSubmitting"
+                autocomplete="address-line2"
+              />
+            </v-col>
+            <v-col cols="12" md="8">
+              <v-text-field
+                v-model="organizationForm.addressComplement"
+                label="Complemento"
+                prepend-inner-icon="mdi-map-marker-plus"
+                variant="outlined"
+                density="comfortable"
+                :disabled="isSubmitting"
+              />
+            </v-col>
+          </v-row>
+
+          <v-row dense class="mb-3">
+            <v-col cols="12" md="6">
+              <v-text-field
+                v-model="organizationForm.addressNeighborhood"
+                label="Bairro"
+                prepend-inner-icon="mdi-city"
+                variant="outlined"
+                density="comfortable"
+                :disabled="isSubmitting"
+              />
+            </v-col>
+            <v-col cols="12" md="4">
+              <v-text-field
+                v-model="organizationForm.addressCity"
+                label="Cidade"
+                prepend-inner-icon="mdi-city-variant"
+                variant="outlined"
+                density="comfortable"
+                :disabled="isSubmitting"
+              />
+            </v-col>
+            <v-col cols="12" md="2">
+              <v-text-field
+                v-model="organizationForm.addressState"
+                label="UF"
+                variant="outlined"
+                density="comfortable"
+                :disabled="isSubmitting"
+                maxlength="2"
+                autocomplete="address-level1"
+              />
+            </v-col>
+          </v-row>
 
           <v-file-input
             v-model="organizationForm.logoFile"
