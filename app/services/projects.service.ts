@@ -76,42 +76,129 @@ export class ProjectsService {
   async getProjects(status?: 'in-progress' | 'completed' | 'all') {
     const statusFilter = status && status !== 'all' ? status : null
 
-    const { data, error } = await this.supabase.rpc('get_projects_with_feedback', {
-      status_filter: statusFilter,
-    })
+    const rpcPayload = statusFilter ? { status_filter: statusFilter } : {}
+
+    const mapRows = (rows: ProjectWithFeedbackRow[]) =>
+      rows
+        .map((row) => {
+          const project = row.project ?? null
+          if (!project) {
+            return null
+          }
+
+          const ratingSummary = this.normalizeRatingSummary(project.id, row.rating_summary)
+          const commentSummary = this.normalizeCommentSummary(project.id, row.comment_summary)
+
+          return {
+            ...project,
+            organization: row.organization ?? null,
+            ratingSummary,
+            commentSummary,
+          }
+        })
+        .filter(
+          (
+            entry,
+          ): entry is ProjectRow & {
+            organization: OrganizationRow | null
+            ratingSummary: ProjectRatingSummary | null
+            commentSummary: ProjectCommentSummary | null
+          } => Boolean(entry),
+        )
+
+    const fetchViaFallback = async () => {
+      const projectsQuery = this.supabase
+        .from('projects')
+        .select('*, organization:organizations (*)')
+        .order('created_at', { ascending: false })
+
+      if (statusFilter) {
+        projectsQuery.eq('status', statusFilter)
+      }
+
+      const { data: projectsData, error: projectsError } = await projectsQuery
+
+      if (projectsError) {
+        throwServiceError('ProjectsService.getProjects.fallback.projects', projectsError)
+      }
+
+      const projectRows = (projectsData ?? []) as Array<
+        ProjectRow & { organization: OrganizationRow | null }
+      >
+      const projectIds = projectRows
+        .map((project) => project.id)
+        .filter((id): id is number => typeof id === 'number')
+
+      const ratingSummariesByProject = new Map<number, RatingSummaryRow>()
+      if (projectIds.length) {
+        const { data: ratingSummaries, error: ratingError } = await this.supabase
+          .from('project_rating_summaries')
+          .select('*')
+          .in('project_id', projectIds)
+
+        if (!ratingError) {
+          for (const summary of ratingSummaries ?? []) {
+            ratingSummariesByProject.set(summary.project_id, summary)
+          }
+        } else {
+          console.warn(
+            '[ProjectsService.getProjects] Failed to load rating summaries via fallback',
+            ratingError,
+          )
+        }
+      }
+
+      const commentSummariesByProject = new Map<number, CommentSummaryRow>()
+      if (projectIds.length) {
+        const { data: commentSummaries, error: commentError } = await this.supabase
+          .from('project_comment_summaries')
+          .select('*')
+          .in('project_id', projectIds)
+
+        if (!commentError) {
+          for (const summary of commentSummaries ?? []) {
+            commentSummariesByProject.set(summary.project_id, summary)
+          }
+        } else {
+          console.warn(
+            '[ProjectsService.getProjects] Failed to load comment summaries via fallback',
+            commentError,
+          )
+        }
+      }
+
+      const fallbackRows: ProjectWithFeedbackRow[] = projectRows.map((project) => {
+        const { organization: fallbackOrganization, ...projectData } = project
+
+        return {
+          project: projectData as ProjectRow,
+          organization: fallbackOrganization ?? null,
+          rating_summary: ratingSummariesByProject.get(project.id) ?? null,
+          comment_summary: commentSummariesByProject.get(project.id) ?? null,
+        }
+      })
+
+      return mapRows(fallbackRows)
+    }
+
+    const { data, error } = await this.supabase.rpc('get_projects_with_feedback', rpcPayload)
 
     if (error) {
+      const errorCode =
+        typeof (error as { code?: unknown })?.code === 'string'
+          ? String((error as { code?: unknown }).code)
+          : null
+
+      if (errorCode === 'PGRST202') {
+        console.warn('[ProjectsService.getProjects] RPC unavailable, using fallback query')
+        return fetchViaFallback()
+      }
+
       throwServiceError('ProjectsService.getProjects', error)
     }
 
     const rows = (data ?? []) as ProjectWithFeedbackRow[]
-
-    return rows
-      .map((row) => {
-        const project = row.project ?? null
-        if (!project) {
-          return null
-        }
-
-        const ratingSummary = this.normalizeRatingSummary(project.id, row.rating_summary)
-        const commentSummary = this.normalizeCommentSummary(project.id, row.comment_summary)
-
-        return {
-          ...project,
-          organization: row.organization ?? null,
-          ratingSummary,
-          commentSummary,
-        }
-      })
-      .filter(
-        (
-          entry,
-        ): entry is ProjectRow & {
-          organization: OrganizationRow | null
-          ratingSummary: ProjectRatingSummary | null
-          commentSummary: ProjectCommentSummary | null
-        } => Boolean(entry),
-      )
+    return mapRows(rows)
   }
 
   async getCountConcludedProjects() {
