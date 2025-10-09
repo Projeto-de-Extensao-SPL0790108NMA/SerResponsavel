@@ -267,7 +267,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_projects_with_feedback: {
+        Args: {
+          status_filter?: string | null
+        }
+        Returns: {
+          project: Json
+          organization: Json | null
+          rating_summary: Json | null
+        }[]
+      }
     }
     Enums: {
       current_status: 'in-progress' | 'completed'

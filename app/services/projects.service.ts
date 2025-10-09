@@ -1,31 +1,94 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '~~/database/types'
 import { throwServiceError } from '@/utils/serviceLogger'
+import type { ProjectRatingSummary } from '@/services/projectRatings.service'
+
+type ProjectRow = Database['public']['Tables']['projects']['Row']
+type OrganizationRow = Database['public']['Tables']['organizations']['Row']
+type RatingSummaryRow = Database['public']['Views']['project_rating_summaries']['Row']
+
+type ProjectWithFeedbackRow = {
+  project: ProjectRow | null
+  organization: OrganizationRow | null
+  rating_summary: RatingSummaryRow | null
+}
 
 export class ProjectsService {
   constructor(private supabase: SupabaseClient<Database>) {}
 
-  async getProjects(status?: 'in-progress' | 'completed' | 'all') {
-    let query = this.supabase
-      .from('projects')
-      .select('*, organization:organizations (*)')
-      .order('created_at', { ascending: false })
-
-    if (status && status !== 'all') {
-      query = query.eq('status', status).not('status', 'is', null)
+  private normalizeRatingSummary(
+    projectId: number | null | undefined,
+    summary: RatingSummaryRow | null,
+  ): ProjectRatingSummary | null {
+    if (!Number.isFinite(projectId) || !summary) {
+      return null
     }
 
-    const { data, error } = await query
+    const ratingCountsSource = summary.rating_counts ?? {}
+    const reactionCountsSource = summary.reaction_counts ?? {}
+
+    const toNumber = (value: unknown) => {
+      if (typeof value === 'number') return value
+      const parsed = Number(value)
+      return Number.isFinite(parsed) ? parsed : 0
+    }
+
+    return {
+      projectId: projectId as number,
+      average: toNumber(summary.average),
+      total: toNumber(summary.total),
+      ratingCounts: {
+        1: toNumber((ratingCountsSource as Record<string, unknown>)['1']),
+        2: toNumber((ratingCountsSource as Record<string, unknown>)['2']),
+        3: toNumber((ratingCountsSource as Record<string, unknown>)['3']),
+        4: toNumber((ratingCountsSource as Record<string, unknown>)['4']),
+        5: toNumber((ratingCountsSource as Record<string, unknown>)['5']),
+      },
+      reactionCounts: Object.fromEntries(
+        Object.entries(reactionCountsSource as Record<string, unknown>).map(([key, value]) => [
+          key,
+          toNumber(value),
+        ]),
+      ),
+    }
+  }
+
+  async getProjects(status?: 'in-progress' | 'completed' | 'all') {
+    const statusFilter = status && status !== 'all' ? status : null
+
+    const { data, error } = await this.supabase.rpc('get_projects_with_feedback', {
+      status_filter: statusFilter,
+    })
 
     if (error) {
       throwServiceError('ProjectsService.getProjects', error)
     }
 
-    if (status && status !== 'all') {
-      return data?.filter((project) => project.status === status) || []
-    }
+    const rows = (data ?? []) as ProjectWithFeedbackRow[]
 
-    return data || []
+    return rows
+      .map((row) => {
+        const project = row.project ?? null
+        if (!project) {
+          return null
+        }
+
+        const ratingSummary = this.normalizeRatingSummary(project.id, row.rating_summary)
+
+        return {
+          ...project,
+          organization: row.organization ?? null,
+          ratingSummary,
+        }
+      })
+      .filter(
+        (
+          entry,
+        ): entry is ProjectRow & {
+          organization: OrganizationRow | null
+          ratingSummary: ProjectRatingSummary | null
+        } => Boolean(entry),
+      )
   }
 
   async getCountConcludedProjects() {

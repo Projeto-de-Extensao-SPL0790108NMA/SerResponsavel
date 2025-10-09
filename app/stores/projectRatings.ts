@@ -504,17 +504,25 @@ export const useProjectRatingsStore = defineStore(
     const ingestSummariesFromProjects = (projects: ProjectWithRelations[]) => {
       if (!projects.length) return
 
-      projects
-        .map((project) => project.id)
-        .filter((id): id is number => typeof id === 'number')
-        .forEach((projectId) => {
-          if (!summaries.value[projectId]) {
-            const summary = createEmptySummary(projectId)
-            setSummary(summary)
-            setError(projectId, null)
-            setLoading(projectId, false)
-          }
-        })
+      projects.forEach((project) => {
+        const projectId = project.id
+
+        const incomingSummary = project.ratingSummary ?? null
+
+        if (incomingSummary) {
+          setSummary({ ...incomingSummary, projectId })
+          setError(projectId, null)
+          setLoading(projectId, false)
+          return
+        }
+
+        if (!summaries.value[projectId]) {
+          const summary = createEmptySummary(projectId)
+          setSummary(summary)
+          setError(projectId, null)
+          setLoading(projectId, false)
+        }
+      })
     }
 
     const removeSummary = (projectId: number) => {

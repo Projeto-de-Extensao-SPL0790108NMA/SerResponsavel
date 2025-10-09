@@ -2,6 +2,7 @@ import { computed, reactive, ref } from 'vue'
 import { useProjectRatingsStore } from '@/stores/projectRatings'
 import type { Database } from '~~/database/types'
 import type { RealtimeChannel } from '@supabase/supabase-js'
+import type { ProjectRatingSummary } from '@/services/projectRatings.service'
 
 type ProjectRow = Database['public']['Tables']['projects']['Row']
 type OrganizationRow = Database['public']['Tables']['organizations']['Row']
@@ -10,6 +11,7 @@ type TaskRow = Database['public']['Tables']['tasks']['Row']
 export type ProjectWithRelations = ProjectRow & {
   organization?: OrganizationRow | null
   tasks?: TaskRow[] | null
+  ratingSummary?: ProjectRatingSummary | null
 }
 export type Projects = ProjectWithRelations[]
 export type ProjectStatusFilter = 'all' | 'in-progress' | 'completed'
@@ -19,12 +21,21 @@ const statusFiltersWithoutAll: Exclude<ProjectStatusFilter, 'all'>[] = ['in-prog
 const mapToProjectWithRelations = (
   project: ProjectRow | ProjectWithRelations,
 ): ProjectWithRelations => {
-  const { organization = null, tasks = null, ...base } = project as ProjectWithRelations
+  const {
+    organization = null,
+    tasks = null,
+    ratingSummary = null,
+    rating_summary = null,
+    ...base
+  } = project as ProjectWithRelations & {
+    rating_summary?: ProjectRatingSummary | null
+  }
 
   return {
     ...base,
     organization,
     tasks,
+    ratingSummary: ratingSummary ?? rating_summary ?? null,
   }
 }
 
@@ -185,12 +196,14 @@ export const useProjectsStore = defineStore(
 
         const mappedProjects = (data ?? []).map(mapToProjectWithRelations)
         projectRatingsStore.ingestSummariesFromProjects(mappedProjects)
-        const projectIds = mappedProjects.map((project) => project.id)
-        void projectRatingsStore.fetchSummariesForProjects(projectIds, {
-          force: forceRefresh,
-        })
-        void projectRatingsStore.loadUserRatingsForProjects(projectIds)
-        void projectRatingsStore.loadUserReactionsForProjects(projectIds)
+        const projectIds = mappedProjects
+          .map((project) => project.id)
+          .filter((id): id is number => true)
+
+        if (projectIds.length) {
+          void projectRatingsStore.loadUserRatingsForProjects(projectIds)
+          void projectRatingsStore.loadUserReactionsForProjects(projectIds)
+        }
         setCacheForStatus(status, mappedProjects)
 
         if (status === 'all') {
@@ -356,7 +369,6 @@ export const useProjectsStore = defineStore(
 
         removeProjectFromCaches(id)
         projectRatingsStore.removeSummary(id)
-        syncProjectRatingSummary(id, null)
 
         if (currentProject.value?.id === id) {
           currentProject.value = null
