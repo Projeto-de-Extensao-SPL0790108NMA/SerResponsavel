@@ -1,0 +1,2 @@
+-- Obsolete migration retained for ordering. Address columns are added in
+-- 20250924163000_organizations_address_rls_finalize.sql once the organizations table exists.

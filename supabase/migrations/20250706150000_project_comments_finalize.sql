@@ -1,0 +1,2 @@
+-- Legacy placeholder retained for ordering. Project comments are created in
+-- 20251001000000_project_comments_setup.sql after core tables exist.

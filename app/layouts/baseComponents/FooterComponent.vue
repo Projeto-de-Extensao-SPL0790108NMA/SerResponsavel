@@ -5,6 +5,9 @@ const currentYear = computed(() => new Date().getFullYear())
 const releaseNotesDialog = ref(false)
 const latestVersion = computed(() => versions[0])
 const previousVersions = computed(() => versions.slice(1))
+const preferencesStore = usePreferencesStore()
+const { theme } = storeToRefs(preferencesStore)
+const isDarkTheme = computed(() => theme.value === 'dark')
 
 const MAX_CHANGE_PREVIEW = 160
 const expandedChanges = reactive<Record<string, Set<number>>>({})
@@ -62,7 +65,7 @@ const footerLinks = [
 </script>
 
 <template>
-  <v-footer class="footer-gradient">
+  <v-footer :class="isDarkTheme ? 'footer-gradient' : 'footer-gradient-light'">
     <v-container max-width="1080">
       <v-row align="center" justify="center">
         <!-- Logo e Descrição -->
@@ -303,6 +306,20 @@ const footerLinks = [
     #1c2128 50%,
     #21262d 75%,
     #0d1117 100%
+  ) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+  z-index: 1001;
+}
+
+.footer-gradient-light {
+  background: linear-gradient(
+    135deg,
+    #7689a9 0%,
+    #637694 25%,
+    #475464 50%,
+    #608fd7 75%,
+    #9da3b4 100%
   ) !important;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   position: relative;

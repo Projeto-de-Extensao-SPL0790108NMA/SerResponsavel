@@ -6,6 +6,13 @@ import type { ProjectWithRelations } from '@/stores/projects'
 import { useOrganizationsStore } from '@/stores/organizations'
 import type { Database } from '~~/database/types'
 
+type OrganizationOption = {
+  id: string
+  name: string
+  city?: string | null
+  state?: string | null
+}
+
 type ProjectStatus = Database['public']['Tables']['projects']['Row']['status']
 
 const props = defineProps<{
@@ -35,13 +42,16 @@ const supabase = useSupabaseClient<Database>()
 const organizationsStore = useOrganizationsStore()
 const { items: organizationCache } = storeToRefs(organizationsStore)
 
-const organizations = ref<Array<{ id: string; name: string }>>([])
+const organizations = ref<OrganizationOption[]>([])
 const organizationsLoading = ref(false)
 const coverInput = ref<File | File[] | null>(null)
 const coverFile = ref<File | null>(null)
 const coverPreview = ref<string | null>(null)
 const coverPreviewIsObjectUrl = ref(false)
 const removeCurrentCover = ref(false)
+
+const locationDirty = reactive({ city: false, state: false })
+const applyingOrganizationLocation = ref(false)
 
 const statusItems: Array<{ value: ProjectStatus; title: string }> = [
   { value: 'in-progress', title: 'Em progresso' },
@@ -54,11 +64,18 @@ const form = reactive({
   description: '',
   status: 'in-progress' as ProjectStatus,
   organizationId: organizationId.value ?? (null as string | null),
+  city: '',
+  state: '',
 })
 
-const errors = reactive<{ name?: string; slug?: string; organizationId?: string; cover?: string }>(
-  {},
-)
+const errors = reactive<{
+  name?: string
+  slug?: string
+  organizationId?: string
+  cover?: string
+  city?: string
+  state?: string
+}>({})
 const slugDirty = ref(false)
 
 const title = computed(() => (props.mode === 'create' ? 'Cadastrar projeto' : 'Editar projeto'))
@@ -85,6 +102,80 @@ const resetErrors = () => {
   errors.slug = undefined
   errors.organizationId = undefined
   errors.cover = undefined
+  errors.city = undefined
+  errors.state = undefined
+}
+
+const resetLocationDirty = () => {
+  locationDirty.city = false
+  locationDirty.state = false
+}
+
+const sanitizeUf = (value: string) =>
+  value
+    .replace(/[^a-zA-Z]/g, '')
+    .slice(0, 2)
+    .toUpperCase()
+
+const getOrganizationOption = (id: string | null | undefined) =>
+  id ? (organizations.value.find((org) => org.id === id) ?? null) : null
+
+const getOrganizationDetails = async (id: string) => {
+  const option = getOrganizationOption(id)
+  const hasAddress = option?.city && option?.state
+
+  if (hasAddress) {
+    return option
+  }
+
+  let organization = organizationsStore.getOrganization(id)
+  if (!organization) {
+    organization = await organizationsStore.fetchOrganization(id)
+  }
+
+  if (!organization) {
+    return option ?? null
+  }
+
+  const enriched: OrganizationOption = {
+    id: organization.id,
+    name: organization.name,
+    city: organization.address_city,
+    state: organization.address_state,
+  }
+
+  if (!option) {
+    organizations.value.push(enriched)
+  } else {
+    option.city = enriched.city
+    option.state = enriched.state
+  }
+
+  return enriched
+}
+
+const setLocationFromOrganization = async (
+  organizationId: string | null,
+  options: { force?: boolean } = {},
+) => {
+  if (!organizationId) return
+  const organization = await getOrganizationDetails(organizationId)
+  if (!organization) return
+
+  applyingOrganizationLocation.value = true
+  try {
+    if (options.force || !locationDirty.city) {
+      form.city = organization.city ?? ''
+      locationDirty.city = false
+    }
+
+    if (options.force || !locationDirty.state) {
+      form.state = sanitizeUf(organization.state ?? '')
+      locationDirty.state = false
+    }
+  } finally {
+    applyingOrganizationLocation.value = false
+  }
 }
 
 const setCoverPreview = (value: string | null, isObjectUrl = false) => {
@@ -97,6 +188,7 @@ const setCoverPreview = (value: string | null, isObjectUrl = false) => {
 
 const applyProjectToForm = (project: ProjectWithRelations | null | undefined) => {
   resetErrors()
+  resetLocationDirty()
 
   if (!project) {
     form.name = ''
@@ -104,11 +196,18 @@ const applyProjectToForm = (project: ProjectWithRelations | null | undefined) =>
     form.description = ''
     form.status = 'in-progress'
     form.organizationId = isSuperAdmin.value ? null : (organizationId.value ?? null)
+    applyingOrganizationLocation.value = true
+    form.city = ''
+    form.state = ''
+    applyingOrganizationLocation.value = false
     coverInput.value = null
     coverFile.value = null
     removeCurrentCover.value = false
     setCoverPreview(null)
     slugDirty.value = false
+    if (form.organizationId) {
+      void setLocationFromOrganization(form.organizationId, { force: true })
+    }
     return
   }
 
@@ -117,6 +216,12 @@ const applyProjectToForm = (project: ProjectWithRelations | null | undefined) =>
   form.description = project.description ?? ''
   form.status = project.status ?? 'in-progress'
   form.organizationId = project.organization_id ?? project.organization?.id ?? null
+  applyingOrganizationLocation.value = true
+  form.city = project.city ?? project.organization?.address_city ?? ''
+  form.state = sanitizeUf(project.state ?? project.organization?.address_state ?? '')
+  applyingOrganizationLocation.value = false
+  locationDirty.city = Boolean(project.city)
+  locationDirty.state = Boolean(project.state)
   coverInput.value = null
   coverFile.value = null
   removeCurrentCover.value = false
@@ -130,7 +235,7 @@ const loadOrganizations = async () => {
     if (isSuperAdmin.value) {
       const { data, error } = await supabase
         .from('organizations')
-        .select('id, name')
+        .select('id, name, address_city, address_state')
         .order('name', { ascending: true })
 
       if (error) {
@@ -139,10 +244,19 @@ const loadOrganizations = async () => {
         return
       }
 
-      organizations.value = data ?? []
+      organizations.value = (data ?? []).map((item) => ({
+        id: item.id,
+        name: item.name,
+        city: item.address_city,
+        state: item.address_state,
+      }))
 
       if (!form.organizationId && organizations.value.length > 0) {
         form.organizationId = organizations.value[0].id
+        resetLocationDirty()
+        void setLocationFromOrganization(form.organizationId, { force: true })
+      } else if (form.organizationId) {
+        void setLocationFromOrganization(form.organizationId, { force: false })
       }
 
       return
@@ -153,10 +267,23 @@ const loadOrganizations = async () => {
       const organization =
         cached ?? (await organizationsStore.fetchOrganization(organizationId.value))
 
-      organizations.value = organization ? [{ id: organization.id, name: organization.name }] : []
+      organizations.value = organization
+        ? [
+            {
+              id: organization.id,
+              name: organization.name,
+              city: organization.address_city,
+              state: organization.address_state,
+            },
+          ]
+        : []
 
       if (organization && !form.organizationId) {
         form.organizationId = organization.id
+        resetLocationDirty()
+        void setLocationFromOrganization(organization.id, { force: true })
+      } else if (form.organizationId) {
+        void setLocationFromOrganization(form.organizationId, { force: false })
       }
 
       return
@@ -164,6 +291,7 @@ const loadOrganizations = async () => {
 
     organizations.value = []
     form.organizationId = null
+    resetLocationDirty()
   } finally {
     organizationsLoading.value = false
   }
@@ -256,6 +384,39 @@ watch(
   },
 )
 
+watch(
+  () => form.organizationId,
+  (newId, oldId) => {
+    if (newId && newId !== oldId) {
+      resetLocationDirty()
+      void setLocationFromOrganization(newId, { force: true })
+    }
+  },
+)
+
+watch(
+  () => form.city,
+  () => {
+    if (applyingOrganizationLocation.value) return
+    locationDirty.city = true
+  },
+)
+
+watch(
+  () => form.state,
+  (value) => {
+    if (applyingOrganizationLocation.value) return
+    const sanitized = sanitizeUf(value)
+    if (sanitized !== value) {
+      applyingOrganizationLocation.value = true
+      form.state = sanitized
+      applyingOrganizationLocation.value = false
+      return
+    }
+    locationDirty.state = true
+  },
+)
+
 onMounted(() => {
   void loadOrganizations()
 })
@@ -299,6 +460,22 @@ const validate = () => {
     form.organizationId = resolvedOrganizationId
   }
 
+  if (!form.city.trim()) {
+    errors.city = 'Informe a cidade onde o projeto acontece'
+    isValid = false
+  }
+
+  const stateValue = sanitizeUf(form.state)
+  if (!stateValue) {
+    errors.state = 'Informe a UF (estado) do projeto'
+    isValid = false
+  } else if (stateValue.length !== 2) {
+    errors.state = 'Informe a UF com duas letras (ex: AM)'
+    isValid = false
+  } else {
+    form.state = stateValue
+  }
+
   return isValid
 }
 
@@ -311,6 +488,8 @@ const handleSubmit = () => {
     description: form.description.trim() ? form.description.trim() : undefined,
     status: form.status,
     organizationId: form.organizationId ?? organizationId.value ?? null,
+    city: form.city.trim(),
+    state: form.state.trim(),
     coverFile: coverFile.value,
     removeCover: removeCurrentCover.value,
   })
@@ -467,6 +646,26 @@ const selectedOrganizationLabel = computed(() => {
             rows="4"
             auto-grow
             prepend-inner-icon="mdi-text-long"
+          />
+        </v-col>
+
+        <v-col cols="12" md="8">
+          <v-text-field
+            v-model="form.city"
+            label="Cidade"
+            prepend-inner-icon="mdi-city"
+            :error-messages="errors.city ? [errors.city] : []"
+            required
+          />
+        </v-col>
+        <v-col cols="12" md="4">
+          <v-text-field
+            v-model="form.state"
+            label="UF"
+            prepend-inner-icon="mdi-map-marker"
+            maxlength="2"
+            :error-messages="errors.state ? [errors.state] : []"
+            required
           />
         </v-col>
       </v-row>

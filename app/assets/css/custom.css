@@ -187,6 +187,18 @@
   z-index: 1000 !important;
 }
 
+.navbar-color-light {
+  background: linear-gradient(
+    135deg,
+    #bac5d3 0%,
+    #75869a 25%,
+    #5b7ba4 50%,
+    #6f7786 75%,
+    #9ab7e0 100%
+  ) !important;
+  z-index: 1000 !important;
+}
+
 /* Application Backgrounds */
 .app-background {
   background:

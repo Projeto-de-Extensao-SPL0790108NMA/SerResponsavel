@@ -215,6 +215,17 @@ onMounted(async () => {
                 {{ project?.description || 'Sem descrição disponível' }}
               </v-list-item-subtitle>
 
+              <div class="text-caption text-grey-lighten-1 mt-1">
+                <v-icon icon="mdi-map-marker" size="14" class="me-1" />
+                <span>
+                  {{
+                    project?.city && project?.state
+                      ? `${project.city} / ${project.state}`
+                      : project?.city || project?.state || 'Localidade não informada'
+                  }}
+                </span>
+              </div>
+
               <ui-project-rating-display v-if="project?.id" :project-id="project.id" />
               <ui-project-comments v-if="project?.id" :project-id="project.id" class="mt-4" />
 

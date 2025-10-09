@@ -1,0 +1,2 @@
+-- Obsolete migration retained for ordering. Project comments are created in
+-- 20250706150000_project_comments_finalize.sql once projects and profiles tables exist.

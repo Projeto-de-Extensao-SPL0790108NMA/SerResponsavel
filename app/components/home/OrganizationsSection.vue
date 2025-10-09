@@ -362,9 +362,8 @@ const handleEditSubmit = async () => {
     editError.value = 'Você não possui permissão para editar organizações.'
     return
   }
-  if (!organizationForm.id) {
-    return
-  }
+
+  const isCreating = !organizationForm.id
 
   const name = organizationForm.name.trim()
   if (!name) {
@@ -400,7 +399,7 @@ const handleEditSubmit = async () => {
     const logoUrlToPersist =
       uploadedLogo?.url ?? (shouldRemove ? null : trimmedManualUrl || previousLogoUrl || null)
 
-    if (organizationForm.id) {
+    if (!isCreating) {
       const { error } = await supabase
         .from('organizations')
         .update({
@@ -440,9 +439,7 @@ const handleEditSubmit = async () => {
     }
 
     showSnackbar(
-      organizationForm.id
-        ? 'Organização atualizada com sucesso!'
-        : 'Organização criada com sucesso!',
+      isCreating ? 'Organização criada com sucesso!' : 'Organização atualizada com sucesso!',
     )
     closeEditDialog()
     await refreshProjectsCache()
@@ -812,7 +809,7 @@ onMounted(() => {
           />
 
           <v-row dense class="mb-1">
-            <v-col cols="12" md="6">
+            <v-col cols="12">
               <v-text-field
                 v-model="organizationForm.cep"
                 label="CEP"
@@ -828,10 +825,11 @@ onMounted(() => {
               >
                 <template #append>
                   <v-btn
-                    variant="text"
+                    variant="tonal"
                     size="small"
                     :loading="cepLookupLoading"
                     :disabled="isSubmitting"
+                    rounded
                     @click="handleCepLookup"
                   >
                     Buscar
@@ -839,7 +837,9 @@ onMounted(() => {
                 </template>
               </v-text-field>
             </v-col>
-            <v-col cols="12" md="6">
+          </v-row>
+          <v-row dense class="mb-1">
+            <v-col cols="12">
               <v-text-field
                 v-model="organizationForm.addressStreet"
                 label="Logradouro"

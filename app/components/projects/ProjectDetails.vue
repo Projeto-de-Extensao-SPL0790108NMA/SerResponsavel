@@ -76,6 +76,16 @@ const detailedMetadata = computed(() => [
     value: statusLabel.value,
   },
   {
+    icon: 'mdi-map-marker-outline',
+    label: 'Cidade',
+    value: props.project.city || 'Não informada',
+  },
+  {
+    icon: 'mdi-map-marker-radius',
+    label: 'UF',
+    value: props.project.state || 'Não informada',
+  },
+  {
     icon: 'mdi-calendar-clock',
     label: 'Criado em',
     value: formatDateTime(props.project.created_at),

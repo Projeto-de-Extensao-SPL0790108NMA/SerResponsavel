@@ -68,7 +68,12 @@ watch(dialog, (value) => {
 
 <template>
   <div>
-    <v-app-bar app fixed elevation="15" class="navbar-color">
+    <v-app-bar
+      app
+      fixed
+      elevation="15"
+      :class="isDarkTheme ? 'navbar-color' : 'navbar-color-light'"
+    >
       <v-container style="max-width: 1080px" class="d-flex align-center pa-0">
         <!-- Logo/Brand -->
         <div class="d-flex align-center">

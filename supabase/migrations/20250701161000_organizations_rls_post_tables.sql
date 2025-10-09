@@ -1,0 +1,2 @@
+-- Obsolete migration retained for ordering. See 20250924163000_organizations_address_rls_finalize.sql
+-- for the effective organizations RLS configuration.

@@ -158,12 +158,16 @@ export class ProjectsService {
     organization_id?: string | null
     cover_image_url?: string | null
     cover_image_path?: string | null
+    city?: string | null
+    state?: string | null
   }) {
     const payload = {
       ...project,
       organization_id: project.organization_id ?? null,
       cover_image_url: project.cover_image_url ?? null,
       cover_image_path: project.cover_image_path ?? null,
+      city: project.city ?? null,
+      state: project.state ?? null,
     }
 
     const { data, error } = await this.supabase

@@ -1,0 +1,2 @@
+-- Legacy migration kept for compatibility. Project city/UF columns are added in
+-- 20250701162000_projects_location_post_tables.sql once the projects table exists.

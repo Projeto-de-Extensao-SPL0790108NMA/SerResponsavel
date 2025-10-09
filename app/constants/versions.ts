@@ -16,6 +16,7 @@ export const versions: VersionInfo[] = [
       'Formulário de edição consulta a BrasilAPI pelo CEP, preenche logradouro/bairro/cidade/UF e salva no banco.',
       'Listagem e detalhes exibem o endereço formatado e permitem busca por esses campos.',
       'Histórico de versões ganhou ação “Ver mais/Ver menos”, com cores ajustadas para ambos os temas.',
+      'Projetos passam a registrar cidade/UF herdando o endereço da organização, com possibilidade de ajuste no cadastro.',
     ],
   },
   {

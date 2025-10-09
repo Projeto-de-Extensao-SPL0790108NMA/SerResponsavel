@@ -1,8 +1,3 @@
-alter table if exists public.organizations
-  add column if not exists cep text,
-  add column if not exists address_street text,
-  add column if not exists address_number text,
-  add column if not exists address_complement text,
-  add column if not exists address_neighborhood text,
-  add column if not exists address_city text,
-  add column if not exists address_state text;
+-- Legacy migration kept for compatibility. Address columns are added in
+-- 20250701161500_organizations_address_post_tables.sql and
+-- 20250924163000_organizations_address_rls_finalize.sql after the organizations table exists.

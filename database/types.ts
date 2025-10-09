@@ -254,6 +254,8 @@ export type Database = {
           id: number
           name: string
           organization_id: string | null
+          city: string | null
+          state: string | null
           slug: string
           status: Database['public']['Enums']['current_status']
         }
@@ -266,6 +268,8 @@ export type Database = {
           id?: never
           name: string
           organization_id?: string | null
+          city?: string | null
+          state?: string | null
           slug: string
           status?: Database['public']['Enums']['current_status']
         }
@@ -278,6 +282,8 @@ export type Database = {
           id?: never
           name?: string
           organization_id?: string | null
+          city?: string | null
+          state?: string | null
           slug?: string
           status?: Database['public']['Enums']['current_status']
         }

@@ -39,6 +39,8 @@ const mapToProjectWithRelations = (
 
   return {
     ...base,
+    city: base.city ?? organization?.address_city ?? null,
+    state: base.state ?? organization?.address_state ?? null,
     organization,
     tasks,
     ratingSummary: ratingSummary ?? rating_summary ?? null,

@@ -23,6 +23,8 @@ type ProjectFormPayload = {
   organizationId?: string | null
   coverFile?: File | null
   removeCover?: boolean
+  city?: string | null
+  state?: string | null
 }
 
 type ProjectMutationPayload = {
@@ -34,6 +36,8 @@ type ProjectMutationPayload = {
   collaborators?: string[]
   cover_image_url?: string | null
   cover_image_path?: string | null
+  city?: string | null
+  state?: string | null
 }
 
 const statusLabelMap: Record<ProjectStatusFilter, string> = {
@@ -70,6 +74,7 @@ const baseTableHeaders = [
   { key: 'name', title: 'Projeto', sortable: true },
   { key: 'description', title: 'Descrição', sortable: false, align: 'justify' },
   { key: 'organization', title: 'Organização', sortable: false },
+  { key: 'location', title: 'Localidade', sortable: false },
   { key: 'created_at', title: 'Criado em', sortable: true },
   { key: 'actions', title: 'Ações', sortable: false },
 ]
@@ -204,6 +209,12 @@ const handleProjectSubmit = async (payload: ProjectFormPayload) => {
     organization_id: projectData.organizationId ?? null,
   }
 
+  const trimmedCity = projectData.city?.trim() ?? null
+  const trimmedState = projectData.state?.trim().toUpperCase() ?? null
+
+  basePayload.city = trimmedCity
+  basePayload.state = trimmedState
+
   if (projectData.description !== undefined) {
     basePayload.description = projectData.description
   }
@@ -316,7 +327,9 @@ const filteredProjects = computed(() => {
     const nameMatch = project.name?.toLowerCase().includes(query)
     const descriptionMatch = project.description?.toLowerCase().includes(query)
     const organizationMatch = project.organization?.name?.toLowerCase().includes(query)
-    return Boolean(nameMatch || descriptionMatch || organizationMatch)
+    const cityMatch = project.city?.toLowerCase().includes(query)
+    const stateMatch = project.state?.toLowerCase().includes(query)
+    return Boolean(nameMatch || descriptionMatch || organizationMatch || cityMatch || stateMatch)
   })
 })
 
@@ -359,6 +372,15 @@ const shouldShowDescriptionMore = (description?: string | null) =>
 const formatDate = (dateString?: string | null) => {
   if (!dateString) return 'Não informado'
   return new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short' }).format(new Date(dateString))
+}
+
+const formatProjectLocation = (project: ProjectWithRelations) => {
+  if (project.city && project.state) {
+    return `${project.city} / ${project.state}`
+  }
+  if (project.city) return project.city
+  if (project.state) return project.state
+  return 'Não informado'
 }
 
 watch(activeTab, (status) => {
@@ -497,6 +519,12 @@ onMounted(() => {
             />
 
             <span>{{ item.organization?.name ?? 'Sem organização' }}</span>
+          </template>
+
+          <template #[`item.location`]="{ item }">
+            <span class="text-body-2">
+              {{ formatProjectLocation(item) }}
+            </span>
           </template>
 
           <template #[`item.created_at`]="{ item }">
