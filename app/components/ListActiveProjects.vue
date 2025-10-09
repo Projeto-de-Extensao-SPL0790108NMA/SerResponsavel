@@ -216,6 +216,7 @@ onMounted(async () => {
               </v-list-item-subtitle>
 
               <ui-project-rating-display v-if="project?.id" :project-id="project.id" />
+              <ui-project-comments v-if="project?.id" :project-id="project.id" class="mt-4" />
 
               <template #prepend>
                 <v-avatar class="me-3" size="52" rounded="lg">

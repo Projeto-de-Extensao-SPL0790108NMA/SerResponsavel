@@ -2,15 +2,18 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '~~/database/types'
 import { throwServiceError } from '@/utils/serviceLogger'
 import type { ProjectRatingSummary } from '@/services/projectRatings.service'
+import type { ProjectCommentSummary } from '@/services/projectComments.service'
 
 type ProjectRow = Database['public']['Tables']['projects']['Row']
 type OrganizationRow = Database['public']['Tables']['organizations']['Row']
 type RatingSummaryRow = Database['public']['Views']['project_rating_summaries']['Row']
+type CommentSummaryRow = Database['public']['Views']['project_comment_summaries']['Row']
 
 type ProjectWithFeedbackRow = {
   project: ProjectRow | null
   organization: OrganizationRow | null
   rating_summary: RatingSummaryRow | null
+  comment_summary: CommentSummaryRow | null
 }
 
 export class ProjectsService {
@@ -53,6 +56,23 @@ export class ProjectsService {
     }
   }
 
+  private normalizeCommentSummary(
+    projectId: number | null | undefined,
+    summary: CommentSummaryRow | null,
+  ): ProjectCommentSummary | null {
+    if (!Number.isFinite(projectId) || !summary) {
+      return null
+    }
+
+    const total = typeof summary.total === 'number' ? summary.total : Number(summary.total ?? 0)
+
+    return {
+      projectId: projectId as number,
+      total,
+      latestCommentAt: summary.latest_comment_at ?? null,
+    }
+  }
+
   async getProjects(status?: 'in-progress' | 'completed' | 'all') {
     const statusFilter = status && status !== 'all' ? status : null
 
@@ -74,11 +94,13 @@ export class ProjectsService {
         }
 
         const ratingSummary = this.normalizeRatingSummary(project.id, row.rating_summary)
+        const commentSummary = this.normalizeCommentSummary(project.id, row.comment_summary)
 
         return {
           ...project,
           organization: row.organization ?? null,
           ratingSummary,
+          commentSummary,
         }
       })
       .filter(
@@ -87,6 +109,7 @@ export class ProjectsService {
         ): entry is ProjectRow & {
           organization: OrganizationRow | null
           ratingSummary: ProjectRatingSummary | null
+          commentSummary: ProjectCommentSummary | null
         } => Boolean(entry),
       )
   }

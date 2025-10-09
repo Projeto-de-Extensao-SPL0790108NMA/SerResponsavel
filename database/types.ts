@@ -8,6 +8,14 @@ export type Database = {
   }
   public: {
     Views: {
+      project_comment_summaries: {
+        Row: {
+          latest_comment_at: string | null
+          project_id: number
+          total: number
+        }
+        Relationships: []
+      }
       project_rating_summaries: {
         Row: {
           average: number
@@ -164,6 +172,57 @@ export type Database = {
           },
         ]
       }
+      project_comments: {
+        Row: {
+          author_name: string | null
+          client_fingerprint: string
+          committed: boolean
+          content: string
+          created_at: string
+          id: string
+          profile_id: string | null
+          project_id: number
+          updated_at: string
+        }
+        Insert: {
+          author_name?: string | null
+          client_fingerprint: string
+          committed?: boolean
+          content: string
+          created_at?: string
+          id?: string
+          profile_id?: string | null
+          project_id: number
+          updated_at?: string
+        }
+        Update: {
+          author_name?: string | null
+          client_fingerprint?: string
+          committed?: boolean
+          content?: string
+          created_at?: string
+          id?: string
+          profile_id?: string | null
+          project_id?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'project_comments_profile_id_fkey'
+            columns: ['profile_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'project_comments_project_id_fkey'
+            columns: ['project_id']
+            isOneToOne: false
+            referencedRelation: 'projects'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       projects: {
         Row: {
           collaborators: string[]
@@ -275,6 +334,7 @@ export type Database = {
           project: Json
           organization: Json | null
           rating_summary: Json | null
+          comment_summary: Json | null
         }[]
       }
     }

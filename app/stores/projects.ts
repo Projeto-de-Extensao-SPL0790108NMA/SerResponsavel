@@ -1,8 +1,10 @@
 import { computed, reactive, ref } from 'vue'
 import { useProjectRatingsStore } from '@/stores/projectRatings'
+import { useProjectCommentsStore } from '@/stores/projectComments'
 import type { Database } from '~~/database/types'
 import type { RealtimeChannel } from '@supabase/supabase-js'
 import type { ProjectRatingSummary } from '@/services/projectRatings.service'
+import type { ProjectCommentSummary } from '@/services/projectComments.service'
 
 type ProjectRow = Database['public']['Tables']['projects']['Row']
 type OrganizationRow = Database['public']['Tables']['organizations']['Row']
@@ -12,6 +14,7 @@ export type ProjectWithRelations = ProjectRow & {
   organization?: OrganizationRow | null
   tasks?: TaskRow[] | null
   ratingSummary?: ProjectRatingSummary | null
+  commentSummary?: ProjectCommentSummary | null
 }
 export type Projects = ProjectWithRelations[]
 export type ProjectStatusFilter = 'all' | 'in-progress' | 'completed'
@@ -26,9 +29,12 @@ const mapToProjectWithRelations = (
     tasks = null,
     ratingSummary = null,
     rating_summary = null,
+    commentSummary = null,
+    comment_summary = null,
     ...base
   } = project as ProjectWithRelations & {
     rating_summary?: ProjectRatingSummary | null
+    comment_summary?: ProjectCommentSummary | null
   }
 
   return {
@@ -36,6 +42,7 @@ const mapToProjectWithRelations = (
     organization,
     tasks,
     ratingSummary: ratingSummary ?? rating_summary ?? null,
+    commentSummary: commentSummary ?? comment_summary ?? null,
   }
 }
 
@@ -64,6 +71,7 @@ export const useProjectsStore = defineStore(
     const projectsSubscription = ref<RealtimeChannel | null>(null)
     const currentProjectSubscription = ref<RealtimeChannel | null>(null)
     const projectRatingsStore = useProjectRatingsStore()
+    const projectCommentsStore = useProjectCommentsStore()
 
     const {
       getProjects,
@@ -196,9 +204,10 @@ export const useProjectsStore = defineStore(
 
         const mappedProjects = (data ?? []).map(mapToProjectWithRelations)
         projectRatingsStore.ingestSummariesFromProjects(mappedProjects)
+        projectCommentsStore.ingestSummariesFromProjects(mappedProjects)
         const projectIds = mappedProjects
           .map((project) => project.id)
-          .filter((id): id is number => true)
+          .filter((id): id is number => typeof id === 'number')
 
         if (projectIds.length) {
           void projectRatingsStore.loadUserRatingsForProjects(projectIds)
@@ -235,6 +244,7 @@ export const useProjectsStore = defineStore(
         currentProject.value = mapped
         if (mapped) {
           projectRatingsStore.ingestSummariesFromProjects([mapped])
+          projectCommentsStore.ingestSummariesFromProjects([mapped])
           void projectRatingsStore.fetchSummariesForProjects([mapped.id], { force: true })
           void projectRatingsStore.loadUserRatingsForProjects([mapped.id])
           void projectRatingsStore.loadUserReactionsForProjects([mapped.id])
@@ -276,6 +286,7 @@ export const useProjectsStore = defineStore(
         lastFetch.value = Date.now()
         syncProjectInCaches(mappedProject)
         projectRatingsStore.ingestSummariesFromProjects([mappedProject])
+        projectCommentsStore.ingestSummariesFromProjects([mappedProject])
         void projectRatingsStore.fetchSummariesForProjects([mappedProject.id], { force: true })
         void projectRatingsStore.loadUserRatingsForProjects([mappedProject.id])
         void projectRatingsStore.loadUserReactionsForProjects([mappedProject.id])
@@ -333,6 +344,7 @@ export const useProjectsStore = defineStore(
         lastFetch.value = Date.now()
         syncProjectInCaches(mappedProject)
         projectRatingsStore.ingestSummariesFromProjects([mappedProject])
+        projectCommentsStore.ingestSummariesFromProjects([mappedProject])
         void projectRatingsStore.fetchSummariesForProjects([mappedProject.id], { force: true })
         void projectRatingsStore.loadUserRatingsForProjects([mappedProject.id])
         void projectRatingsStore.loadUserReactionsForProjects([mappedProject.id])
@@ -369,6 +381,7 @@ export const useProjectsStore = defineStore(
 
         removeProjectFromCaches(id)
         projectRatingsStore.removeSummary(id)
+        projectCommentsStore.clearProject(id)
 
         if (currentProject.value?.id === id) {
           currentProject.value = null
