@@ -3,7 +3,7 @@ import { computed, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { usePreferencesStore } from '@/stores/preferences'
 import type { UserRole } from '@/types/UserRole'
-import { useProfile } from '@/composables/useProfile'
+// import { useProfile } from '@/composables/useProfile'
 
 const authStore = useAuthStore()
 const { profile, role } = storeToRefs(authStore)
@@ -13,7 +13,7 @@ const preferencesStore = usePreferencesStore()
 const { theme } = storeToRefs(preferencesStore)
 const organizationsStore = useOrganizationsStore()
 
-const { updateProfile } = useProfile()
+// const { updateProfile } = useProfile()
 
 const themeLoading = ref(false)
 const themeError = ref('')
@@ -84,22 +84,13 @@ const handleThemeChange = async (value: boolean) => {
     return
   }
 
-  const previousMode = theme.value
-  preferencesStore.setTheme(newMode)
   themeLoading.value = true
   themeError.value = ''
 
   try {
-    const { error } = await updateProfile({ mode: newMode })
-
-    if (error) {
-      preferencesStore.setTheme(previousMode)
-      themeError.value = 'Não foi possível atualizar o tema. Tente novamente.'
-      console.error('Failed to update theme preference:', error)
-      return
-    }
+    // A nova store já faz a sincronização automaticamente
+    await preferencesStore.setTheme(newMode)
   } catch (error) {
-    preferencesStore.setTheme(previousMode)
     themeError.value = 'Não foi possível atualizar o tema. Tente novamente.'
     console.error('Failed to update theme preference:', error)
   } finally {

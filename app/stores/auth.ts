@@ -43,6 +43,12 @@ export const useAuthStore = defineStore(
     const updateProfile = (updates: Partial<Profile>) => {
       if (profile.value) {
         profile.value = { ...profile.value, ...updates }
+
+        // Se o tema foi atualizado, sincronizar com as preferências
+        if (updates.mode) {
+          const preferencesStore = usePreferencesStore()
+          preferencesStore.initializeTheme(updates.mode as ThemeMode)
+        }
       }
     }
 

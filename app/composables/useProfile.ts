@@ -81,6 +81,7 @@ export const useProfile = () => {
           full_name: fullName,
           avatar_url: avatarUrl,
           role: 'member',
+          mode: 'dark', // Tema padrão para novos usuários
         })
         .select('*')
         .single()

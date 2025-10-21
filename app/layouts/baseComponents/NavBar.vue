@@ -18,12 +18,12 @@ const themeToggleTooltip = computed(() =>
   isDarkTheme.value ? 'Ativar tema claro' : 'Ativar tema escuro',
 )
 
-const toggleTheme = () => {
-  preferencesStore.toggleTheme()
+const toggleTheme = async () => {
+  await preferencesStore.toggleTheme()
 }
 
-const handleThemeSwitch = (value: boolean) => {
-  preferencesStore.setTheme(value ? 'dark' : 'light')
+const handleThemeSwitch = async (value: boolean) => {
+  await preferencesStore.setTheme(value ? 'dark' : 'light')
 }
 
 // Reactive store refs
