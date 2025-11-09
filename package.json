@@ -63,7 +63,13 @@
   "pnpm": {
     "overrides": {
       "esbuild": ">=0.25.0"
-    }
+    },
+    "onlyBuiltDependencies": [
+      "@parcel/watcher",
+      "esbuild",
+      "sharp",
+      "unrs-resolver"
+    ]
   },
   "packageManager": "pnpm@10.13.1+sha512.37ebf1a5c7a30d5fabe0c5df44ee8da4c965ca0c5af3dbab28c3a1681b70a256218d05c81c9c0dcf767ef6b8551eb5b960042b9ed4300c59242336377e01cfad",
   "devDependencies": {
@@ -73,7 +79,7 @@
     "@nuxt/test-utils": "^3.20.1",
     "@vitest/ui": "^3.2.4",
     "@vue/test-utils": "^2.4.6",
-    "esbuild": "^0.25.9",
+    "esbuild": "^0.26.0",
     "eslint-config-prettier": "^10.1.8",
     "happy-dom": "^20.0.2",
     "husky": "^9.1.7",
